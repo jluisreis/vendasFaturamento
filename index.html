@@ -1,0 +1,1754 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Painel Gerencial – Nobre Lar</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
+
+    :root {
+      --bg: #0f1117;
+      --sur: #181c27;
+      --sur2: #1e2333;
+      --bor: #2a3050;
+      --bl: #3b82f6;
+      --gr: #10b981;
+      --ye: #f59e0b;
+      --re: #ef4444;
+      --or: #f97316;
+      --pu: #8b5cf6;
+      --pi: #ec4899;
+      --cy: #06b6d4;
+      --li: #84cc16;
+      --tx: #e8eaf0;
+      --tx2: #8892aa;
+      --tx3: #556080;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--tx);
+      min-height: 100vh
+    }
+
+    .hdr {
+      background: var(--sur);
+      border-bottom: 1px solid var(--bor);
+      padding: 0 22px;
+      height: 54px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 200
+    }
+
+    .logo {
+      width: 32px;
+      height: 32px;
+      background: #e8612c;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 800;
+      color: #fff;
+      flex-shrink: 0
+    }
+
+    .hdr-info {
+      flex: 1
+    }
+
+    .hdr-t {
+      font-size: 13px;
+      font-weight: 600
+    }
+
+    .hdr-s {
+      font-size: 9px;
+      color: var(--tx3)
+    }
+
+    .hbtn {
+      background: transparent;
+      border: 1px solid var(--bor);
+      color: var(--tx2);
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-family: inherit;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all .15s;
+      white-space: nowrap
+    }
+
+    .hbtn:hover {
+      border-color: var(--bl);
+      color: var(--bl)
+    }
+
+    .spin {
+      display: inline-block
+    }
+
+    .hbtn.loading .spin {
+      animation: spin 1s linear infinite
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    .src-tag {
+      font-size: 9px;
+      padding: 2px 8px;
+      border-radius: 20px;
+      border: 1px solid var(--bor);
+      color: var(--tx3);
+      white-space: nowrap
+    }
+
+    .src-tag.live {
+      border-color: var(--gr);
+      color: var(--gr)
+    }
+
+    .upd {
+      font-size: 9px;
+      color: var(--tx3);
+      white-space: nowrap
+    }
+
+    .tabs-bar {
+      background: var(--sur2);
+      border-bottom: 1px solid var(--bor);
+      padding: 0 22px;
+      display: flex
+    }
+
+    .tab {
+      padding: 10px 18px;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--tx3);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all .15s;
+      user-select: none
+    }
+
+    .tab:hover {
+      color: var(--tx)
+    }
+
+    .tab.active {
+      color: var(--tx);
+      border-bottom-color: var(--bl);
+      font-weight: 600
+    }
+
+    .fbar {
+      background: var(--sur);
+      border-bottom: 1px solid var(--bor);
+      padding: 8px 22px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap
+    }
+
+    .flbl {
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--tx3);
+      text-transform: uppercase;
+      letter-spacing: .07em
+    }
+
+    .fi {
+      background: var(--sur2);
+      border: 1px solid var(--bor);
+      color: var(--tx);
+      padding: 5px 8px;
+      border-radius: 5px;
+      font-size: 10px;
+      font-family: inherit;
+      outline: none;
+      cursor: pointer
+    }
+
+    .fi:focus {
+      border-color: var(--bl)
+    }
+
+    .fi option {
+      background: var(--sur2)
+    }
+
+    .rbtn {
+      background: transparent;
+      border: 1px solid var(--bor);
+      color: var(--tx3);
+      padding: 5px 10px;
+      border-radius: 5px;
+      font-size: 10px;
+      font-family: inherit;
+      cursor: pointer
+    }
+
+    .rbtn:hover {
+      border-color: #e8612c;
+      color: #e8612c
+    }
+
+    .rcnt {
+      font-size: 9px;
+      color: var(--tx3);
+      margin-left: auto
+    }
+
+    .loading-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 60vh;
+      gap: 16px;
+      color: var(--tx3)
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--bor);
+      border-top-color: var(--bl);
+      border-radius: 50%;
+      animation: spin 1s linear infinite
+    }
+
+    .loading-msg {
+      font-size: 13px
+    }
+
+    .error-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 60vh;
+      gap: 14px;
+      text-align: center;
+      padding: 24px
+    }
+
+    .error-icon {
+      font-size: 48px
+    }
+
+    .error-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--re)
+    }
+
+    .error-msg {
+      font-size: 13px;
+      color: var(--tx2);
+      max-width: 500px;
+      line-height: 1.7
+    }
+
+    .error-url {
+      background: var(--sur2);
+      border: 1px solid var(--bor);
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-size: 11px;
+      color: var(--tx2);
+      font-family: monospace;
+      word-break: break-all;
+      max-width: 500px
+    }
+
+    .setup-btn {
+      background: var(--bl);
+      border: none;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-family: inherit;
+      cursor: pointer;
+      font-weight: 600
+    }
+
+    .tab-panel {
+      display: none;
+      padding: 18px 22px;
+      flex-direction: column;
+      gap: 16px
+    }
+
+    .tab-panel.active {
+      display: flex
+    }
+
+    .slbl {
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--tx3);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      margin-bottom: 8px
+    }
+
+    .kg {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 8px
+    }
+
+    .kc {
+      background: var(--sur);
+      border: 1px solid var(--bor);
+      border-radius: 9px;
+      padding: 12px 12px 10px;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform .1s;
+      --cc: #999
+    }
+
+    .kc:hover {
+      transform: translateY(-1px)
+    }
+
+    .kc.active {
+      border-color: var(--cc)
+    }
+
+    .kc::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--cc)
+    }
+
+    .kc-i {
+      font-size: 15px;
+      margin-bottom: 5px
+    }
+
+    .kc-v {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--cc);
+      line-height: 1
+    }
+
+    .kc-l {
+      font-size: 8px;
+      font-weight: 600;
+      color: var(--tx3);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-top: 3px
+    }
+
+    .kc-p {
+      font-size: 8px;
+      color: var(--tx3);
+      margin-top: 2px
+    }
+
+    .fat-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px
+    }
+
+    .fat-card {
+      background: var(--sur);
+      border: 1px solid var(--bor);
+      border-radius: 10px;
+      padding: 18px 20px;
+      position: relative;
+      overflow: hidden;
+      --cc: var(--gr)
+    }
+
+    .fat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--cc)
+    }
+
+    .fat-label {
+      font-size: 9px;
+      font-weight: 600;
+      color: var(--tx3);
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      margin-bottom: 6px
+    }
+
+    .fat-value {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--cc);
+      line-height: 1
+    }
+
+    .fat-sub {
+      font-size: 10px;
+      color: var(--tx2);
+      margin-top: 4px
+    }
+
+    .cc {
+      background: var(--sur);
+      border: 1px solid var(--bor);
+      border-radius: 9px;
+      padding: 16px
+    }
+
+    .cc-t {
+      font-size: 11px;
+      font-weight: 600;
+      margin-bottom: 2px
+    }
+
+    .cc-s {
+      font-size: 9px;
+      color: var(--tx3);
+      margin-bottom: 14px
+    }
+
+    .row2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px
+    }
+
+    .row3 {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 12px
+    }
+
+    .bar-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 9px
+    }
+
+    .bar-lbl {
+      font-size: 9px;
+      color: var(--tx2);
+      flex-shrink: 0
+    }
+
+    .bar-w {
+      flex: 1;
+      height: 22px;
+      background: var(--sur2);
+      border-radius: 3px;
+      overflow: hidden
+    }
+
+    .bar-f {
+      height: 100%;
+      border-radius: 3px;
+      display: flex;
+      align-items: center;
+      padding: 0 7px;
+      transition: width .6s cubic-bezier(.4, 0, .2, 1)
+    }
+
+    .bar-fv {
+      font-size: 9px;
+      font-weight: 700;
+      color: #fff
+    }
+
+    .mc {
+      width: 100%;
+      height: 160px
+    }
+
+    .dw {
+      display: flex;
+      align-items: center;
+      gap: 16px
+    }
+
+    .dl {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1
+    }
+
+    .dr {
+      display: flex;
+      align-items: center;
+      gap: 6px
+    }
+
+    .dd {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      flex-shrink: 0
+    }
+
+    .dl-l {
+      font-size: 9px;
+      color: var(--tx2);
+      flex: 1
+    }
+
+    .dl-v {
+      font-size: 9px;
+      font-weight: 600
+    }
+
+    .dl-p {
+      font-size: 8px;
+      color: var(--tx3);
+      width: 28px;
+      text-align: right
+    }
+
+    .tc {
+      background: var(--sur);
+      border: 1px solid var(--bor);
+      border-radius: 9px;
+      overflow: hidden
+    }
+
+    .th {
+      padding: 12px 16px 10px;
+      border-bottom: 1px solid var(--bor);
+      display: flex;
+      align-items: center;
+      gap: 10px
+    }
+
+    .th-t {
+      font-size: 11px;
+      font-weight: 600
+    }
+
+    .ts {
+      background: var(--sur2);
+      border: 1px solid var(--bor);
+      color: var(--tx);
+      padding: 5px 8px;
+      border-radius: 5px;
+      font-size: 10px;
+      font-family: inherit;
+      width: 170px;
+      outline: none
+    }
+
+    .ts:focus {
+      border-color: var(--bl)
+    }
+
+    .ts::placeholder {
+      color: var(--tx3)
+    }
+
+    .tw {
+      overflow-x: auto;
+      max-height: 280px;
+      overflow-y: auto
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 10px
+    }
+
+    th {
+      background: var(--sur2);
+      padding: 8px 12px;
+      text-align: left;
+      font-size: 8px;
+      font-weight: 600;
+      color: var(--tx3);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      border-bottom: 1px solid var(--bor);
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap
+    }
+
+    th:hover {
+      color: var(--tx)
+    }
+
+    td {
+      padding: 7px 12px;
+      border-bottom: 1px solid #1a1f2e;
+      color: var(--tx2);
+      white-space: nowrap
+    }
+
+    tr:hover td {
+      background: var(--sur2);
+      color: var(--tx)
+    }
+
+    .bdg {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 20px;
+      font-size: 8px;
+      font-weight: 700;
+      text-transform: uppercase
+    }
+
+    .tfoot {
+      padding: 8px 16px;
+      border-top: 1px solid var(--bor);
+      font-size: 9px;
+      color: var(--tx3);
+      display: flex;
+      align-items: center;
+      gap: 10px
+    }
+
+    .pag {
+      display: flex;
+      gap: 2px;
+      margin-left: auto
+    }
+
+    .pb {
+      background: var(--sur2);
+      border: 1px solid var(--bor);
+      color: var(--tx2);
+      width: 24px;
+      height: 24px;
+      border-radius: 3px;
+      font-size: 9px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: inherit
+    }
+
+    .pb:hover,
+    .pb.active {
+      background: var(--bl);
+      border-color: var(--bl);
+      color: #fff
+    }
+
+    .city-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 10px
+    }
+
+    .city-table th {
+      background: var(--sur2);
+      padding: 7px 10px;
+      text-align: left;
+      font-size: 8px;
+      font-weight: 600;
+      color: var(--tx3);
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--bor)
+    }
+
+    .city-table td {
+      padding: 6px 10px;
+      border-bottom: 1px solid #1a1f2e;
+      color: var(--tx2)
+    }
+
+    .city-table tr:hover td {
+      background: var(--sur2);
+      color: var(--tx)
+    }
+
+    .rota-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 10px
+    }
+
+    .rota-card {
+      background: var(--sur);
+      border: 1px solid var(--bor);
+      border-radius: 9px;
+      padding: 14px;
+      position: relative;
+      overflow: hidden
+    }
+
+    .rota-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--rc, var(--bl))
+    }
+
+    .rota-nome {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--tx);
+      margin-bottom: 6px;
+      line-height: 1.4
+    }
+
+    .rota-val {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--rc, var(--bl))
+    }
+
+    .rota-prev {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 8px;
+      font-weight: 700;
+      text-transform: uppercase
+    }
+
+    .ABAIXO {
+      background: #ef444422;
+      color: #ef4444
+    }
+
+    .SEXTA {
+      background: #10b98122;
+      color: #10b981
+    }
+
+    .EM_ANALISE {
+      background: #f59e0b22;
+      color: #f59e0b
+    }
+
+    .rota-cross {
+      margin-top: 10px;
+      border-top: 1px solid var(--bor);
+      padding-top: 8px
+    }
+
+    .rota-cross-t {
+      font-size: 8px;
+      color: var(--tx3);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 5px
+    }
+
+    .rota-cross-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 3px
+    }
+
+    .rota-cross-lbl {
+      font-size: 8px;
+      color: var(--tx2);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 130px
+    }
+
+    .rota-cross-val {
+      font-size: 8px;
+      font-weight: 600;
+      color: var(--tx)
+    }
+
+    .ov {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .72);
+      z-index: 300;
+      align-items: center;
+      justify-content: center
+    }
+
+    .ov.open {
+      display: flex
+    }
+
+    .modal {
+      background: var(--sur);
+      border: 1px solid var(--bor);
+      border-radius: 12px;
+      padding: 26px;
+      max-width: 700px;
+      width: 92%;
+      max-height: 90vh;
+      overflow-y: auto
+    }
+
+    .modal-t {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 5px
+    }
+
+    .modal-s {
+      font-size: 11px;
+      color: var(--tx2);
+      margin-bottom: 18px;
+      line-height: 1.6
+    }
+
+    .step {
+      background: var(--sur2);
+      border: 1px solid var(--bor);
+      border-radius: 7px;
+      padding: 13px 15px;
+      margin-bottom: 10px
+    }
+
+    .step-n {
+      font-size: 9px;
+      font-weight: 700;
+      color: #e8612c;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 4px
+    }
+
+    .step-t {
+      font-size: 11px;
+      color: var(--tx2);
+      line-height: 1.6
+    }
+
+    pre.code {
+      background: #0d1117;
+      border: 1px solid var(--bor);
+      border-radius: 5px;
+      padding: 12px;
+      font-size: 9px;
+      color: #e8eaf0;
+      overflow-x: auto;
+      margin-top: 8px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      word-break: break-all
+    }
+
+    .url-row {
+      display: flex;
+      gap: 7px;
+      margin-top: 8px
+    }
+
+    .url-inp {
+      flex: 1;
+      background: #0d1117;
+      border: 1px solid var(--bor);
+      color: var(--tx);
+      padding: 6px 10px;
+      border-radius: 5px;
+      font-size: 10px;
+      font-family: inherit;
+      outline: none
+    }
+
+    .url-inp:focus {
+      border-color: var(--bl)
+    }
+
+    .save-btn {
+      background: var(--bl);
+      border: none;
+      color: #fff;
+      padding: 6px 14px;
+      border-radius: 5px;
+      font-size: 10px;
+      font-family: inherit;
+      cursor: pointer;
+      font-weight: 600;
+      white-space: nowrap
+    }
+
+    .mc-btn {
+      background: var(--sur2);
+      border: 1px solid var(--bor);
+      color: var(--tx);
+      padding: 7px 18px;
+      border-radius: 5px;
+      font-size: 11px;
+      font-family: inherit;
+      cursor: pointer;
+      margin-top: 14px;
+      float: right
+    }
+
+    .gas-fb {
+      font-size: 9px;
+      color: var(--gr);
+      margin-top: 5px;
+      display: none
+    }
+
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--bor);
+      border-radius: 2px
+    }
+
+    @media(max-width:1100px) {
+      .kg {
+        grid-template-columns: repeat(4, 1fr)
+      }
+
+      .row2,
+      .row3,
+      .fat-row {
+        grid-template-columns: 1fr
+      }
+    }
+
+    @media(max-width:600px) {
+      .kg {
+        grid-template-columns: repeat(2, 1fr)
+      }
+
+      .tab-panel {
+        padding: 12px 14px
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="hdr">
+    <div class="logo">NL</div>
+    <div class="hdr-info">
+      <div class="hdr-t">Painel Gerencial — Nobre Lar</div>
+      <div class="hdr-s">Vendas · Faturamento · Entregas · Rotas</div>
+    </div>
+    <button class="hbtn" id="syncBtn" onclick="syncGAS()"><span class="spin">↻</span> Sincronizar</button>
+    <button class="hbtn" onclick="openModal()">⚙ Apps Script</button>
+    <span class="src-tag" id="srcTag">Sem dados</span>
+    <span class="upd" id="upd"></span>
+  </header>
+
+  <div class="tabs-bar">
+    <div class="tab active" onclick="switchTab(0)">📊 Resumo de Pedidos</div>
+    <div class="tab" onclick="switchTab(1)">💰 Faturamento & Entregas</div>
+  </div>
+
+  <div class="fbar">
+    <span class="flbl">De:</span>
+    <input type="date" id="fFrom" class="fi" onchange="applyFilters()">
+    <span class="flbl">Até:</span>
+    <input type="date" id="fTo" class="fi" onchange="applyFilters()">
+    <select id="fVend" class="fi" onchange="applyFilters()">
+      <option value="">Todos Vendedores</option>
+    </select>
+    <select id="fNivel" class="fi" onchange="applyFilters()">
+      <option value="">Todos Níveis</option>
+      <option value="NORMAL">Normal</option>
+      <option value="URGENTE">Urgente</option>
+      <option value="RETIRADA">Retirada</option>
+      <option value="CARRO HORARIO">Carro Horário</option>
+    </select>
+    <button class="rbtn" onclick="resetFilters()">✕ Limpar</button>
+    <span class="rcnt" id="rcnt"></span>
+  </div>
+
+  <div class="tab-panel active" id="tab0">
+    <div id="tab0-content">
+      <div class="loading-screen">
+        <div class="spinner" style="display:none"></div>
+        <div class="loading-msg">Configure o Apps Script para carregar os dados</div>
+        <button class="setup-btn" onclick="openModal()">⚙ Configurar Apps Script</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="tab1">
+    <div id="tab1-content">
+      <div class="loading-screen">
+        <div class="loading-msg">Sincronize para ver o faturamento</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL -->
+  <div class="ov" id="modal">
+    <div class="modal">
+      <div class="modal-t">⚙️ Integração com Google Apps Script</div>
+      <div class="modal-s">Configure a URL do Apps Script para que o dashboard consuma os dados <b>diretamente da sua
+          planilha</b> em tempo real. Nenhum dado fica gravado neste arquivo HTML.</div>
+      <div class="step">
+        <div class="step-n">Passo 1 — Cole este código no Apps Script</div>
+        <div class="step-t">Abra sua planilha → Extensões → Apps Script → substitua o código:</div>
+        <pre class="code">const SHEET_VENDAS = "Vendas";
+const SHEET_ROTAS  = "Rotas";
+
+function doGet(e) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const shV = ss.getSheetByName(SHEET_VENDAS);
+  const dataV = shV.getDataRange().getValues();
+  const hV = dataV[0].map(h => String(h).trim().toUpperCase());
+
+  function col(n){ return hV.indexOf(n); }
+  const iNIV=col("NIVEL ENTREGA"),iLOJ=col("LOJA"),iPED=col("PEDIDO"),
+        iVAL=col("VALOR DO PEDIDO"),iLOG=col("LOGISTICA"),iDAT=col("DATA"),
+        iVEN=col("VENDEDOR"),iFAT=col("FATURAMENTO"),
+        iDHF=col("DATA/HORA FATURAMENTO"),iCID=col("CIDADE"),
+        iEND=col("ENTREGUE DATA"),iENH=col("ENTREGUE HORA");
+
+  const fmtD = v => v instanceof Date
+    ? Utilities.formatDate(v,"America/Sao_Paulo","yyyy-MM-dd") : String(v||"").trim();
+  const fmtDH = v => {
+    if(!v) return "";
+    if(v instanceof Date)
+      return Utilities.formatDate(v,"America/Sao_Paulo","yyyy-MM-dd HH:mm:ss");
+    const s=String(v).trim();
+    return(s.includes("NÃO")||s.includes("MEXER"))?"":s;
+  };
+  const cleanVal = v => {
+    const s=String(v||"").replace(/R\$\s*/g,"").replace(/\./g,"").replace(",",".").trim();
+    return isNaN(parseFloat(s))?0:parseFloat(s);
+  };
+
+  const records=[];
+  for(let r=1;r<dataV.length;r++){
+    const row=dataV[r];
+    const log=String(row[iLOG]||"").trim().toUpperCase();
+    if(!log) continue;
+    records.push({
+      DATA:fmtD(row[iDAT]),LOG:log,
+      NIV:String(row[iNIV]||"").trim().toUpperCase(),
+      VEND:String(row[iVEN]||"DESCONHECIDO").trim().toUpperCase(),
+      VAL:cleanVal(row[iVAL]),
+      CID:String(row[iCID]||"").trim().toUpperCase(),
+      PED:String(row[iPED]||"").trim(),
+      LOJA:String(row[iLOJ]||"").trim(),
+      FAT:String(row[iFAT]||"").trim(),
+      FAT_DH:fmtDH(row[iDHF]),
+      END:fmtD(row[iEND]),
+      ENH:String(row[iENH]||"").trim(),
+    });
+  }
+
+  const shR=ss.getSheetByName(SHEET_ROTAS);
+  const dataR=shR?shR.getDataRange().getValues():[];
+  const routes=[];
+  for(let r=1;r<dataR.length;r++){
+    const row=dataR[r];
+    const nome=String(row[0]||"").trim();
+    if(!nome||nome.includes("=")) continue;
+    const cross={};
+    [7,8,9,10,11].forEach(c=>{
+      const key=String(dataR[1]?.[c]||"").trim();
+      const val=cleanVal(row[c]);
+      if(key&&val>0) cross[key]=val;
+    });
+    routes.push({nome,val:cleanVal(row[1]),prev:String(row[2]||"").trim(),cross});
+  }
+
+  const out=ContentService.createTextOutput(JSON.stringify({
+    ok:true,lastUpdate:new Date().toISOString(),
+    total:records.length,records,routes
+  }));
+  out.setMimeType(ContentService.MimeType.JSON);
+  return out;
+}</pre>
+      </div>
+      <div class="step">
+        <div class="step-n">Passo 2 — Publicar como Web App</div>
+        <div class="step-t">Implantar → Nova implantação → <b>App da Web</b><br>
+          Executar como: <b>Eu</b> · Acesso: <b>Qualquer pessoa</b> → Implantar → copie a URL.</div>
+      </div>
+      <div class="step">
+        <div class="step-n">Passo 3 — Cole a URL abaixo</div>
+        <div class="url-row">
+          <input type="text" id="gasUrlInp" class="url-inp" placeholder="https://script.google.com/macros/s/...">
+          <button class="save-btn" onclick="saveUrl()">Salvar e Sincronizar</button>
+        </div>
+        <div class="gas-fb" id="gasFb">✅ URL salva! Sincronizando...</div>
+      </div>
+      <button class="mc-btn" onclick="closeModal()">✕ Fechar</button>
+    </div>
+  </div>
+
+  <script>
+    // ── STATE ────────────────────────────────────────────────────────────
+    let allRecs = [], routes = [], filtered = [], filteredFat = [];
+    let gasUrl = localStorage.getItem('nlGasUrl') || '';
+    let activeSt = null;
+    let sortCols = { 0: { col: 'DATA', asc: false }, 1: { col: 'FAT_DH', asc: false } };
+    let pages = { 0: 1, 1: 1 };
+    const PS = 25;
+
+    const SC = {
+      'ENTREGA':    { c: '#3b82f6', i: '🚚' }, 'ENTREGUE':  { c: '#10b981', i: '✅' },
+      'RETIRADA':   { c: '#f97316', i: '🏪' }, 'PENDENCIA': { c: '#ef4444', i: '⚠️' },
+      'AGENDADA':   { c: '#f59e0b', i: '📅' }, 'VAI HOJE':  { c: '#8b5cf6', i: '⚡' },
+      'VAI AMANHÃ': { c: '#ec4899', i: '🌅' }, 'CARREGADO': { c: '#06b6d4', i: '🛣️' },
+      'PARCIAL':    { c: '#84cc16', i: '📦' }, 'CANCELADO': { c: '#6b7280', i: '❌' },
+    };
+    const RCOLS = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#f97316'];
+
+    // ── INIT ─────────────────────────────────────────────────────────────
+    function init() {
+      if (gasUrl) { document.getElementById('gasUrlInp').value = gasUrl; syncGAS(); }
+      else openModal();
+    }
+
+    function setUpd(iso) {
+      try { document.getElementById('upd').textContent = 'Atualizado: ' + new Date(iso).toLocaleString('pt-BR'); } catch (e) {}
+    }
+
+    // ── TABS ─────────────────────────────────────────────────────────────
+    function switchTab(i) {
+      document.querySelectorAll('.tab').forEach((t, j) => t.classList.toggle('active', j === i));
+      document.querySelectorAll('.tab-panel').forEach((p, j) => p.classList.toggle('active', j === i));
+    }
+
+    // ── SYNC ─────────────────────────────────────────────────────────────
+    async function syncGAS() {
+      if (!gasUrl) { openModal(); return; }
+      const btn = document.getElementById('syncBtn');
+      btn.classList.add('loading');
+      const loadHtml = '<div class="loading-screen"><div class="spinner"></div><div class="loading-msg">Carregando dados da planilha...</div></div>';
+      document.getElementById('tab0-content').innerHTML = loadHtml;
+      document.getElementById('tab1-content').innerHTML = loadHtml;
+      try {
+        const url = gasUrl + (gasUrl.includes('?') ? '&' : '?') + '_t=' + Date.now();
+        const resp = await fetch(url);
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        const d = await resp.json();
+        if (!d.ok) throw new Error('Resposta inválida do Apps Script');
+        allRecs = (d.records || []).map(r => ({
+          ...r,
+          LOG:  String(r.LOG  || r.LOGISTICA       || '').toUpperCase(),
+          NIV:  String(r.NIV  || r['NIVEL ENTREGA'] || '').toUpperCase(),
+          VEND: String(r.VEND || r.VENDEDOR         || 'DESCONHECIDO').toUpperCase(),
+          CID:  String(r.CID  || r.CIDADE           || '').toUpperCase(),
+          VAL:  parseFloat(r.VAL || r.VALOR || 0) || 0,
+        }));
+        routes = d.routes || [];
+        setUpd(d.lastUpdate || new Date().toISOString());
+        document.getElementById('srcTag').textContent = '🟢 Google Sheets ao vivo';
+        document.getElementById('srcTag').className = 'src-tag live';
+        populateVendedor();
+        applyFilters();
+      } catch (err) { showError(err.message); }
+      finally { btn.classList.remove('loading'); }
+    }
+
+    function showError(msg) {
+      const html = `<div class="error-screen">
+        <div class="error-icon">⚠️</div>
+        <div class="error-title">Erro ao sincronizar</div>
+        <div class="error-msg">${msg}<br><br>Verifique se a URL está correta e publicada com acesso <b>"Qualquer pessoa"</b>.</div>
+        <div class="error-url">${gasUrl || '(URL não configurada)'}</div>
+        <button class="setup-btn" onclick="openModal()">⚙ Reconfigurar</button>
+      </div>`;
+      document.getElementById('tab0-content').innerHTML = html;
+      document.getElementById('tab1-content').innerHTML = html;
+    }
+
+    function saveUrl() {
+      const v = document.getElementById('gasUrlInp').value.trim();
+      if (!v) return;
+      gasUrl = v; localStorage.setItem('nlGasUrl', v);
+      document.getElementById('gasFb').style.display = 'block';
+      closeModal(); syncGAS();
+    }
+
+    // ── FILTERS ──────────────────────────────────────────────────────────
+    function populateVendedor() {
+      const sel = document.getElementById('fVend'), cur = sel.value;
+      sel.innerHTML = '<option value="">Todos Vendedores</option>';
+      [...new Set(allRecs.map(r => r.VEND).filter(Boolean))].sort()
+        .forEach(v => { const o = document.createElement('option'); o.value = v; o.textContent = v; sel.appendChild(o); });
+      sel.value = cur;
+    }
+
+    function applyFilters() {
+      if (!allRecs.length) return;
+      const fF = document.getElementById('fFrom').value; // yyyy-MM-dd
+      const fT = document.getElementById('fTo').value;   // yyyy-MM-dd
+      const fV = document.getElementById('fVend').value;
+      const fN = document.getElementById('fNivel').value;
+      const s  = (document.getElementById('ts0') ? document.getElementById('ts0').value : '').toLowerCase();
+
+      filtered = allRecs.filter(r => {
+        // normDate converte dd-MM-yyyy → yyyy-MM-dd para comparação correta
+        const dataISO = normDate(r.DATA);
+        if (fF && dataISO && dataISO < fF) return false;
+        if (fT && dataISO && dataISO > fT) return false;
+        if (fV && r.VEND !== fV) return false;
+        if (fN && r.NIV !== fN) return false;
+        if (activeSt && r.LOG !== activeSt) return false;
+        if (s) {
+          const h = [r.DATA, r.VEND, r.LOG, r.NIV, r.CID, r.PED].join(' ').toLowerCase();
+          if (!h.includes(s)) return false;
+        }
+        return true;
+      });
+
+      // Aba faturamento: filtra SOMENTE registros com FAT_DH real, pela data de faturamento
+      filteredFat = allRecs.filter(r => {
+        if (!r.FAT_DH) return false;
+        // FAT_DH pode ser "dd-MM-yyyy HH:mm:ss" ou "yyyy-MM-dd HH:mm:ss"
+        const refISO = normDate(r.FAT_DH.slice(0, 10));
+        if (fF && refISO && refISO < fF) return false;
+        if (fT && refISO && refISO > fT) return false;
+        if (fV && r.VEND !== fV) return false;
+        if (fN && r.NIV  !== fN) return false;
+        return true;
+      });
+
+      document.getElementById('rcnt').textContent = filtered.length + ' registros';
+      pages[0] = 1; pages[1] = 1;
+      renderTab0(); renderTab1();
+    }
+
+    function resetFilters() {
+      ['fFrom', 'fTo', 'fVend', 'fNivel'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+      activeSt = null;
+      document.querySelectorAll('.kc').forEach(c => c.classList.remove('active'));
+      applyFilters();
+    }
+
+    function toggleSt(s, el) {
+      activeSt = (activeSt === s) ? null : s;
+      document.querySelectorAll('.kc').forEach(c => c.classList.remove('active'));
+      if (activeSt) el.classList.add('active');
+      applyFilters();
+    }
+
+    // ── TAB 0 ────────────────────────────────────────────────────────────
+    function renderTab0() {
+      const recs = filtered;
+      const kpis = {
+        entrega:    recs.filter(r => r.LOG === 'ENTREGA').length,
+        entregue:   recs.filter(r => r.LOG === 'ENTREGUE').length,
+        retirada:   recs.filter(r => r.LOG === 'RETIRADA').length,
+        pendencia:  recs.filter(r => r.LOG === 'PENDENCIA').length,
+        agendada:   recs.filter(r => r.LOG === 'AGENDADA').length,
+        vai_hoje:   recs.filter(r => r.LOG === 'VAI HOJE').length,
+        vai_amanha: recs.filter(r => r.LOG === 'VAI AMANHÃ').length,
+        em_rota:    recs.filter(r => r.LOG === 'CARREGADO').length,
+      };
+      const nivel = {};
+      ['NORMAL','URGENTE','RETIRADA','CARRO HORARIO'].forEach(n => nivel[n] = recs.filter(r => r.NIV === n).length);
+      const mt = {}, me = {};
+      recs.forEach(r => {
+        if (!r.DATA || r.DATA.length < 7) return;
+        const m = r.DATA.slice(0, 7);
+        mt[m] = (mt[m] || 0) + 1;
+        if (r.LOG === 'ENTREGUE') me[m] = (me[m] || 0) + 1;
+      });
+      const ve = {};
+      recs.filter(r => r.LOG === 'ENTREGUE').forEach(r => { ve[r.VEND] = (ve[r.VEND] || 0) + 1; });
+
+      document.getElementById('tab0-content').innerHTML = `
+        <div><div class="slbl">Status dos Pedidos</div><div class="kg" id="kpiRow"></div></div>
+        <div class="row2">
+          <div class="cc"><div class="cc-t">📦 Nível de Entrega</div><div class="cc-s">Distribuição por urgência</div><div id="nivelChart"></div></div>
+          <div class="cc"><div class="cc-t">📈 Evolução Mensal</div><div class="cc-s">Total pedidos vs. Entregues</div><div class="mc"><svg id="lineChart" viewBox="0 0 500 150" style="width:100%;height:100%"></svg></div></div>
+        </div>
+        <div class="row3">
+          <div class="cc"><div class="cc-t">🏆 Ranking Vendedores</div><div class="cc-s">Pedidos entregues por vendedor</div><div id="vendorChart"></div></div>
+          <div class="cc"><div class="cc-t">🔵 Distribuição de Status</div><div class="cc-s">Visão geral logístico</div><div class="dw" id="donutWrap"></div></div>
+        </div>
+        <div class="tc">
+          <div class="th"><span class="th-t">📋 Pedidos</span><input type="text" class="ts" id="ts0" placeholder="Buscar..." oninput="applyFilters()"><span class="rcnt" id="tcount0"></span></div>
+          <div class="tw"><table><thead><tr>
+            <th onclick="sortT(0,'DATA')">Data ↕</th><th onclick="sortT(0,'VEND')">Vendedor ↕</th>
+            <th onclick="sortT(0,'LOG')">Status ↕</th><th onclick="sortT(0,'NIV')">Nível ↕</th>
+            <th onclick="sortT(0,'CID')">Cidade ↕</th><th onclick="sortT(0,'VAL')">Valor ↕</th><th>Pedido</th>
+          </tr></thead><tbody id="tbody0"></tbody></table></div>
+          <div class="tfoot"><span id="pi0"></span><div class="pag" id="pag0"></div></div>
+        </div>`;
+
+      renderKPIs(kpis); renderNivel(nivel); renderLine(mt, me);
+      renderVendor(Object.fromEntries(Object.entries(ve).sort((a, b) => b[1] - a[1]).slice(0, 8)));
+      renderDonut(kpis); renderTable0();
+    }
+
+    function renderKPIs(kpis) {
+      const CARDS = [
+        { k:'entrega',    l:'A Entregar', i:'🚚', c:'#3b82f6', s:'ENTREGA'   },
+        { k:'entregue',   l:'Entregue',   i:'✅', c:'#10b981', s:'ENTREGUE'  },
+        { k:'retirada',   l:'Retirada',   i:'🏪', c:'#f97316', s:'RETIRADA'  },
+        { k:'pendencia',  l:'Pendência',  i:'⚠️', c:'#ef4444', s:'PENDENCIA' },
+        { k:'agendada',   l:'Agendada',   i:'📅', c:'#f59e0b', s:'AGENDADA'  },
+        { k:'vai_hoje',   l:'Vai Hoje',   i:'⚡', c:'#8b5cf6', s:'VAI HOJE'  },
+        { k:'vai_amanha', l:'Vai Amanhã', i:'🌅', c:'#ec4899', s:'VAI AMANHÃ'},
+        { k:'em_rota',    l:'Em Rota',    i:'🛣️', c:'#06b6d4', s:'CARREGADO' },
+      ];
+      const tot = Object.values(kpis).reduce((a, b) => a + b, 0) || 1;
+      const row = document.getElementById('kpiRow'); if (!row) return; row.innerHTML = '';
+      CARDS.forEach(c => {
+        const v = kpis[c.k] || 0;
+        const div = document.createElement('div');
+        div.className = 'kc'; div.style.setProperty('--cc', c.c);
+        div.innerHTML = `<div class="kc-i">${c.i}</div><div class="kc-v">${v.toLocaleString('pt-BR')}</div><div class="kc-l">${c.l}</div><div class="kc-p">${((v / tot) * 100).toFixed(1)}%</div>`;
+        div.onclick = () => toggleSt(c.s, div);
+        row.appendChild(div);
+      });
+    }
+
+    function renderNivel(nivel) {
+      const items = [
+        { k:'NORMAL',        l:'Normal',        c:'#3b82f6' },
+        { k:'URGENTE',       l:'Urgente',        c:'#ef4444' },
+        { k:'RETIRADA',      l:'Retirada',       c:'#f97316' },
+        { k:'CARRO HORARIO', l:'Carro Horário',  c:'#8b5cf6' },
+      ];
+      const max = Math.max(...items.map(i => nivel[i.k] || 0), 1);
+      const el = document.getElementById('nivelChart'); if (!el) return;
+      el.innerHTML = items.map(it => {
+        const v = nivel[it.k] || 0;
+        return `<div class="bar-row"><span class="bar-lbl" style="width:90px">${it.l}</span><div class="bar-w"><div class="bar-f" style="width:${Math.round(v/max*100)}%;background:${it.c}"><span class="bar-fv">${v}</span></div></div><span style="font-size:10px;font-weight:600;color:${it.c};width:36px;text-align:right">${v}</span></div>`;
+      }).join('');
+    }
+
+    function renderLine(tot, ent) {
+      const months = [...new Set([...Object.keys(tot), ...Object.keys(ent)])].sort();
+      if (!months.length) return;
+      const TV = months.map(m => tot[m] || 0), EV = months.map(m => ent[m] || 0);
+      const W = 500, H = 145, p = { t:16, r:16, b:26, l:36 };
+      const iW = W-p.l-p.r, iH = H-p.t-p.b, maxV = Math.max(...TV, 1);
+      const xS = i => p.l + (months.length > 1 ? iW / (months.length - 1) * i : iW / 2);
+      const yS = v => p.t + iH - (v / maxV) * iH;
+      const MO = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+      const grid = [...Array(4)].map((_, i) => { const y = p.t + (iH/3)*i; return `<line x1="${p.l}" y1="${y}" x2="${W-p.r}" y2="${y}" stroke="#2a3050" stroke-width="1"/><text x="${p.l-4}" y="${y+3}" text-anchor="end" font-size="7" fill="#556080">${Math.round(maxV*(1-i/3))}</text>`; }).join('');
+      const xl = months.map((m, i) => `<text x="${xS(i)}" y="${H-4}" text-anchor="middle" font-size="7" fill="#556080">${MO[parseInt(m.split('-')[1])-1]}</text>`).join('');
+      const area = `<path d="M${p.l},${p.t+iH} ${TV.map((v,i)=>`L${xS(i)},${yS(v)}`).join(' ')} L${p.l+iW},${p.t+iH} Z" fill="#3b82f610"/>`;
+      const pl = (vs, col, dash='') => `<polyline points="${vs.map((v,i)=>`${xS(i)},${yS(v)}`).join(' ')}" fill="none" stroke="${col}" stroke-width="2" ${dash} stroke-linejoin="round"/>`;
+      const dots = (vs, col) => vs.map((v,i) => `<circle cx="${xS(i)}" cy="${yS(v)}" r="3" fill="${col}" stroke="#181c27" stroke-width="1.5"/>`).join('');
+      const el = document.getElementById('lineChart'); if (!el) return;
+      el.innerHTML = grid + xl + area + pl(TV,'#3b82f6') + pl(EV,'#10b981','stroke-dasharray="5,3"') + dots(TV,'#3b82f6') + dots(EV,'#10b981') +
+        `<circle cx="40" cy="11" r="3" fill="#3b82f6"/><text x="46" y="14" font-size="7" fill="#8892aa">Total</text><circle cx="90" cy="11" r="3" fill="#10b981"/><text x="96" y="14" font-size="7" fill="#8892aa">Entregues</text>`;
+    }
+
+    function renderVendor(vo) {
+      const entries = Object.entries(vo).slice(0, 8);
+      const max = Math.max(...entries.map(e => e[1]), 1);
+      const cols = ['#10b981','#3b82f6','#f59e0b','#ec4899','#8b5cf6','#06b6d4','#f97316','#84cc16'];
+      const el = document.getElementById('vendorChart'); if (!el) return;
+      el.innerHTML = entries.map(([n, v], i) =>
+        `<div class="bar-row"><span class="bar-lbl" style="width:10px;color:var(--tx3)">${i+1}</span><span class="bar-lbl" style="width:85px" title="${n}">${n.length>13?n.slice(0,13)+'…':n}</span><div class="bar-w"><div class="bar-f" style="width:${Math.round(v/max*100)}%;background:${cols[i%8]}"><span class="bar-fv">${v}</span></div></div></div>`
+      ).join('');
+    }
+
+    function renderDonut(kpis) {
+      const items = [
+        {k:'entregue',l:'Entregue',c:'#10b981'},{k:'entrega',l:'A Entregar',c:'#3b82f6'},
+        {k:'retirada',l:'Retirada',c:'#f97316'},{k:'agendada',l:'Agendada',c:'#f59e0b'},
+        {k:'pendencia',l:'Pendência',c:'#ef4444'},{k:'vai_hoje',l:'Vai Hoje',c:'#8b5cf6'},
+        {k:'vai_amanha',l:'Vai Amanhã',c:'#ec4899'},{k:'em_rota',l:'Em Rota',c:'#06b6d4'},
+      ];
+      const tot = items.reduce((s, i) => s + (kpis[i.k] || 0), 0) || 1;
+      const R = 56, cx = 65, cy = 65; let a = -Math.PI/2, paths = '';
+      items.forEach(it => {
+        const v = kpis[it.k] || 0; if (!v) return;
+        const sw = v/tot*Math.PI*2 - .025;
+        const x1=cx+R*Math.cos(a),y1=cy+R*Math.sin(a),x2=cx+R*Math.cos(a+sw),y2=cy+R*Math.sin(a+sw);
+        paths += `<path d="M${cx},${cy} L${x1},${y1} A${R},${R} 0 ${sw>Math.PI?1:0},1 ${x2},${y2} Z" fill="${it.c}" opacity=".9"/>`;
+        a += v/tot*Math.PI*2;
+      });
+      const leg = items.filter(i => kpis[i.k] > 0).map(i =>
+        `<div class="dr"><div class="dd" style="background:${i.c}"></div><span class="dl-l">${i.l}</span><span class="dl-v">${kpis[i.k]||0}</span><span class="dl-p">${(((kpis[i.k]||0)/tot)*100).toFixed(0)}%</span></div>`
+      ).join('');
+      const el = document.getElementById('donutWrap'); if (!el) return;
+      el.innerHTML = `<svg width="130" height="130" viewBox="0 0 130 130" style="flex-shrink:0">${paths}<circle cx="${cx}" cy="${cy}" r="33" fill="#181c27"/><text x="${cx}" y="${cy-3}" text-anchor="middle" font-size="16" font-weight="700" fill="#e8eaf0">${tot}</text><text x="${cx}" y="${cy+13}" text-anchor="middle" font-size="7" fill="#556080">PEDIDOS</text></svg><div class="dl">${leg}</div>`;
+    }
+
+    function sortT(tab, col) {
+      if (sortCols[tab].col === col) sortCols[tab].asc = !sortCols[tab].asc;
+      else { sortCols[tab].col = col; sortCols[tab].asc = true; }
+      tab === 0 ? renderTable0() : renderFatTable();
+    }
+
+    function renderTable0() {
+      let recs = [...filtered];
+      const { col, asc } = sortCols[0];
+      recs.sort((a, b) => { let av = col==='VAL'?a.VAL||0:a[col]||'', bv = col==='VAL'?b.VAL||0:b[col]||''; return asc?(av<bv?-1:av>bv?1:0):(av>bv?-1:av<bv?1:0); });
+      const tot = recs.length, pg = Math.max(1, Math.ceil(tot / PS));
+      if (pages[0] > pg) pages[0] = pg;
+      const sl = recs.slice((pages[0]-1)*PS, pages[0]*PS);
+      const el = document.getElementById('tbody0'); if (!el) return;
+      el.innerHTML = sl.map(r => {
+        const cfg = SC[r.LOG] || { c:'#6b7280', i:'—' };
+        const v = r.VAL > 0 ? 'R$ ' + r.VAL.toLocaleString('pt-BR', { minimumFractionDigits:2 }) : '—';
+        return `<tr><td>${r.DATA||'—'}</td><td>${r.VEND||'—'}</td><td><span class="bdg" style="background:${cfg.c}22;color:${cfg.c}">${cfg.i} ${r.LOG}</span></td><td><span class="bdg" style="background:#2a305055;color:#8892aa">${r.NIV||'—'}</span></td><td>${r.CID||'—'}</td><td>${v}</td><td>${r.PED||'—'}</td></tr>`;
+      }).join('');
+      const tc=document.getElementById('tcount0'),pi=document.getElementById('pi0'),pag=document.getElementById('pag0');
+      if (tc) tc.textContent = tot+' registros'; if (pi) pi.textContent = `Pág ${pages[0]} de ${pg}`;
+      if (pag) renderPag(pag, pg, 0, renderTable0);
+    }
+
+    function renderPag(el, pg_tot, tabIdx, cb) {
+      el.innerHTML = '';
+      const p = pages[tabIdx];
+      const btn = (l, np, act, dis) => { const b=document.createElement('button'); b.className='pb'+(act?' active':''); b.textContent=l; b.disabled=dis; if(!dis) b.onclick=()=>{pages[tabIdx]=np;cb();}; el.appendChild(b); };
+      btn('‹', p-1, false, p===1);
+      const s=Math.max(1,p-2), e=Math.min(pg_tot,p+2);
+      if (s>1) { btn('1',1); if(s>2) btn('…',null,false,true); }
+      for (let pp=s; pp<=e; pp++) btn(pp, pp, pp===p);
+      if (e<pg_tot) { if(e<pg_tot-1) btn('…',null,false,true); btn(pg_tot,pg_tot); }
+      btn('›', p+1, false, p===pg_tot);
+    }
+
+    // ── TAB 1 — FATURAMENTO ──────────────────────────────────────────────
+    // Auxiliar: parse timestamp de faturamento "YYYY-MM-DD HH:MM:SS"
+    // Converte "dd-MM-yyyy" ou "yyyy-MM-dd" → "yyyy-MM-dd" para uso em Date()
+    function normDate(s) {
+      if (!s) return null;
+      s = String(s).trim();
+      // formato dd-MM-yyyy (vindo do Apps Script novo)
+      const m = s.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+      if (m) return `${m[3]}-${m[2]}-${m[1]}`;
+      // já está yyyy-MM-dd
+      if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10);
+      return null;
+    }
+
+    // Parse "dd-MM-yyyy HH:mm:ss" ou "yyyy-MM-dd HH:mm:ss" → Date
+    function parseTS(s) {
+      if (!s) return null;
+      try {
+        s = String(s).trim();
+        // dd-MM-yyyy HH:mm:ss
+        const m = s.match(/^(\d{2})-(\d{2})-(\d{4})\s+(\d{2}:\d{2}(?::\d{2})?)$/);
+        if (m) s = `${m[3]}-${m[2]}-${m[1]}T${m[4]}`;
+        else s = s.replace(' ', 'T');
+        const d = new Date(s);
+        return isNaN(d) ? null : d;
+      } catch(e) { return null; }
+    }
+
+    // Parse data "dd-MM-yyyy" ou "yyyy-MM-dd" + hora "HH:MM" ou "HH:MM:SS" → Date
+    function parseEntTS(data, hora) {
+      if (!data || !hora) return null;
+      try {
+        const nd = normDate(data);
+        if (!nd) return null;
+        const h = String(hora).trim();
+        const hh = h.length === 5 ? h + ':00' : h; // "09:05" → "09:05:00"
+        const d = new Date(`${nd}T${hh}`);
+        return isNaN(d) ? null : d;
+      } catch(e) { return null; }
+    }
+
+    // Diferença formatada: "X dia(s) HH:MM:SS" ou "HH:MM:SS"
+    function tdiff(fdh, ed, eh) {
+      const tf = parseTS(fdh);
+      const te = parseEntTS(ed, eh);
+      if (!tf || !te) return '—';
+      const totalSeg = Math.round((te - tf) / 1000);
+      if (isNaN(totalSeg) || totalSeg < 0) return '—';
+      const dias  = Math.floor(totalSeg / 86400);
+      const horas = Math.floor((totalSeg % 86400) / 3600);
+      const mins  = Math.floor((totalSeg % 3600) / 60);
+      const segs  = totalSeg % 60;
+      const hms   = `${String(horas).padStart(2,'0')}:${String(mins).padStart(2,'0')}:${String(segs).padStart(2,'0')}`;
+      return dias > 0 ? `${dias}d ${hms}` : hms;
+    }
+
+    function renderTab1() {
+      const recs = filteredFat; // somente registros COM FAT_DH no período
+
+      // ── KPIs de faturamento ─────────────────────────────────────────
+      // Soma SOMENTE pedidos com FAT_DH preenchido (já garantido pelo filteredFat)
+      const fatR   = recs.filter(r => r.VAL > 0);
+      const fatTot = fatR.reduce((s, r) => s + r.VAL, 0);
+      const fatCnt = fatR.length;
+      const fatAvg = fatCnt > 0 ? fatTot / fatCnt : 0;
+      const fF = document.getElementById('fFrom').value, fT = document.getElementById('fTo').value;
+      const periodoStr = (fF || fT)
+        ? `Período: ${fF||'início'} → ${fT||'hoje'} · ${recs.length} faturados`
+        : `${recs.length} pedidos com faturamento registrado`;
+
+      // ── Faturamento por status ───────────────────────────────────────
+      const fatStat = {};
+      recs.forEach(r => { if (r.VAL > 0) fatStat[r.LOG] = (fatStat[r.LOG] || 0) + r.VAL; });
+      const maxFS = Math.max(...Object.values(fatStat), 1);
+      const fsC = { 'ENTREGUE':'#10b981','RETIRADA':'#f97316','ENTREGA':'#3b82f6','AGENDADA':'#f59e0b','PENDENCIA':'#ef4444','PARCIAL':'#84cc16' };
+      const fatStatHtml = Object.entries(fatStat).sort((a,b)=>b[1]-a[1]).map(([k,v]) =>
+        `<div class="bar-row"><span class="bar-lbl" style="width:70px">${k}</span><div class="bar-w"><div class="bar-f" style="width:${Math.round(v/maxFS*100)}%;background:${fsC[k]||'#6b7280'}"><span class="bar-fv">R$ ${v.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span></div></div></div>`
+      ).join('') || '<p style="color:var(--tx3);font-size:11px;padding:8px 0">Sem valores no período</p>';
+
+      // ── Pedidos por cidade ───────────────────────────────────────────
+      const cityCnt = {};
+      recs.forEach(r => { const c = r.CID||'SEM CIDADE'; cityCnt[c] = (cityCnt[c]||0) + 1; });
+      const topC = Object.entries(cityCnt).sort((a,b)=>b[1]-a[1]).slice(0,10);
+      const maxC = Math.max(...topC.map(e=>e[1]), 1);
+      const ccols = ['#3b82f6','#10b981','#f59e0b','#8b5cf6','#f97316','#ec4899','#06b6d4','#84cc16','#ef4444','#6b7280'];
+      const cityHtml = topC.map(([c,v],i) =>
+        `<div class="bar-row"><span class="bar-lbl" style="width:100px" title="${c}">${c.length>13?c.slice(0,13)+'…':c}</span><div class="bar-w"><div class="bar-f" style="width:${Math.round(v/maxC*100)}%;background:${ccols[i%10]}"><span class="bar-fv">${v}</span></div></div></div>`
+      ).join('');
+
+      // ── Tabela de média por cidade com Nível de Entrega ─────────────
+      // Para cada cidade: total, entregues, taxa, e média de tempo FAT→ENT por nível
+      const cityStats = {}; // { cidade: { total, ent, deltas: { NORMAL:[], URGENTE:[], 'CARRO HORARIO':[] } } }
+      const NIVEIS = ['NORMAL','URGENTE','CARRO HORARIO'];
+
+      recs.forEach(r => {
+        const c = r.CID || 'SEM CIDADE';
+        if (!cityStats[c]) cityStats[c] = { total:0, ent:0, deltas:{ NORMAL:[], URGENTE:[], 'CARRO HORARIO':[] } };
+        cityStats[c].total++;
+        if (r.LOG === 'ENTREGUE') {
+          cityStats[c].ent++;
+          const tf = parseTS(r.FAT_DH);
+          const te = parseEntTS(r.END, r.ENH);
+          if (tf && te) {
+            const seg = Math.round((te - tf) / 1000); // segundos
+            if (seg > 0 && seg < 86400 * 7) {         // até 7 dias, ignora negativos
+              const niv = NIVEIS.includes(r.NIV) ? r.NIV : 'NORMAL';
+              cityStats[c].deltas[niv].push(seg);
+            }
+          }
+        }
+      });
+
+      const avgStr = (deltas) => {
+        if (!deltas || deltas.length === 0) return '<span style="color:var(--tx3)">—</span>';
+        const totalSeg = Math.round(deltas.reduce((a,b)=>a+b,0) / deltas.length);
+        const dias  = Math.floor(totalSeg / 86400);
+        const horas = Math.floor((totalSeg % 86400) / 3600);
+        const mins  = Math.floor((totalSeg % 3600) / 60);
+        const segs  = totalSeg % 60;
+        const hms   = `${String(horas).padStart(2,'0')}:${String(mins).padStart(2,'0')}:${String(segs).padStart(2,'0')}`;
+        const label = dias > 0 ? `${dias}d ${hms}` : hms;
+        return `<b>${label}</b> <span style="color:var(--tx3);font-size:8px">(${deltas.length})</span>`;
+      };
+
+      const allCities = Object.keys(cityStats).sort();
+      const cityAvgHtml = allCities.length
+        ? allCities.map(c => {
+            const st = cityStats[c];
+            const rate = st.total > 0 ? ((st.ent/st.total)*100).toFixed(1)+'%' : '—';
+            // Agrupa todos os deltas para média geral
+            const allD = [...st.deltas.NORMAL, ...st.deltas.URGENTE, ...st.deltas['CARRO HORARIO']];
+            return `<tr>
+              <td><b>${c}</b></td>
+              <td style="text-align:center">${st.total}</td>
+              <td style="text-align:center">${st.ent}</td>
+              <td style="text-align:center">${rate}</td>
+              <td style="text-align:center">${avgStr(st.deltas.NORMAL)}</td>
+              <td style="text-align:center">${avgStr(st.deltas.URGENTE)}</td>
+              <td style="text-align:center">${avgStr(st.deltas['CARRO HORARIO'])}</td>
+              <td style="text-align:center">${avgStr(allD)}</td>
+            </tr>`;
+          }).join('')
+        : `<tr><td colspan="8" style="color:var(--tx3);text-align:center;padding:14px">Sem dados com faturamento e entrega no período</td></tr>`;
+
+      // ── Rotas ────────────────────────────────────────────────────────
+      const rotaGrid = routes.map((r, i) => {
+        const cross = Object.entries(r.cross || {}).filter(([,v]) => v > 0);
+        const crossHtml = cross.length
+          ? `<div class="rota-cross"><div class="rota-cross-t">Distribuição</div>${cross.map(([k,v])=>`<div class="rota-cross-row"><span class="rota-cross-lbl" title="${k}">${k.length>20?k.slice(0,20)+'…':k}</span><span class="rota-cross-val">R$ ${v.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span></div>`).join('')}</div>` : '';
+        const pc = {'ABAIXO':'ABAIXO','EM ANALISE':'EM_ANALISE','SEXTA':'SEXTA'}[r.prev] || 'ABAIXO';
+        const pl = {'ABAIXO':'🔴 Abaixo da Meta','EM ANALISE':'🟡 Em Análise','SEXTA':'🟢 Prevista Sexta'}[r.prev] || r.prev || '—';
+        return `<div class="rota-card" style="--rc:${RCOLS[i%5]}"><div class="rota-nome">${r.nome}</div><div class="rota-val">R$ ${(r.val||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}</div><span class="rota-prev ${pc}">${pl}</span>${crossHtml}</div>`;
+      }).join('');
+
+      const allDests = [...new Set(routes.flatMap(r => Object.keys(r.cross || {})))];
+      const crossThead = `<thead><tr><th>Rota</th>${allDests.map(d=>`<th title="${d}">${d.length>14?d.slice(0,14)+'…':d}</th>`).join('')}<th>Total</th></tr></thead>`;
+      const crossBody = routes.map((r, i) => {
+        const cells = allDests.map(d => { const v = r.cross?.[d]||0; return `<td style="${v>0?'color:#e8eaf0;font-weight:600':''}">${v>0?'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2}):'—'}</td>`; }).join('');
+        return `<tr><td style="color:${RCOLS[i%5]};font-weight:600">${r.nome.length>28?r.nome.slice(0,28)+'…':r.nome}</td>${cells}<td style="font-weight:700;color:#e8eaf0">R$ ${(r.val||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}</td></tr>`;
+      }).join('');
+      const totRow = allDests.length
+        ? `<tr style="border-top:2px solid var(--bor)"><td style="font-weight:700;color:var(--tx3)">TOTAL</td>${allDests.map(d=>{const t=routes.reduce((s,r)=>s+(r.cross?.[d]||0),0);return`<td style="font-weight:700;color:var(--gr)">${t>0?'R$ '+t.toLocaleString('pt-BR',{minimumFractionDigits:2}):'—'}</td>`;}).join('')}<td style="font-weight:700;color:var(--gr)">R$ ${routes.reduce((s,r)=>s+(r.val||0),0).toLocaleString('pt-BR',{minimumFractionDigits:2})}</td></tr>` : '';
+
+      // ── Renderiza HTML da aba ────────────────────────────────────────
+      document.getElementById('tab1-content').innerHTML = `
+        <div>
+          <div class="slbl">Faturamento — referência: DATA/HORA FATURAMENTO</div>
+          <div class="fat-row">
+            <div class="fat-card" style="--cc:var(--gr)">
+              <div class="fat-label">💰 Faturamento Total</div>
+              <div class="fat-value">R$ ${fatTot.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
+              <div class="fat-sub">${periodoStr}</div>
+            </div>
+            <div class="fat-card" style="--cc:var(--bl)">
+              <div class="fat-label">📄 Pedidos Faturados</div>
+              <div class="fat-value">${recs.length.toLocaleString('pt-BR')}</div>
+              <div class="fat-sub">${fatCnt} com valor · ${recs.length - fatCnt} sem valor</div>
+            </div>
+            <div class="fat-card" style="--cc:var(--ye)">
+              <div class="fat-label">📊 Ticket Médio</div>
+              <div class="fat-value">R$ ${fatAvg.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
+              <div class="fat-sub">Sobre pedidos com valor registrado</div>
+            </div>
+          </div>
+        </div>
+        <div class="row2">
+          <div class="cc"><div class="cc-t">💵 Faturamento por Status</div><div class="cc-s">Soma dos valores por situação logística</div><div>${fatStatHtml}</div></div>
+          <div class="cc"><div class="cc-t">🏙️ Pedidos por Cidade</div><div class="cc-s">Top 10 cidades no período</div>${cityHtml}</div>
+        </div>
+        <div class="tc">
+          <div class="th">
+            <span class="th-t">🧾 Detalhes de Faturamento</span>
+            <input type="text" class="ts" id="ts1" placeholder="Buscar pedido, cidade..." oninput="renderFatTable()">
+            <span class="rcnt" id="tcount1"></span>
+          </div>
+          <div class="tw"><table><thead><tr>
+            <th>Pedido</th>
+            <th onclick="sortT(1,'NIV')">Nível ↕</th>
+            <th onclick="sortT(1,'FAT_DH')">Data Fat. ↕</th>
+            <th>Hora Fat.</th>
+            <th onclick="sortT(1,'END')">Data Entrega ↕</th>
+            <th>Hora Entrega</th>
+            <th>⏱ Fat→Ent</th>
+            <th onclick="sortT(1,'CID')">Cidade ↕</th>
+            <th onclick="sortT(1,'LOG')">Status ↕</th>
+            <th onclick="sortT(1,'VAL')">Valor ↕</th>
+          </tr></thead><tbody id="tbody1"></tbody></table></div>
+          <div class="tfoot"><span id="pi1"></span><div class="pag" id="pag1"></div></div>
+        </div>
+        <div class="cc">
+          <div class="cc-t">⏱️ Média de Tempo Fat→Entrega por Cidade e Nível</div>
+          <div class="cc-s">Calculado somente sobre pedidos ENTREGUES com DATA/HORA FATURAMENTO e hora de entrega preenchidas · seções vazias são ignoradas</div>
+          <div style="overflow-x:auto">
+            <table class="city-table">
+              <thead><tr>
+                <th>Cidade</th>
+                <th style="text-align:center">Total Fat.</th>
+                <th style="text-align:center">Entregues</th>
+                <th style="text-align:center">Taxa</th>
+                <th style="text-align:center">⏱ Normal</th>
+                <th style="text-align:center">⏱ Urgente</th>
+                <th style="text-align:center">⏱ Carro Horário</th>
+                <th style="text-align:center">⏱ Média Geral</th>
+              </tr></thead>
+              <tbody>${cityAvgHtml}</tbody>
+            </table>
+          </div>
+        </div>
+        <div>
+          <div class="slbl">Previsão por Rota</div>
+          <div class="rota-grid">${rotaGrid || '<p style="color:var(--tx3);font-size:11px">Nenhuma rota carregada.</p>'}</div>
+        </div>
+        ${allDests.length ? `<div class="cc"><div class="cc-t">🗺️ Tabela Cruzada de Rotas</div><div class="cc-s">Valor dos pedidos por destino</div><div style="overflow-x:auto"><table class="city-table">${crossThead}<tbody>${crossBody}${totRow}</tbody></table></div></div>` : ''}`;
+
+      renderFatTable();
+    }
+
+    function renderFatTable() {
+      const s = (document.getElementById('ts1')?.value || '').toLowerCase();
+      let recs = [...filteredFat]; // já filtrados com FAT_DH obrigatório
+      if (s) recs = recs.filter(r => [r.PED, r.CID, r.LOG, r.FAT_DH, r.VEND, r.NIV].join(' ').toLowerCase().includes(s));
+      const { col, asc } = sortCols[1];
+      recs.sort((a, b) => {
+        let av = col==='VAL'?a.VAL||0:a[col]||'', bv = col==='VAL'?b.VAL||0:b[col]||'';
+        return asc ? (av<bv?-1:av>bv?1:0) : (av>bv?-1:av<bv?1:0);
+      });
+      const tot = recs.length, pg = Math.max(1, Math.ceil(tot/PS));
+      if (pages[1] > pg) pages[1] = pg;
+      const sl = recs.slice((pages[1]-1)*PS, pages[1]*PS);
+
+      const NIV_COLOR = { 'URGENTE':'#ef4444', 'CARRO HORARIO':'#8b5cf6', 'NORMAL':'#3b82f6', 'RETIRADA':'#f97316' };
+      const el = document.getElementById('tbody1'); if (!el) return;
+      el.innerHTML = sl.map(r => {
+        const cfg = SC[r.LOG] || { c:'#6b7280', i:'—' };
+        const nc  = NIV_COLOR[r.NIV] || '#6b7280';
+        const ds  = tdiff(r.FAT_DH, r.END, r.ENH);
+        const dsHtml = ds !== '—'
+          ? `<span style="color:#10b981;font-weight:600;font-size:11px">${ds}</span>`
+          : '<span style="color:var(--tx3)">—</span>';
+        return `<tr>
+          <td>${r.PED||'—'}</td>
+          <td><span class="bdg" style="background:${nc}22;color:${nc}">${r.NIV||'—'}</span></td>
+          <td>${r.FAT_DH?r.FAT_DH.slice(0,10):'—'}</td>
+          <td>${r.FAT_DH&&r.FAT_DH.length>10?r.FAT_DH.slice(11,16):'—'}</td>
+          <td>${r.END||'—'}</td>
+          <td>${r.ENH||'—'}</td>
+          <td>${dsHtml}</td>
+          <td>${r.CID||'—'}</td>
+          <td><span class="bdg" style="background:${cfg.c}22;color:${cfg.c}">${cfg.i} ${r.LOG}</span></td>
+          <td>${r.VAL>0?'R$ '+r.VAL.toLocaleString('pt-BR',{minimumFractionDigits:2}):'—'}</td>
+        </tr>`;
+      }).join('');
+      const tc=document.getElementById('tcount1'), pi=document.getElementById('pi1'), pag=document.getElementById('pag1');
+      if (tc) tc.textContent = tot+' registros';
+      if (pi) pi.textContent = `Pág ${pages[1]} de ${pg}`;
+      if (pag) renderPag(pag, pg, 1, renderFatTable);
+    }
+
+    // ── MODAL ─────────────────────────────────────────────────────────────
+    function openModal()  { document.getElementById('modal').classList.add('open'); }
+    function closeModal() { document.getElementById('modal').classList.remove('open'); }
+    document.getElementById('modal').addEventListener('click', e => {
+      if (e.target === document.getElementById('modal')) closeModal();
+    });
+
+    // ── START ─────────────────────────────────────────────────────────────
+    init();
+    // ── MODAL ─────────────────────────────────────────────────────────────
+    function openModal() { document.getElementById('modal').classList.add('open'); }
+    function closeModal() { document.getElementById('modal').classList.remove('open'); }
+    document.getElementById('modal').addEventListener('click', e => { if (e.target === document.getElementById('modal')) closeModal(); });
+
+    // ── START ─────────────────────────────────────────────────────────────
+    init();
+  </script>
+</body>
+
+</html>
