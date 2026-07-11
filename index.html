@@ -982,7 +982,6 @@
       <div class="hdr-s">Vendas · Faturamento · Entregas · Rotas</div>
     </div>
     <button class="hbtn" id="syncBtn" onclick="syncGAS()"><span class="spin">[R]</span> Sincronizar</button>
-    <button class="hbtn" onclick="openModal()">[G] Apps Script</button>
     <span class="src-tag" id="srcTag">Sem dados</span>
     <span class="upd" id="upd"></span>
   </header>
@@ -1014,9 +1013,8 @@
   <div class="tab-panel active" id="tab0">
     <div id="tab0-content">
       <div class="loading-screen">
-        <div class="spinner" style="display:none"></div>
-        <div class="loading-msg">Configure o Apps Script para carregar os dados</div>
-        <button class="setup-btn" onclick="openModal()">[G] Configurar Apps Script</button>
+        <div class="spinner"></div>
+        <div class="loading-msg">Conectando com a planilha...</div>
       </div>
     </div>
   </div>
@@ -1132,29 +1130,30 @@ function doGet(e) {
   <script>
     // -- STATE ----------------------------------------------------------
     let allRecs = [], routes = [], filtered = [], filteredFat = [];
-    let gasUrl = localStorage.getItem('nlGasUrl') || '';
+    // ── URL DO APPS SCRIPT — altere aqui quando necessário ──────────
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbz-xP_cPiXAhKl5waSWAAxVThON70KKIr8DY2RgydXyjhCOAEOrX-StrAvYqyJx2FA/exec';
+    let gasUrl = GAS_URL;
     let activeSt = null;
     let sortCols = { 0: { col: 'DATA', asc: false }, 1: { col: 'FAT_DH', asc: false } };
     let pages = { 0: 1, 1: 1 };
     const PS = 25;
 
     const SC = {
-      'ENTREGA':    { c: '#3b82f6', i: '[T]' }, 'ENTREGUE':  { c: '#10b981', i: '[C]' },
-      'RETIRADA':   { c: '#f97316', i: '[R]' }, 'PENDENCIA': { c: '#ef4444', i: '[!]' },
-      'AGENDADA':   { c: '#f59e0b', i: '[D]' }, 'VAI HOJE':  { c: '#8b5cf6', i: '[L]' },
+      'ENTREGA': { c: '#3b82f6', i: '[T]' }, 'ENTREGUE': { c: '#10b981', i: '[C]' },
+      'RETIRADA': { c: '#f97316', i: '[R]' }, 'PENDENCIA': { c: '#ef4444', i: '[!]' },
+      'AGENDADA': { c: '#f59e0b', i: '[D]' }, 'VAI HOJE': { c: '#8b5cf6', i: '[L]' },
       'VAI AMANHA': { c: '#ec4899', i: '[M]' }, 'CARREGADO': { c: '#06b6d4', i: '[S]' },
-      'PARCIAL':    { c: '#84cc16', i: '[P]' }, 'CANCELADO': { c: '#6b7280', i: '[X]' },
+      'PARCIAL': { c: '#84cc16', i: '[P]' }, 'CANCELADO': { c: '#6b7280', i: '[X]' },
     };
     const RCOLS = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#f97316'];
 
     // -- INIT -----------------------------------------------------------
     function init() {
-      if (gasUrl) { document.getElementById('gasUrlInp').value = gasUrl; syncGAS(); }
-      else openModal();
+      syncGAS(); // URL fixa no código — sincroniza automaticamente
     }
 
     function setUpd(iso) {
-      try { document.getElementById('upd').textContent = 'Atualizado: ' + new Date(iso).toLocaleString('pt-BR'); } catch (e) {}
+      try { document.getElementById('upd').textContent = 'Atualizado: ' + new Date(iso).toLocaleString('pt-BR'); } catch (e) { }
     }
 
     // -- TABS -----------------------------------------------------------
@@ -1165,7 +1164,7 @@ function doGet(e) {
 
     // -- SYNC -----------------------------------------------------------
     async function syncGAS() {
-      if (!gasUrl) { openModal(); return; }
+      if (!gasUrl) { showError('URL do Apps Script não configurada.'); return; }
       const btn = document.getElementById('syncBtn');
       btn.classList.add('loading');
       const loadHtml = '<div class="loading-screen"><div class="spinner"></div><div class="loading-msg">Carregando dados da planilha...</div></div>';
@@ -1179,11 +1178,11 @@ function doGet(e) {
         if (!d.ok) throw new Error('Resposta inválida do Apps Script');
         allRecs = (d.records || []).map(r => ({
           ...r,
-          LOG:  String(r.LOG  || r.LOGISTICA       || '').toUpperCase(),
-          NIV:  String(r.NIV  || r['NIVEL ENTREGA'] || '').toUpperCase(),
-          VEND: String(r.VEND || r.VENDEDOR         || 'DESCONHECIDO').toUpperCase(),
-          CID:  String(r.CID  || r.CIDADE           || '').toUpperCase(),
-          VAL:  parseFloat(r.VAL || r.VALOR || 0) || 0,
+          LOG: String(r.LOG || r.LOGISTICA || '').toUpperCase(),
+          NIV: String(r.NIV || r['NIVEL ENTREGA'] || '').toUpperCase(),
+          VEND: String(r.VEND || r.VENDEDOR || 'DESCONHECIDO').toUpperCase(),
+          CID: String(r.CID || r.CIDADE || '').toUpperCase(),
+          VAL: parseFloat(r.VAL || r.VALOR || 0) || 0,
         }));
         routes = d.routes || [];
         setUpd(d.lastUpdate || new Date().toISOString());
@@ -1201,7 +1200,6 @@ function doGet(e) {
         <div class="error-title">Erro ao sincronizar</div>
         <div class="error-msg">${msg}<br><br>Verifique se a URL está correta e publicada com acesso <b>"Qualquer pessoa"</b>.</div>
         <div class="error-url">${gasUrl || '(URL não configurada)'}</div>
-        <button class="setup-btn" onclick="openModal()">[G] Reconfigurar</button>
       </div>`;
       document.getElementById('tab0-content').innerHTML = html;
       document.getElementById('tab1-content').innerHTML = html;
@@ -1210,7 +1208,7 @@ function doGet(e) {
     function saveUrl() {
       const v = document.getElementById('gasUrlInp').value.trim();
       if (!v) return;
-      gasUrl = v; localStorage.setItem('nlGasUrl', v);
+      gasUrl = v;
       document.getElementById('gasFb').style.display = 'block';
       closeModal(); syncGAS();
     }
@@ -1230,7 +1228,7 @@ function doGet(e) {
       const fT = document.getElementById('fTo').value;
       const fV = document.getElementById('fVend').value;
       const fN = document.getElementById('fNivel').value;
-      const s  = (document.getElementById('ts0') ? document.getElementById('ts0').value : '').toLowerCase();
+      const s = (document.getElementById('ts0') ? document.getElementById('ts0').value : '').toLowerCase();
 
       filtered = allRecs.filter(r => {
         const dataISO = normDate(r.DATA);
@@ -1252,7 +1250,7 @@ function doGet(e) {
         if (fF && refISO && refISO < fF) return false;
         if (fT && refISO && refISO > fT) return false;
         if (fV && r.VEND !== fV) return false;
-        if (fN && r.NIV  !== fN) return false;
+        if (fN && r.NIV !== fN) return false;
         return true;
       });
 
@@ -1279,17 +1277,17 @@ function doGet(e) {
     function renderTab0() {
       const recs = filtered;
       const kpis = {
-        entrega:    recs.filter(r => r.LOG === 'ENTREGA').length,
-        entregue:   recs.filter(r => r.LOG === 'ENTREGUE').length,
-        retirada:   recs.filter(r => r.LOG === 'RETIRADA').length,
-        pendencia:  recs.filter(r => r.LOG === 'PENDENCIA').length,
-        agendada:   recs.filter(r => r.LOG === 'AGENDADA').length,
-        vai_hoje:   recs.filter(r => r.LOG === 'VAI HOJE').length,
+        entrega: recs.filter(r => r.LOG === 'ENTREGA').length,
+        entregue: recs.filter(r => r.LOG === 'ENTREGUE').length,
+        retirada: recs.filter(r => r.LOG === 'RETIRADA').length,
+        pendencia: recs.filter(r => r.LOG === 'PENDENCIA').length,
+        agendada: recs.filter(r => r.LOG === 'AGENDADA').length,
+        vai_hoje: recs.filter(r => r.LOG === 'VAI HOJE').length,
         vai_amanha: recs.filter(r => r.LOG === 'VAI AMANHA').length,
-        em_rota:    recs.filter(r => r.LOG === 'CARREGADO').length,
+        em_rota: recs.filter(r => r.LOG === 'CARREGADO').length,
       };
       const nivel = {};
-      ['NORMAL','URGENTE','RETIRADA','CARRO HORARIO'].forEach(n => nivel[n] = recs.filter(r => r.NIV === n).length);
+      ['NORMAL', 'URGENTE', 'RETIRADA', 'CARRO HORARIO'].forEach(n => nivel[n] = recs.filter(r => r.NIV === n).length);
       const mt = {}, me = {};
       recs.forEach(r => {
         if (!r.DATA || r.DATA.length < 7) return;
@@ -1327,14 +1325,14 @@ function doGet(e) {
 
     function renderKPIs(kpis) {
       const CARDS = [
-        { k:'entrega',    l:'A Entregar', i:'[T]', c:'#3b82f6', s:'ENTREGA'   },
-        { k:'entregue',   l:'Entregue',   i:'[C]', c:'#10b981', s:'ENTREGUE'  },
-        { k:'retirada',   l:'Retirada',   i:'[R]', c:'#f97316', s:'RETIRADA'  },
-        { k:'pendencia',  l:'Pendência',  i:'[!]', c:'#ef4444', s:'PENDENCIA' },
-        { k:'agendada',   l:'Agendada',   i:'[D]', c:'#f59e0b', s:'AGENDADA'  },
-        { k:'vai_hoje',   l:'Vai Hoje',   i:'[L]', c:'#8b5cf6', s:'VAI HOJE'  },
-        { k:'vai_amanha', l:'Vai Amanha', i:'[M]', c:'#ec4899', s:'VAI AMANHA'},
-        { k:'em_rota',    l:'Em Rota',    i:'[S]', c:'#06b6d4', s:'CARREGADO' },
+        { k: 'entrega', l: 'A Entregar', i: '[T]', c: '#3b82f6', s: 'ENTREGA' },
+        { k: 'entregue', l: 'Entregue', i: '[C]', c: '#10b981', s: 'ENTREGUE' },
+        { k: 'retirada', l: 'Retirada', i: '[R]', c: '#f97316', s: 'RETIRADA' },
+        { k: 'pendencia', l: 'Pendência', i: '[!]', c: '#ef4444', s: 'PENDENCIA' },
+        { k: 'agendada', l: 'Agendada', i: '[D]', c: '#f59e0b', s: 'AGENDADA' },
+        { k: 'vai_hoje', l: 'Vai Hoje', i: '[L]', c: '#8b5cf6', s: 'VAI HOJE' },
+        { k: 'vai_amanha', l: 'Vai Amanha', i: '[M]', c: '#ec4899', s: 'VAI AMANHA' },
+        { k: 'em_rota', l: 'Em Rota', i: '[S]', c: '#06b6d4', s: 'CARREGADO' },
       ];
       const tot = Object.values(kpis).reduce((a, b) => a + b, 0) || 1;
       const row = document.getElementById('kpiRow'); if (!row) return; row.innerHTML = '';
@@ -1350,16 +1348,16 @@ function doGet(e) {
 
     function renderNivel(nivel) {
       const items = [
-        { k:'NORMAL',        l:'Normal',        c:'#3b82f6' },
-        { k:'URGENTE',       l:'Urgente',        c:'#ef4444' },
-        { k:'RETIRADA',      l:'Retirada',       c:'#f97316' },
-        { k:'CARRO HORARIO', l:'Carro Horário',  c:'#8b5cf6' },
+        { k: 'NORMAL', l: 'Normal', c: '#3b82f6' },
+        { k: 'URGENTE', l: 'Urgente', c: '#ef4444' },
+        { k: 'RETIRADA', l: 'Retirada', c: '#f97316' },
+        { k: 'CARRO HORARIO', l: 'Carro Horário', c: '#8b5cf6' },
       ];
       const max = Math.max(...items.map(i => nivel[i.k] || 0), 1);
       const el = document.getElementById('nivelChart'); if (!el) return;
       el.innerHTML = items.map(it => {
         const v = nivel[it.k] || 0;
-        return `<div class="bar-row"><span class="bar-lbl" style="width:90px">${it.l}</span><div class="bar-w"><div class="bar-f" style="width:${Math.round(v/max*100)}%;background:${it.c}"><span class="bar-fv">${v}</span></div></div><span style="font-size:10px;font-weight:600;color:${it.c};width:36px;text-align:right">${v}</span></div>`;
+        return `<div class="bar-row"><span class="bar-lbl" style="width:90px">${it.l}</span><div class="bar-w"><div class="bar-f" style="width:${Math.round(v / max * 100)}%;background:${it.c}"><span class="bar-fv">${v}</span></div></div><span style="font-size:10px;font-weight:600;color:${it.c};width:36px;text-align:right">${v}</span></div>`;
       }).join('');
     }
 
@@ -1367,52 +1365,52 @@ function doGet(e) {
       const months = [...new Set([...Object.keys(tot), ...Object.keys(ent)])].sort();
       if (!months.length) return;
       const TV = months.map(m => tot[m] || 0), EV = months.map(m => ent[m] || 0);
-      const W = 500, H = 145, p = { t:16, r:16, b:26, l:36 };
-      const iW = W-p.l-p.r, iH = H-p.t-p.b, maxV = Math.max(...TV, 1);
+      const W = 500, H = 145, p = { t: 16, r: 16, b: 26, l: 36 };
+      const iW = W - p.l - p.r, iH = H - p.t - p.b, maxV = Math.max(...TV, 1);
       const xS = i => p.l + (months.length > 1 ? iW / (months.length - 1) * i : iW / 2);
       const yS = v => p.t + iH - (v / maxV) * iH;
-      const MO = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-      const grid = [...Array(4)].map((_, i) => { const y = p.t + (iH/3)*i; return `<line x1="${p.l}" y1="${y}" x2="${W-p.r}" y2="${y}" stroke="#2a3050" stroke-width="1"/><text x="${p.l-4}" y="${y+3}" text-anchor="end" font-size="7" fill="#556080">${Math.round(maxV*(1-i/3))}</text>`; }).join('');
-      const xl = months.map((m, i) => `<text x="${xS(i)}" y="${H-4}" text-anchor="middle" font-size="7" fill="#556080">${MO[parseInt(m.split('-')[1])-1]}</text>`).join('');
-      const area = `<path d="M${p.l},${p.t+iH} ${TV.map((v,i)=>`L${xS(i)},${yS(v)}`).join(' ')} L${p.l+iW},${p.t+iH} Z" fill="#3b82f610"/>`;
-      const pl = (vs, col, dash='') => `<polyline points="${vs.map((v,i)=>`${xS(i)},${yS(v)}`).join(' ')}" fill="none" stroke="${col}" stroke-width="2" ${dash} stroke-linejoin="round"/>`;
-      const dots = (vs, col) => vs.map((v,i) => `<circle cx="${xS(i)}" cy="${yS(v)}" r="3" fill="${col}" stroke="#181c27" stroke-width="1.5"/>`).join('');
+      const MO = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+      const grid = [...Array(4)].map((_, i) => { const y = p.t + (iH / 3) * i; return `<line x1="${p.l}" y1="${y}" x2="${W - p.r}" y2="${y}" stroke="#2a3050" stroke-width="1"/><text x="${p.l - 4}" y="${y + 3}" text-anchor="end" font-size="7" fill="#556080">${Math.round(maxV * (1 - i / 3))}</text>`; }).join('');
+      const xl = months.map((m, i) => `<text x="${xS(i)}" y="${H - 4}" text-anchor="middle" font-size="7" fill="#556080">${MO[parseInt(m.split('-')[1]) - 1]}</text>`).join('');
+      const area = `<path d="M${p.l},${p.t + iH} ${TV.map((v, i) => `L${xS(i)},${yS(v)}`).join(' ')} L${p.l + iW},${p.t + iH} Z" fill="#3b82f610"/>`;
+      const pl = (vs, col, dash = '') => `<polyline points="${vs.map((v, i) => `${xS(i)},${yS(v)}`).join(' ')}" fill="none" stroke="${col}" stroke-width="2" ${dash} stroke-linejoin="round"/>`;
+      const dots = (vs, col) => vs.map((v, i) => `<circle cx="${xS(i)}" cy="${yS(v)}" r="3" fill="${col}" stroke="#181c27" stroke-width="1.5"/>`).join('');
       const el = document.getElementById('lineChart'); if (!el) return;
-      el.innerHTML = grid + xl + area + pl(TV,'#3b82f6') + pl(EV,'#10b981','stroke-dasharray="5,3"') + dots(TV,'#3b82f6') + dots(EV,'#10b981') +
+      el.innerHTML = grid + xl + area + pl(TV, '#3b82f6') + pl(EV, '#10b981', 'stroke-dasharray="5,3"') + dots(TV, '#3b82f6') + dots(EV, '#10b981') +
         `<circle cx="40" cy="11" r="3" fill="#3b82f6"/><text x="46" y="14" font-size="7" fill="#8892aa">Total</text><circle cx="90" cy="11" r="3" fill="#10b981"/><text x="96" y="14" font-size="7" fill="#8892aa">Entregues</text>`;
     }
 
     function renderVendor(vo) {
       const entries = Object.entries(vo).slice(0, 8);
       const max = Math.max(...entries.map(e => e[1]), 1);
-      const cols = ['#10b981','#3b82f6','#f59e0b','#ec4899','#8b5cf6','#06b6d4','#f97316','#84cc16'];
+      const cols = ['#10b981', '#3b82f6', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4', '#f97316', '#84cc16'];
       const el = document.getElementById('vendorChart'); if (!el) return;
       el.innerHTML = entries.map(([n, v], i) =>
-        `<div class="bar-row"><span class="bar-lbl" style="width:10px;color:var(--tx3)">${i+1}</span><span class="bar-lbl" style="width:85px" title="${n}">${n.length>13?n.slice(0,13)+'...':n}</span><div class="bar-w"><div class="bar-f" style="width:${Math.round(v/max*100)}%;background:${cols[i%8]}"><span class="bar-fv">${v}</span></div></div></div>`
+        `<div class="bar-row"><span class="bar-lbl" style="width:10px;color:var(--tx3)">${i + 1}</span><span class="bar-lbl" style="width:85px" title="${n}">${n.length > 13 ? n.slice(0, 13) + '...' : n}</span><div class="bar-w"><div class="bar-f" style="width:${Math.round(v / max * 100)}%;background:${cols[i % 8]}"><span class="bar-fv">${v}</span></div></div></div>`
       ).join('');
     }
 
     function renderDonut(kpis) {
       const items = [
-        {k:'entregue',l:'Entregue',c:'#10b981'},{k:'entrega',l:'A Entregar',c:'#3b82f6'},
-        {k:'retirada',l:'Retirada',c:'#f97316'},{k:'agendada',l:'Agendada',c:'#f59e0b'},
-        {k:'pendencia',l:'Pendência',c:'#ef4444'},{k:'vai_hoje',l:'Vai Hoje',c:'#8b5cf6'},
-        {k:'vai_amanha',l:'Vai Amanha',c:'#ec4899'},{k:'em_rota',l:'Em Rota',c:'#06b6d4'},
+        { k: 'entregue', l: 'Entregue', c: '#10b981' }, { k: 'entrega', l: 'A Entregar', c: '#3b82f6' },
+        { k: 'retirada', l: 'Retirada', c: '#f97316' }, { k: 'agendada', l: 'Agendada', c: '#f59e0b' },
+        { k: 'pendencia', l: 'Pendência', c: '#ef4444' }, { k: 'vai_hoje', l: 'Vai Hoje', c: '#8b5cf6' },
+        { k: 'vai_amanha', l: 'Vai Amanha', c: '#ec4899' }, { k: 'em_rota', l: 'Em Rota', c: '#06b6d4' },
       ];
       const tot = items.reduce((s, i) => s + (kpis[i.k] || 0), 0) || 1;
-      const R = 56, cx = 65, cy = 65; let a = -Math.PI/2, paths = '';
+      const R = 56, cx = 65, cy = 65; let a = -Math.PI / 2, paths = '';
       items.forEach(it => {
         const v = kpis[it.k] || 0; if (!v) return;
-        const sw = v/tot*Math.PI*2 - .025;
-        const x1=cx+R*Math.cos(a),y1=cy+R*Math.sin(a),x2=cx+R*Math.cos(a+sw),y2=cy+R*Math.sin(a+sw);
-        paths += `<path d="M${cx},${cy} L${x1},${y1} A${R},${R} 0 ${sw>Math.PI?1:0},1 ${x2},${y2} Z" fill="${it.c}" opacity=".9"/>`;
-        a += v/tot*Math.PI*2;
+        const sw = v / tot * Math.PI * 2 - .025;
+        const x1 = cx + R * Math.cos(a), y1 = cy + R * Math.sin(a), x2 = cx + R * Math.cos(a + sw), y2 = cy + R * Math.sin(a + sw);
+        paths += `<path d="M${cx},${cy} L${x1},${y1} A${R},${R} 0 ${sw > Math.PI ? 1 : 0},1 ${x2},${y2} Z" fill="${it.c}" opacity=".9"/>`;
+        a += v / tot * Math.PI * 2;
       });
       const leg = items.filter(i => kpis[i.k] > 0).map(i =>
-        `<div class="dr"><div class="dd" style="background:${i.c}"></div><span class="dl-l">${i.l}</span><span class="dl-v">${kpis[i.k]||0}</span><span class="dl-p">${(((kpis[i.k]||0)/tot)*100).toFixed(0)}%</span></div>`
+        `<div class="dr"><div class="dd" style="background:${i.c}"></div><span class="dl-l">${i.l}</span><span class="dl-v">${kpis[i.k] || 0}</span><span class="dl-p">${(((kpis[i.k] || 0) / tot) * 100).toFixed(0)}%</span></div>`
       ).join('');
       const el = document.getElementById('donutWrap'); if (!el) return;
-      el.innerHTML = `<svg width="130" height="130" viewBox="0 0 130 130" style="flex-shrink:0">${paths}<circle cx="${cx}" cy="${cy}" r="33" fill="#181c27"/><text x="${cx}" y="${cy-3}" text-anchor="middle" font-size="16" font-weight="700" fill="#e8eaf0">${tot}</text><text x="${cx}" y="${cy+13}" text-anchor="middle" font-size="7" fill="#556080">PEDIDOS</text></svg><div class="dl">${leg}</div>`;
+      el.innerHTML = `<svg width="130" height="130" viewBox="0 0 130 130" style="flex-shrink:0">${paths}<circle cx="${cx}" cy="${cy}" r="33" fill="#181c27"/><text x="${cx}" y="${cy - 3}" text-anchor="middle" font-size="16" font-weight="700" fill="#e8eaf0">${tot}</text><text x="${cx}" y="${cy + 13}" text-anchor="middle" font-size="7" fill="#556080">PEDIDOS</text></svg><div class="dl">${leg}</div>`;
     }
 
     function sortT(tab, col) {
@@ -1424,31 +1422,31 @@ function doGet(e) {
     function renderTable0() {
       let recs = [...filtered];
       const { col, asc } = sortCols[0];
-      recs.sort((a, b) => { let av = col==='VAL'?a.VAL||0:a[col]||'', bv = col==='VAL'?b.VAL||0:b[col]||''; return asc?(av<bv?-1:av>bv?1:0):(av>bv?-1:av<bv?1:0); });
+      recs.sort((a, b) => { let av = col === 'VAL' ? a.VAL || 0 : a[col] || '', bv = col === 'VAL' ? b.VAL || 0 : b[col] || ''; return asc ? (av < bv ? -1 : av > bv ? 1 : 0) : (av > bv ? -1 : av < bv ? 1 : 0); });
       const tot = recs.length, pg = Math.max(1, Math.ceil(tot / PS));
       if (pages[0] > pg) pages[0] = pg;
-      const sl = recs.slice((pages[0]-1)*PS, pages[0]*PS);
+      const sl = recs.slice((pages[0] - 1) * PS, pages[0] * PS);
       const el = document.getElementById('tbody0'); if (!el) return;
       el.innerHTML = sl.map(r => {
-        const cfg = SC[r.LOG] || { c:'#6b7280', i:'-' };
-        const v = r.VAL > 0 ? 'R$ ' + r.VAL.toLocaleString('pt-BR', { minimumFractionDigits:2 }) : '-';
-        return `<tr><td>${r.DATA||'-'}</td><td>${r.VEND||'-'}</td><td><span class="bdg" style="background:${cfg.c}22;color:${cfg.c}">${cfg.i} ${r.LOG}</span></td><td><span class="bdg" style="background:#2a305055;color:#8892aa">${r.NIV||'-'}</span></td><td>${r.CID||'-'}</td><td>${v}</td><td>${r.PED||'-'}</td></tr>`;
+        const cfg = SC[r.LOG] || { c: '#6b7280', i: '-' };
+        const v = r.VAL > 0 ? 'R$ ' + r.VAL.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '-';
+        return `<tr><td>${r.DATA || '-'}</td><td>${r.VEND || '-'}</td><td><span class="bdg" style="background:${cfg.c}22;color:${cfg.c}">${cfg.i} ${r.LOG}</span></td><td><span class="bdg" style="background:#2a305055;color:#8892aa">${r.NIV || '-'}</span></td><td>${r.CID || '-'}</td><td>${v}</td><td>${r.PED || '-'}</td></tr>`;
       }).join('');
-      const tc=document.getElementById('tcount0'),pi=document.getElementById('pi0'),pag=document.getElementById('pag0');
-      if (tc) tc.textContent = tot+' registros'; if (pi) pi.textContent = 'Pag ' + pages[0] + ' de ' + pg;
+      const tc = document.getElementById('tcount0'), pi = document.getElementById('pi0'), pag = document.getElementById('pag0');
+      if (tc) tc.textContent = tot + ' registros'; if (pi) pi.textContent = 'Pag ' + pages[0] + ' de ' + pg;
       if (pag) renderPag(pag, pg, 0, renderTable0);
     }
 
     function renderPag(el, pg_tot, tabIdx, cb) {
       el.innerHTML = '';
       const p = pages[tabIdx];
-      const btn = (l, np, act, dis) => { const b=document.createElement('button'); b.className='pb'+(act?' active':''); b.textContent=l; b.disabled=dis; if(!dis) b.onclick=()=>{pages[tabIdx]=np;cb();}; el.appendChild(b); };
-      btn('<', p-1, false, p===1);
-      const s=Math.max(1,p-2), e=Math.min(pg_tot,p+2);
-      if (s>1) { btn('1',1); if(s>2) btn('...',null,false,true); }
-      for (let pp=s; pp<=e; pp++) btn(pp, pp, pp===p);
-      if (e<pg_tot) { if(e<pg_tot-1) btn('...',null,false,true); btn(pg_tot,pg_tot); }
-      btn('>', p+1, false, p===pg_tot);
+      const btn = (l, np, act, dis) => { const b = document.createElement('button'); b.className = 'pb' + (act ? ' active' : ''); b.textContent = l; b.disabled = dis; if (!dis) b.onclick = () => { pages[tabIdx] = np; cb(); }; el.appendChild(b); };
+      btn('<', p - 1, false, p === 1);
+      const s = Math.max(1, p - 2), e = Math.min(pg_tot, p + 2);
+      if (s > 1) { btn('1', 1); if (s > 2) btn('...', null, false, true); }
+      for (let pp = s; pp <= e; pp++) btn(pp, pp, pp === p);
+      if (e < pg_tot) { if (e < pg_tot - 1) btn('...', null, false, true); btn(pg_tot, pg_tot); }
+      btn('>', p + 1, false, p === pg_tot);
     }
 
     // -- TAB 1 -- FATURAMENTO -------------------------------------------
@@ -1470,7 +1468,7 @@ function doGet(e) {
         else s = s.replace(' ', 'T');
         const d = new Date(s);
         return isNaN(d) ? null : d;
-      } catch(e) { return null; }
+      } catch (e) { return null; }
     }
 
     function parseEntTS(data, hora) {
@@ -1482,7 +1480,7 @@ function doGet(e) {
         const hh = h.length === 5 ? h + ':00' : h;
         const d = new Date(nd + 'T' + hh);
         return isNaN(d) ? null : d;
-      } catch(e) { return null; }
+      } catch (e) { return null; }
     }
 
     function tdiff(fdh, ed, eh) {
@@ -1491,49 +1489,49 @@ function doGet(e) {
       if (!tf || !te) return '-';
       const totalSeg = Math.round((te - tf) / 1000);
       if (isNaN(totalSeg) || totalSeg < 0) return '-';
-      const dias  = Math.floor(totalSeg / 86400);
+      const dias = Math.floor(totalSeg / 86400);
       const horas = Math.floor((totalSeg % 86400) / 3600);
-      const mins  = Math.floor((totalSeg % 3600) / 60);
-      const segs  = totalSeg % 60;
-      const hms   = String(horas).padStart(2,'0') + ':' + String(mins).padStart(2,'0') + ':' + String(segs).padStart(2,'0');
+      const mins = Math.floor((totalSeg % 3600) / 60);
+      const segs = totalSeg % 60;
+      const hms = String(horas).padStart(2, '0') + ':' + String(mins).padStart(2, '0') + ':' + String(segs).padStart(2, '0');
       return dias > 0 ? dias + 'd ' + hms : hms;
     }
 
     function renderTab1() {
       const recs = filteredFat;
 
-      const fatR   = recs.filter(r => r.VAL > 0);
+      const fatR = recs.filter(r => r.VAL > 0);
       const fatTot = fatR.reduce((s, r) => s + r.VAL, 0);
       const fatCnt = fatR.length;
       const fatAvg = fatCnt > 0 ? fatTot / fatCnt : 0;
       const fF = document.getElementById('fFrom').value, fT = document.getElementById('fTo').value;
       const periodoStr = (fF || fT)
-        ? 'Periodo: ' + (fF||'inicio') + ' -> ' + (fT||'hoje') + ' · ' + recs.length + ' faturados'
+        ? 'Periodo: ' + (fF || 'inicio') + ' -> ' + (fT || 'hoje') + ' · ' + recs.length + ' faturados'
         : recs.length + ' pedidos com faturamento registrado';
 
       const fatStat = {};
       recs.forEach(r => { if (r.VAL > 0) fatStat[r.LOG] = (fatStat[r.LOG] || 0) + r.VAL; });
       const maxFS = Math.max(...Object.values(fatStat), 1);
-      const fsC = { 'ENTREGUE':'#10b981','RETIRADA':'#f97316','ENTREGA':'#3b82f6','AGENDADA':'#f59e0b','PENDENCIA':'#ef4444','PARCIAL':'#84cc16' };
-      const fatStatHtml = Object.entries(fatStat).sort((a,b)=>b[1]-a[1]).map(([k,v]) =>
-        `<div class="bar-row"><span class="bar-lbl" style="width:70px">${k}</span><div class="bar-w"><div class="bar-f" style="width:${Math.round(v/maxFS*100)}%;background:${fsC[k]||'#6b7280'}"><span class="bar-fv">R$ ${v.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span></div></div></div>`
+      const fsC = { 'ENTREGUE': '#10b981', 'RETIRADA': '#f97316', 'ENTREGA': '#3b82f6', 'AGENDADA': '#f59e0b', 'PENDENCIA': '#ef4444', 'PARCIAL': '#84cc16' };
+      const fatStatHtml = Object.entries(fatStat).sort((a, b) => b[1] - a[1]).map(([k, v]) =>
+        `<div class="bar-row"><span class="bar-lbl" style="width:70px">${k}</span><div class="bar-w"><div class="bar-f" style="width:${Math.round(v / maxFS * 100)}%;background:${fsC[k] || '#6b7280'}"><span class="bar-fv">R$ ${v.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span></div></div></div>`
       ).join('') || '<p style="color:var(--tx3);font-size:11px;padding:8px 0">Sem valores no periodo</p>';
 
       const cityCnt = {};
-      recs.forEach(r => { const c = r.CID||'SEM CIDADE'; cityCnt[c] = (cityCnt[c]||0) + 1; });
-      const topC = Object.entries(cityCnt).sort((a,b)=>b[1]-a[1]).slice(0,10);
-      const maxC = Math.max(...topC.map(e=>e[1]), 1);
-      const ccols = ['#3b82f6','#10b981','#f59e0b','#8b5cf6','#f97316','#ec4899','#06b6d4','#84cc16','#ef4444','#6b7280'];
-      const cityHtml = topC.map(([c,v],i) =>
-        `<div class="bar-row"><span class="bar-lbl" style="width:100px" title="${c}">${c.length>13?c.slice(0,13)+'...':c}</span><div class="bar-w"><div class="bar-f" style="width:${Math.round(v/maxC*100)}%;background:${ccols[i%10]}"><span class="bar-fv">${v}</span></div></div></div>`
+      recs.forEach(r => { const c = r.CID || 'SEM CIDADE'; cityCnt[c] = (cityCnt[c] || 0) + 1; });
+      const topC = Object.entries(cityCnt).sort((a, b) => b[1] - a[1]).slice(0, 10);
+      const maxC = Math.max(...topC.map(e => e[1]), 1);
+      const ccols = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#f97316', '#ec4899', '#06b6d4', '#84cc16', '#ef4444', '#6b7280'];
+      const cityHtml = topC.map(([c, v], i) =>
+        `<div class="bar-row"><span class="bar-lbl" style="width:100px" title="${c}">${c.length > 13 ? c.slice(0, 13) + '...' : c}</span><div class="bar-w"><div class="bar-f" style="width:${Math.round(v / maxC * 100)}%;background:${ccols[i % 10]}"><span class="bar-fv">${v}</span></div></div></div>`
       ).join('');
 
       const cityStats = {};
-      const NIVEIS = ['NORMAL','URGENTE','CARRO HORARIO'];
+      const NIVEIS = ['NORMAL', 'URGENTE', 'CARRO HORARIO'];
 
       recs.forEach(r => {
         const c = r.CID || 'SEM CIDADE';
-        if (!cityStats[c]) cityStats[c] = { total:0, ent:0, deltas:{ NORMAL:[], URGENTE:[], 'CARRO HORARIO':[] } };
+        if (!cityStats[c]) cityStats[c] = { total: 0, ent: 0, deltas: { NORMAL: [], URGENTE: [], 'CARRO HORARIO': [] } };
         cityStats[c].total++;
         if (r.LOG === 'ENTREGUE') {
           cityStats[c].ent++;
@@ -1551,12 +1549,12 @@ function doGet(e) {
 
       const avgStr = (deltas) => {
         if (!deltas || deltas.length === 0) return '<span style="color:var(--tx3)">-</span>';
-        const totalSeg = Math.round(deltas.reduce((a,b)=>a+b,0) / deltas.length);
-        const dias  = Math.floor(totalSeg / 86400);
+        const totalSeg = Math.round(deltas.reduce((a, b) => a + b, 0) / deltas.length);
+        const dias = Math.floor(totalSeg / 86400);
         const horas = Math.floor((totalSeg % 86400) / 3600);
-        const mins  = Math.floor((totalSeg % 3600) / 60);
-        const segs  = totalSeg % 60;
-        const hms   = String(horas).padStart(2,'0') + ':' + String(mins).padStart(2,'0') + ':' + String(segs).padStart(2,'0');
+        const mins = Math.floor((totalSeg % 3600) / 60);
+        const segs = totalSeg % 60;
+        const hms = String(horas).padStart(2, '0') + ':' + String(mins).padStart(2, '0') + ':' + String(segs).padStart(2, '0');
         const label = dias > 0 ? dias + 'd ' + hms : hms;
         return '<b>' + label + '</b> <span style="color:var(--tx3);font-size:8px">(' + deltas.length + ')</span>';
       };
@@ -1564,10 +1562,10 @@ function doGet(e) {
       const allCities = Object.keys(cityStats).sort();
       const cityAvgHtml = allCities.length
         ? allCities.map(c => {
-            const st = cityStats[c];
-            const rate = st.total > 0 ? ((st.ent/st.total)*100).toFixed(1)+'%' : '-';
-            const allD = [...st.deltas.NORMAL, ...st.deltas.URGENTE, ...st.deltas['CARRO HORARIO']];
-            return `<tr>
+          const st = cityStats[c];
+          const rate = st.total > 0 ? ((st.ent / st.total) * 100).toFixed(1) + '%' : '-';
+          const allD = [...st.deltas.NORMAL, ...st.deltas.URGENTE, ...st.deltas['CARRO HORARIO']];
+          return `<tr>
               <td><b>${c}</b></td>
               <td style="text-align:center">${st.total}</td>
               <td style="text-align:center">${st.ent}</td>
@@ -1577,26 +1575,26 @@ function doGet(e) {
               <td style="text-align:center">${avgStr(st.deltas['CARRO HORARIO'])}</td>
               <td style="text-align:center">${avgStr(allD)}</td>
             </tr>`;
-          }).join('')
+        }).join('')
         : `<tr><td colspan="8" style="color:var(--tx3);text-align:center;padding:14px">Sem dados com faturamento e entrega no periodo</td></tr>`;
 
       const rotaGrid = routes.map((r, i) => {
-        const cross = Object.entries(r.cross || {}).filter(([,v]) => v > 0);
+        const cross = Object.entries(r.cross || {}).filter(([, v]) => v > 0);
         const crossHtml = cross.length
-          ? `<div class="rota-cross"><div class="rota-cross-t">Distribuição</div>${cross.map(([k,v])=>`<div class="rota-cross-row"><span class="rota-cross-lbl" title="${k}">${k.length>20?k.slice(0,20)+'...':k}</span><span class="rota-cross-val">R$ ${v.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span></div>`).join('')}</div>` : '';
-        const pc = {'ABAIXO':'ABAIXO','EM ANALISE':'EM_ANALISE','SEXTA':'SEXTA'}[r.prev] || 'ABAIXO';
-        const pl = {'ABAIXO':'[R] Abaixo da Meta','EM ANALISE':'[Y] Em Analise','SEXTA':'[G] Prevista Sexta'}[r.prev] || r.prev || '-';
-        return `<div class="rota-card" style="--rc:${RCOLS[i%5]}"><div class="rota-nome">${r.nome}</div><div class="rota-val">R$ ${(r.val||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}</div><span class="rota-prev ${pc}">${pl}</span>${crossHtml}</div>`;
+          ? `<div class="rota-cross"><div class="rota-cross-t">Distribuição</div>${cross.map(([k, v]) => `<div class="rota-cross-row"><span class="rota-cross-lbl" title="${k}">${k.length > 20 ? k.slice(0, 20) + '...' : k}</span><span class="rota-cross-val">R$ ${v.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span></div>`).join('')}</div>` : '';
+        const pc = { 'ABAIXO': 'ABAIXO', 'EM ANALISE': 'EM_ANALISE', 'SEXTA': 'SEXTA' }[r.prev] || 'ABAIXO';
+        const pl = { 'ABAIXO': '[R] Abaixo da Meta', 'EM ANALISE': '[Y] Em Analise', 'SEXTA': '[G] Prevista Sexta' }[r.prev] || r.prev || '-';
+        return `<div class="rota-card" style="--rc:${RCOLS[i % 5]}"><div class="rota-nome">${r.nome}</div><div class="rota-val">R$ ${(r.val || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div><span class="rota-prev ${pc}">${pl}</span>${crossHtml}</div>`;
       }).join('');
 
       const allDests = [...new Set(routes.flatMap(r => Object.keys(r.cross || {})))];
-      const crossThead = `<thead><tr><th>Rota</th>${allDests.map(d=>`<th title="${d}">${d.length>14?d.slice(0,14)+'...':d}</th>`).join('')}<th>Total</th></tr></thead>`;
+      const crossThead = `<thead><tr><th>Rota</th>${allDests.map(d => `<th title="${d}">${d.length > 14 ? d.slice(0, 14) + '...' : d}</th>`).join('')}<th>Total</th></tr></thead>`;
       const crossBody = routes.map((r, i) => {
-        const cells = allDests.map(d => { const v = r.cross?.[d]||0; return `<td style="${v>0?'color:#e8eaf0;font-weight:600':''}">${v>0?'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2}):'-'}</td>`; }).join('');
-        return `<tr><td style="color:${RCOLS[i%5]};font-weight:600">${r.nome.length>28?r.nome.slice(0,28)+'...':r.nome}</td>${cells}<td style="font-weight:700;color:#e8eaf0">R$ ${(r.val||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}</td></tr>`;
+        const cells = allDests.map(d => { const v = r.cross?.[d] || 0; return `<td style="${v > 0 ? 'color:#e8eaf0;font-weight:600' : ''}">${v > 0 ? 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '-'}</td>`; }).join('');
+        return `<tr><td style="color:${RCOLS[i % 5]};font-weight:600">${r.nome.length > 28 ? r.nome.slice(0, 28) + '...' : r.nome}</td>${cells}<td style="font-weight:700;color:#e8eaf0">R$ ${(r.val || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td></tr>`;
       }).join('');
       const totRow = allDests.length
-        ? `<tr style="border-top:2px solid var(--bor)"><td style="font-weight:700;color:var(--tx3)">TOTAL</td>${allDests.map(d=>{const t=routes.reduce((s,r)=>s+(r.cross?.[d]||0),0);return`<td style="font-weight:700;color:var(--gr)">${t>0?'R$ '+t.toLocaleString('pt-BR',{minimumFractionDigits:2}):'-'}</td>`;}).join('')}<td style="font-weight:700;color:var(--gr)">R$ ${routes.reduce((s,r)=>s+(r.val||0),0).toLocaleString('pt-BR',{minimumFractionDigits:2})}</td></tr>` : '';
+        ? `<tr style="border-top:2px solid var(--bor)"><td style="font-weight:700;color:var(--tx3)">TOTAL</td>${allDests.map(d => { const t = routes.reduce((s, r) => s + (r.cross?.[d] || 0), 0); return `<td style="font-weight:700;color:var(--gr)">${t > 0 ? 'R$ ' + t.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '-'}</td>`; }).join('')}<td style="font-weight:700;color:var(--gr)">R$ ${routes.reduce((s, r) => s + (r.val || 0), 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td></tr>` : '';
 
       document.getElementById('tab1-content').innerHTML = `
         <div>
@@ -1604,7 +1602,7 @@ function doGet(e) {
           <div class="fat-row">
             <div class="fat-card" style="--cc:var(--gr)">
               <div class="fat-label">[$] Faturamento Total</div>
-              <div class="fat-value">R$ ${fatTot.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
+              <div class="fat-value">R$ ${fatTot.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
               <div class="fat-sub">${periodoStr}</div>
             </div>
             <div class="fat-card" style="--cc:var(--bl)">
@@ -1614,7 +1612,7 @@ function doGet(e) {
             </div>
             <div class="fat-card" style="--cc:var(--ye)">
               <div class="fat-label">[T] Ticket Médio</div>
-              <div class="fat-value">R$ ${fatAvg.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
+              <div class="fat-value">R$ ${fatAvg.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
               <div class="fat-sub">Sobre pedidos com valor registrado</div>
             </div>
           </div>
@@ -1677,43 +1675,43 @@ function doGet(e) {
       if (s) recs = recs.filter(r => [r.PED, r.CID, r.LOG, r.FAT_DH, r.VEND, r.NIV].join(' ').toLowerCase().includes(s));
       const { col, asc } = sortCols[1];
       recs.sort((a, b) => {
-        let av = col==='VAL'?a.VAL||0:a[col]||'', bv = col==='VAL'?b.VAL||0:b[col]||'';
-        return asc ? (av<bv?-1:av>bv?1:0) : (av>bv?-1:av<bv?1:0);
+        let av = col === 'VAL' ? a.VAL || 0 : a[col] || '', bv = col === 'VAL' ? b.VAL || 0 : b[col] || '';
+        return asc ? (av < bv ? -1 : av > bv ? 1 : 0) : (av > bv ? -1 : av < bv ? 1 : 0);
       });
-      const tot = recs.length, pg = Math.max(1, Math.ceil(tot/PS));
+      const tot = recs.length, pg = Math.max(1, Math.ceil(tot / PS));
       if (pages[1] > pg) pages[1] = pg;
-      const sl = recs.slice((pages[1]-1)*PS, pages[1]*PS);
+      const sl = recs.slice((pages[1] - 1) * PS, pages[1] * PS);
 
-      const NIV_COLOR = { 'URGENTE':'#ef4444', 'CARRO HORARIO':'#8b5cf6', 'NORMAL':'#3b82f6', 'RETIRADA':'#f97316' };
+      const NIV_COLOR = { 'URGENTE': '#ef4444', 'CARRO HORARIO': '#8b5cf6', 'NORMAL': '#3b82f6', 'RETIRADA': '#f97316' };
       const el = document.getElementById('tbody1'); if (!el) return;
       el.innerHTML = sl.map(r => {
-        const cfg = SC[r.LOG] || { c:'#6b7280', i:'-' };
-        const nc  = NIV_COLOR[r.NIV] || '#6b7280';
-        const ds  = tdiff(r.FAT_DH, r.END, r.ENH);
+        const cfg = SC[r.LOG] || { c: '#6b7280', i: '-' };
+        const nc = NIV_COLOR[r.NIV] || '#6b7280';
+        const ds = tdiff(r.FAT_DH, r.END, r.ENH);
         const dsHtml = ds !== '-'
           ? '<span style="color:#10b981;font-weight:600;font-size:11px">' + ds + '</span>'
           : '<span style="color:var(--tx3)">-</span>';
         return `<tr>
-          <td>${r.PED||'-'}</td>
-          <td><span class="bdg" style="background:${nc}22;color:${nc}">${r.NIV||'-'}</span></td>
-          <td>${r.FAT_DH?r.FAT_DH.slice(0,10):'-'}</td>
-          <td>${r.FAT_DH&&r.FAT_DH.length>10?r.FAT_DH.slice(11,16):'-'}</td>
-          <td>${r.END||'-'}</td>
-          <td>${r.ENH||'-'}</td>
+          <td>${r.PED || '-'}</td>
+          <td><span class="bdg" style="background:${nc}22;color:${nc}">${r.NIV || '-'}</span></td>
+          <td>${r.FAT_DH ? r.FAT_DH.slice(0, 10) : '-'}</td>
+          <td>${r.FAT_DH && r.FAT_DH.length > 10 ? r.FAT_DH.slice(11, 16) : '-'}</td>
+          <td>${r.END || '-'}</td>
+          <td>${r.ENH || '-'}</td>
           <td>${dsHtml}</td>
-          <td>${r.CID||'-'}</td>
+          <td>${r.CID || '-'}</td>
           <td><span class="bdg" style="background:${cfg.c}22;color:${cfg.c}">${cfg.i} ${r.LOG}</span></td>
-          <td>${r.VAL>0?'R$ '+r.VAL.toLocaleString('pt-BR',{minimumFractionDigits:2}):'-'}</td>
+          <td>${r.VAL > 0 ? 'R$ ' + r.VAL.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '-'}</td>
         </tr>`;
       }).join('');
-      const tc=document.getElementById('tcount1'), pi=document.getElementById('pi1'), pag=document.getElementById('pag1');
-      if (tc) tc.textContent = tot+' registros';
+      const tc = document.getElementById('tcount1'), pi = document.getElementById('pi1'), pag = document.getElementById('pag1');
+      if (tc) tc.textContent = tot + ' registros';
       if (pi) pi.textContent = 'Pag ' + pages[1] + ' de ' + pg;
       if (pag) renderPag(pag, pg, 1, renderFatTable);
     }
 
     // -- MODAL ----------------------------------------------------------
-    function openModal()  { document.getElementById('modal').classList.add('open'); }
+    function openModal() { document.getElementById('modal').classList.add('open'); }
     function closeModal() { document.getElementById('modal').classList.remove('open'); }
     document.getElementById('modal').addEventListener('click', e => {
       if (e.target === document.getElementById('modal')) closeModal();
