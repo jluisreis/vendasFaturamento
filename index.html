@@ -5,6 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>Painel Gerencial – Nobre Lar</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
@@ -153,7 +154,10 @@
       cursor: pointer;
       border-bottom: 2px solid transparent;
       transition: all .15s;
-      user-select: none
+      user-select: none;
+      display: flex;
+      align-items: center;
+      gap: 7px;
     }
 
     .tab:hover {
@@ -164,6 +168,11 @@
       color: var(--tx);
       border-bottom-color: var(--bl);
       font-weight: 600
+    }
+
+    .tab i {
+      font-size: 13px;
+      color: var(--bl);
     }
 
     .fbar {
@@ -181,7 +190,14 @@
       font-weight: 700;
       color: var(--tx3);
       text-transform: uppercase;
-      letter-spacing: .07em
+      letter-spacing: .07em;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .flbl i {
+      font-size: 10px;
     }
 
     .fi {
@@ -212,12 +228,19 @@
       border-radius: 5px;
       font-size: 10px;
       font-family: inherit;
-      cursor: pointer
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
     }
 
     .rbtn:hover {
       border-color: #e8612c;
       color: #e8612c
+    }
+
+    .rbtn i {
+      font-size: 10px;
     }
 
     .rcnt {
@@ -318,7 +341,15 @@
       color: var(--tx3);
       text-transform: uppercase;
       letter-spacing: .1em;
-      margin-bottom: 8px
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .slbl i {
+      font-size: 11px;
+      color: var(--bl);
     }
 
     .kg {
@@ -359,7 +390,15 @@
 
     .kc-i {
       font-size: 15px;
-      margin-bottom: 5px
+      margin-bottom: 5px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .kc-i i {
+      font-size: 14px;
+      color: var(--cc);
     }
 
     .kc-v {
@@ -416,7 +455,15 @@
       color: var(--tx3);
       text-transform: uppercase;
       letter-spacing: .1em;
-      margin-bottom: 6px
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .fat-label i {
+      font-size: 11px;
+      color: var(--cc);
     }
 
     .fat-value {
@@ -442,7 +489,15 @@
     .cc-t {
       font-size: 11px;
       font-weight: 600;
-      margin-bottom: 2px
+      margin-bottom: 2px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .cc-t i {
+      font-size: 13px;
+      color: var(--bl);
     }
 
     .cc-s {
@@ -565,7 +620,15 @@
 
     .th-t {
       font-size: 11px;
-      font-weight: 600
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .th-t i {
+      font-size: 13px;
+      color: var(--bl);
     }
 
     .ts {
@@ -785,7 +848,14 @@
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: .06em;
-      margin-bottom: 5px
+      margin-bottom: 5px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .rota-cross-t i {
+      font-size: 9px;
     }
 
     .rota-cross-row {
@@ -837,7 +907,15 @@
     .modal-t {
       font-size: 15px;
       font-weight: 700;
-      margin-bottom: 5px
+      margin-bottom: 5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .modal-t i {
+      color: var(--bl);
+      font-size: 18px;
     }
 
     .modal-s {
@@ -861,7 +939,14 @@
       color: #e8612c;
       text-transform: uppercase;
       letter-spacing: .08em;
-      margin-bottom: 4px
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .step-n i {
+      font-size: 10px;
     }
 
     .step-t {
@@ -916,7 +1001,14 @@
       font-family: inherit;
       cursor: pointer;
       font-weight: 600;
-      white-space: nowrap
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .save-btn i {
+      font-size: 11px;
     }
 
     .mc-btn {
@@ -929,14 +1021,27 @@
       font-family: inherit;
       cursor: pointer;
       margin-top: 14px;
-      float: right
+      float: right;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .mc-btn i {
+      font-size: 12px;
     }
 
     .gas-fb {
       font-size: 9px;
       color: var(--gr);
       margin-top: 5px;
-      display: none
+      display: none;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .gas-fb i {
+      font-size: 10px;
     }
 
     ::-webkit-scrollbar {
@@ -981,20 +1086,20 @@
       <div class="hdr-t">Painel Gerencial — Nobre Lar</div>
       <div class="hdr-s">Vendas · Faturamento · Entregas · Rotas</div>
     </div>
-    <button class="hbtn" id="syncBtn" onclick="syncGAS()"><span class="spin">[R]</span> Sincronizar</button>
+    <button class="hbtn" id="syncBtn" onclick="syncGAS()"><span class="spin"><i class="fas fa-sync-alt"></i></span> Sincronizar</button>
     <span class="src-tag" id="srcTag">Sem dados</span>
     <span class="upd" id="upd"></span>
   </header>
 
   <div class="tabs-bar">
-    <div class="tab active" onclick="switchTab(0)">[D] Resumo de Pedidos</div>
-    <div class="tab" onclick="switchTab(1)">[$] Faturamento & Entregas</div>
+    <div class="tab active" onclick="switchTab(0)"><i class="fas fa-clipboard-list"></i> Resumo de Pedidos</div>
+    <div class="tab" onclick="switchTab(1)"><i class="fas fa-coins"></i> Faturamento & Entregas</div>
   </div>
 
   <div class="fbar">
-    <span class="flbl">De:</span>
+    <span class="flbl"><i class="far fa-calendar-alt"></i> De:</span>
     <input type="date" id="fFrom" class="fi" onchange="applyFilters()">
-    <span class="flbl">Até:</span>
+    <span class="flbl"><i class="far fa-calendar-alt"></i> Até:</span>
     <input type="date" id="fTo" class="fi" onchange="applyFilters()">
     <select id="fVend" class="fi" onchange="applyFilters()">
       <option value="">Todos Vendedores</option>
@@ -1006,7 +1111,7 @@
       <option value="RETIRADA">Retirada</option>
       <option value="CARRO HORARIO">Carro Horário</option>
     </select>
-    <button class="rbtn" onclick="resetFilters()">[x] Limpar</button>
+    <button class="rbtn" onclick="resetFilters()"><i class="fas fa-undo-alt"></i> Limpar</button>
     <span class="rcnt" id="rcnt"></span>
   </div>
 
@@ -1030,11 +1135,11 @@
   <!-- MODAL -->
   <div class="ov" id="modal">
     <div class="modal">
-      <div class="modal-t">[G] Integração com Google Apps Script</div>
+      <div class="modal-t"><i class="fas fa-plug"></i> Integração com Google Apps Script</div>
       <div class="modal-s">Configure a URL do Apps Script para que o dashboard consuma os dados <b>diretamente da sua
           planilha</b> em tempo real. Nenhum dado fica gravado neste arquivo HTML.</div>
       <div class="step">
-        <div class="step-n">Passo 1 — Cole este código no Apps Script</div>
+        <div class="step-n"><i class="fas fa-code"></i> Passo 1 — Cole este código no Apps Script</div>
         <div class="step-t">Abra sua planilha -> Extensões -> Apps Script -> substitua o código:</div>
         <pre class="code">const SHEET_VENDAS = "Vendas";
 const SHEET_ROTAS  = "Rotas";
@@ -1111,25 +1216,28 @@ function doGet(e) {
 }</pre>
       </div>
       <div class="step">
-        <div class="step-n">Passo 2 — Publicar como Web App</div>
+        <div class="step-n"><i class="fas fa-globe"></i> Passo 2 — Publicar como Web App</div>
         <div class="step-t">Implantar -> Nova implantação -> <b>App da Web</b><br>
           Executar como: <b>Eu</b> · Acesso: <b>Qualquer pessoa</b> -> Implantar -> copie a URL.</div>
       </div>
       <div class="step">
-        <div class="step-n">Passo 3 — Cole a URL abaixo</div>
+        <div class="step-n"><i class="fas fa-link"></i> Passo 3 — Cole a URL abaixo</div>
         <div class="url-row">
           <input type="text" id="gasUrlInp" class="url-inp" placeholder="https://script.google.com/macros/s/...">
-          <button class="save-btn" onclick="saveUrl()">Salvar e Sincronizar</button>
+          <button class="save-btn" onclick="saveUrl()"><i class="fas fa-save"></i> Salvar e Sincronizar</button>
         </div>
-        <div class="gas-fb" id="gasFb">[OK] URL salva! Sincronizando...</div>
+        <div class="gas-fb" id="gasFb"><i class="fas fa-check-circle"></i> [OK] URL salva! Sincronizando...</div>
       </div>
-      <button class="mc-btn" onclick="closeModal()">[x] Fechar</button>
+      <button class="mc-btn" onclick="closeModal()"><i class="fas fa-times"></i> Fechar</button>
     </div>
   </div>
 
   <script>
     // -- STATE ----------------------------------------------------------
-    let allRecs = [], routes = [], filtered = [], filteredFat = [];
+    let allRecs = [],
+      routes = [],
+      filtered = [],
+      filteredFat = [];
     // ── URL DO APPS SCRIPT — altere aqui quando necessário ──────────
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbz-xP_cPiXAhKl5waSWAAxVThON70KKIr8DY2RgydXyjhCOAEOrX-StrAvYqyJx2FA/exec';
     let gasUrl = GAS_URL;
@@ -1139,21 +1247,26 @@ function doGet(e) {
     const PS = 25;
 
     const SC = {
-      'ENTREGA': { c: '#3b82f6', i: '[T]' }, 'ENTREGUE': { c: '#10b981', i: '[C]' },
-      'RETIRADA': { c: '#f97316', i: '[R]' }, 'PENDENCIA': { c: '#ef4444', i: '[!]' },
-      'AGENDADA': { c: '#f59e0b', i: '[D]' }, 'VAI HOJE': { c: '#8b5cf6', i: '[L]' },
-      'VAI AMANHA': { c: '#ec4899', i: '[M]' }, 'CARREGADO': { c: '#06b6d4', i: '[S]' },
-      'PARCIAL': { c: '#84cc16', i: '[P]' }, 'CANCELADO': { c: '#6b7280', i: '[X]' },
+      'ENTREGA': { c: '#3b82f6', i: 'fa-truck' },
+      'ENTREGUE': { c: '#10b981', i: 'fa-check-circle' },
+      'RETIRADA': { c: '#f97316', i: 'fa-store' },
+      'PENDENCIA': { c: '#ef4444', i: 'fa-clock' },
+      'AGENDADA': { c: '#f59e0b', i: 'fa-calendar-check' },
+      'VAI HOJE': { c: '#8b5cf6', i: 'fa-bolt' },
+      'VAI AMANHA': { c: '#ec4899', i: 'fa-calendar-plus' },
+      'CARREGADO': { c: '#06b6d4', i: 'fa-boxes' },
+      'PARCIAL': { c: '#84cc16', i: 'fa-truck-loading' },
+      'CANCELADO': { c: '#6b7280', i: 'fa-times-circle' },
     };
     const RCOLS = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#f97316'];
 
     // -- INIT -----------------------------------------------------------
     function init() {
-      syncGAS(); // URL fixa no código — sincroniza automaticamente
+      syncGAS();
     }
 
     function setUpd(iso) {
-      try { document.getElementById('upd').textContent = 'Atualizado: ' + new Date(iso).toLocaleString('pt-BR'); } catch (e) { }
+      try { document.getElementById('upd').textContent = 'Atualizado: ' + new Date(iso).toLocaleString('pt-BR'); } catch (e) {}
     }
 
     // -- TABS -----------------------------------------------------------
@@ -1190,13 +1303,12 @@ function doGet(e) {
         document.getElementById('srcTag').className = 'src-tag live';
         populateVendedor();
         applyFilters();
-      } catch (err) { showError(err.message); }
-      finally { btn.classList.remove('loading'); }
+      } catch (err) { showError(err.message); } finally { btn.classList.remove('loading'); }
     }
 
     function showError(msg) {
       const html = `<div class="error-screen">
-        <div class="error-icon">[!]</div>
+        <div class="error-icon"><i class="fas fa-exclamation-triangle"></i></div>
         <div class="error-title">Erro ao sincronizar</div>
         <div class="error-msg">${msg}<br><br>Verifique se a URL está correta e publicada com acesso <b>"Qualquer pessoa"</b>.</div>
         <div class="error-url">${gasUrl || '(URL não configurada)'}</div>
@@ -1209,16 +1321,21 @@ function doGet(e) {
       const v = document.getElementById('gasUrlInp').value.trim();
       if (!v) return;
       gasUrl = v;
-      document.getElementById('gasFb').style.display = 'block';
-      closeModal(); syncGAS();
+      document.getElementById('gasFb').style.display = 'flex';
+      closeModal();
+      syncGAS();
     }
 
     // -- FILTERS --------------------------------------------------------
     function populateVendedor() {
-      const sel = document.getElementById('fVend'), cur = sel.value;
+      const sel = document.getElementById('fVend'),
+        cur = sel.value;
       sel.innerHTML = '<option value="">Todos Vendedores</option>';
       [...new Set(allRecs.map(r => r.VEND).filter(Boolean))].sort()
-        .forEach(v => { const o = document.createElement('option'); o.value = v; o.textContent = v; sel.appendChild(o); });
+        .forEach(v => { const o = document.createElement('option');
+          o.value = v;
+          o.textContent = v;
+          sel.appendChild(o); });
       sel.value = cur;
     }
 
@@ -1255,8 +1372,10 @@ function doGet(e) {
       });
 
       document.getElementById('rcnt').textContent = filtered.length + ' registros';
-      pages[0] = 1; pages[1] = 1;
-      renderTab0(); renderTab1();
+      pages[0] = 1;
+      pages[1] = 1;
+      renderTab0();
+      renderTab1();
     }
 
     function resetFilters() {
@@ -1288,7 +1407,8 @@ function doGet(e) {
       };
       const nivel = {};
       ['NORMAL', 'URGENTE', 'RETIRADA', 'CARRO HORARIO'].forEach(n => nivel[n] = recs.filter(r => r.NIV === n).length);
-      const mt = {}, me = {};
+      const mt = {},
+        me = {};
       recs.forEach(r => {
         if (!r.DATA || r.DATA.length < 7) return;
         const m = r.DATA.slice(0, 7);
@@ -1299,48 +1419,54 @@ function doGet(e) {
       recs.filter(r => r.LOG === 'ENTREGUE').forEach(r => { ve[r.VEND] = (ve[r.VEND] || 0) + 1; });
 
       document.getElementById('tab0-content').innerHTML = `
-        <div><div class="slbl">Status dos Pedidos</div><div class="kg" id="kpiRow"></div></div>
+        <div><div class="slbl"><i class="fas fa-chart-pie"></i> Status dos Pedidos</div><div class="kg" id="kpiRow"></div></div>
         <div class="row2">
-          <div class="cc"><div class="cc-t">[P] Nível de Entrega</div><div class="cc-s">Distribuição por urgência</div><div id="nivelChart"></div></div>
-          <div class="cc"><div class="cc-t">[G] Evolução Mensal</div><div class="cc-s">Total pedidos vs. Entregues</div><div class="mc"><svg id="lineChart" viewBox="0 0 500 150" style="width:100%;height:100%"></svg></div></div>
+          <div class="cc"><div class="cc-t"><i class="fas fa-layer-group"></i> Nível de Entrega</div><div class="cc-s">Distribuição por urgência</div><div id="nivelChart"></div></div>
+          <div class="cc"><div class="cc-t"><i class="fas fa-chart-line"></i> Evolução Mensal</div><div class="cc-s">Total pedidos vs. Entregues</div><div class="mc"><svg id="lineChart" viewBox="0 0 500 150" style="width:100%;height:100%"></svg></div></div>
         </div>
         <div class="row3">
-          <div class="cc"><div class="cc-t">[R] Ranking Vendedores</div><div class="cc-s">Pedidos entregues por vendedor</div><div id="vendorChart"></div></div>
-          <div class="cc"><div class="cc-t">[B] Distribuição de Status</div><div class="cc-s">Visão geral logístico</div><div class="dw" id="donutWrap"></div></div>
+          <div class="cc"><div class="cc-t"><i class="fas fa-trophy"></i> Ranking Vendedores</div><div class="cc-s">Pedidos entregues por vendedor</div><div id="vendorChart"></div></div>
+          <div class="cc"><div class="cc-t"><i class="fas fa-chart-doughnut"></i> Distribuição de Status</div><div class="cc-s">Visão geral logístico</div><div class="dw" id="donutWrap"></div></div>
         </div>
         <div class="tc">
-          <div class="th"><span class="th-t">[L] Pedidos</span><input type="text" class="ts" id="ts0" placeholder="Buscar..." oninput="applyFilters()"><span class="rcnt" id="tcount0"></span></div>
+          <div class="th"><span class="th-t"><i class="fas fa-list"></i> Pedidos</span><input type="text" class="ts" id="ts0" placeholder="Buscar..." oninput="applyFilters()"><span class="rcnt" id="tcount0"></span></div>
           <div class="tw"><table><thead><tr>
-            <th onclick="sortT(0,'DATA')">Data [^]</th><th onclick="sortT(0,'VEND')">Vendedor [^]</th>
-            <th onclick="sortT(0,'LOG')">Status [^]</th><th onclick="sortT(0,'NIV')">Nível [^]</th>
-            <th onclick="sortT(0,'CID')">Cidade [^]</th><th onclick="sortT(0,'VAL')">Valor [^]</th><th>Pedido</th>
+            <th onclick="sortT(0,'DATA')">Data <i class="fas fa-sort"></i></th><th onclick="sortT(0,'VEND')">Vendedor <i class="fas fa-sort"></i></th>
+            <th onclick="sortT(0,'LOG')">Status <i class="fas fa-sort"></i></th><th onclick="sortT(0,'NIV')">Nível <i class="fas fa-sort"></i></th>
+            <th onclick="sortT(0,'CID')">Cidade <i class="fas fa-sort"></i></th><th onclick="sortT(0,'VAL')">Valor <i class="fas fa-sort"></i></th><th>Pedido</th>
           </tr></thead><tbody id="tbody0"></tbody></table></div>
           <div class="tfoot"><span id="pi0"></span><div class="pag" id="pag0"></div></div>
         </div>`;
 
-      renderKPIs(kpis); renderNivel(nivel); renderLine(mt, me);
+      renderKPIs(kpis);
+      renderNivel(nivel);
+      renderLine(mt, me);
       renderVendor(Object.fromEntries(Object.entries(ve).sort((a, b) => b[1] - a[1]).slice(0, 8)));
-      renderDonut(kpis); renderTable0();
+      renderDonut(kpis);
+      renderTable0();
     }
 
     function renderKPIs(kpis) {
       const CARDS = [
-        { k: 'entrega', l: 'A Entregar', i: '[T]', c: '#3b82f6', s: 'ENTREGA' },
-        { k: 'entregue', l: 'Entregue', i: '[C]', c: '#10b981', s: 'ENTREGUE' },
-        { k: 'retirada', l: 'Retirada', i: '[R]', c: '#f97316', s: 'RETIRADA' },
-        { k: 'pendencia', l: 'Pendência', i: '[!]', c: '#ef4444', s: 'PENDENCIA' },
-        { k: 'agendada', l: 'Agendada', i: '[D]', c: '#f59e0b', s: 'AGENDADA' },
-        { k: 'vai_hoje', l: 'Vai Hoje', i: '[L]', c: '#8b5cf6', s: 'VAI HOJE' },
-        { k: 'vai_amanha', l: 'Vai Amanha', i: '[M]', c: '#ec4899', s: 'VAI AMANHA' },
-        { k: 'em_rota', l: 'Em Rota', i: '[S]', c: '#06b6d4', s: 'CARREGADO' },
+        { k: 'entrega', l: 'A Entregar', i: 'fa-truck', c: '#3b82f6', s: 'ENTREGA' },
+        { k: 'entregue', l: 'Entregue', i: 'fa-check-circle', c: '#10b981', s: 'ENTREGUE' },
+        { k: 'retirada', l: 'Retirada', i: 'fa-store', c: '#f97316', s: 'RETIRADA' },
+        { k: 'pendencia', l: 'Pendência', i: 'fa-clock', c: '#ef4444', s: 'PENDENCIA' },
+        { k: 'agendada', l: 'Agendada', i: 'fa-calendar-check', c: '#f59e0b', s: 'AGENDADA' },
+        { k: 'vai_hoje', l: 'Vai Hoje', i: 'fa-bolt', c: '#8b5cf6', s: 'VAI HOJE' },
+        { k: 'vai_amanha', l: 'Vai Amanhã', i: 'fa-calendar-plus', c: '#ec4899', s: 'VAI AMANHA' },
+        { k: 'em_rota', l: 'Em Rota', i: 'fa-boxes', c: '#06b6d4', s: 'CARREGADO' },
       ];
       const tot = Object.values(kpis).reduce((a, b) => a + b, 0) || 1;
-      const row = document.getElementById('kpiRow'); if (!row) return; row.innerHTML = '';
+      const row = document.getElementById('kpiRow');
+      if (!row) return;
+      row.innerHTML = '';
       CARDS.forEach(c => {
         const v = kpis[c.k] || 0;
         const div = document.createElement('div');
-        div.className = 'kc'; div.style.setProperty('--cc', c.c);
-        div.innerHTML = `<div class="kc-i">${c.i}</div><div class="kc-v">${v.toLocaleString('pt-BR')}</div><div class="kc-l">${c.l}</div><div class="kc-p">${((v / tot) * 100).toFixed(1)}%</div>`;
+        div.className = 'kc';
+        div.style.setProperty('--cc', c.c);
+        div.innerHTML = `<div class="kc-i"><i class="fas ${c.i}"></i></div><div class="kc-v">${v.toLocaleString('pt-BR')}</div><div class="kc-l">${c.l}</div><div class="kc-p">${((v / tot) * 100).toFixed(1)}%</div>`;
         div.onclick = () => toggleSt(c.s, div);
         row.appendChild(div);
       });
@@ -1354,7 +1480,8 @@ function doGet(e) {
         { k: 'CARRO HORARIO', l: 'Carro Horário', c: '#8b5cf6' },
       ];
       const max = Math.max(...items.map(i => nivel[i.k] || 0), 1);
-      const el = document.getElementById('nivelChart'); if (!el) return;
+      const el = document.getElementById('nivelChart');
+      if (!el) return;
       el.innerHTML = items.map(it => {
         const v = nivel[it.k] || 0;
         return `<div class="bar-row"><span class="bar-lbl" style="width:90px">${it.l}</span><div class="bar-w"><div class="bar-f" style="width:${Math.round(v / max * 100)}%;background:${it.c}"><span class="bar-fv">${v}</span></div></div><span style="font-size:10px;font-weight:600;color:${it.c};width:36px;text-align:right">${v}</span></div>`;
@@ -1364,9 +1491,14 @@ function doGet(e) {
     function renderLine(tot, ent) {
       const months = [...new Set([...Object.keys(tot), ...Object.keys(ent)])].sort();
       if (!months.length) return;
-      const TV = months.map(m => tot[m] || 0), EV = months.map(m => ent[m] || 0);
-      const W = 500, H = 145, p = { t: 16, r: 16, b: 26, l: 36 };
-      const iW = W - p.l - p.r, iH = H - p.t - p.b, maxV = Math.max(...TV, 1);
+      const TV = months.map(m => tot[m] || 0),
+        EV = months.map(m => ent[m] || 0);
+      const W = 500,
+        H = 145,
+        p = { t: 16, r: 16, b: 26, l: 36 };
+      const iW = W - p.l - p.r,
+        iH = H - p.t - p.b,
+        maxV = Math.max(...TV, 1);
       const xS = i => p.l + (months.length > 1 ? iW / (months.length - 1) * i : iW / 2);
       const yS = v => p.t + iH - (v / maxV) * iH;
       const MO = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
@@ -1375,7 +1507,8 @@ function doGet(e) {
       const area = `<path d="M${p.l},${p.t + iH} ${TV.map((v, i) => `L${xS(i)},${yS(v)}`).join(' ')} L${p.l + iW},${p.t + iH} Z" fill="#3b82f610"/>`;
       const pl = (vs, col, dash = '') => `<polyline points="${vs.map((v, i) => `${xS(i)},${yS(v)}`).join(' ')}" fill="none" stroke="${col}" stroke-width="2" ${dash} stroke-linejoin="round"/>`;
       const dots = (vs, col) => vs.map((v, i) => `<circle cx="${xS(i)}" cy="${yS(v)}" r="3" fill="${col}" stroke="#181c27" stroke-width="1.5"/>`).join('');
-      const el = document.getElementById('lineChart'); if (!el) return;
+      const el = document.getElementById('lineChart');
+      if (!el) return;
       el.innerHTML = grid + xl + area + pl(TV, '#3b82f6') + pl(EV, '#10b981', 'stroke-dasharray="5,3"') + dots(TV, '#3b82f6') + dots(EV, '#10b981') +
         `<circle cx="40" cy="11" r="3" fill="#3b82f6"/><text x="46" y="14" font-size="7" fill="#8892aa">Total</text><circle cx="90" cy="11" r="3" fill="#10b981"/><text x="96" y="14" font-size="7" fill="#8892aa">Entregues</text>`;
     }
@@ -1384,7 +1517,8 @@ function doGet(e) {
       const entries = Object.entries(vo).slice(0, 8);
       const max = Math.max(...entries.map(e => e[1]), 1);
       const cols = ['#10b981', '#3b82f6', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4', '#f97316', '#84cc16'];
-      const el = document.getElementById('vendorChart'); if (!el) return;
+      const el = document.getElementById('vendorChart');
+      if (!el) return;
       el.innerHTML = entries.map(([n, v], i) =>
         `<div class="bar-row"><span class="bar-lbl" style="width:10px;color:var(--tx3)">${i + 1}</span><span class="bar-lbl" style="width:85px" title="${n}">${n.length > 13 ? n.slice(0, 13) + '...' : n}</span><div class="bar-w"><div class="bar-f" style="width:${Math.round(v / max * 100)}%;background:${cols[i % 8]}"><span class="bar-fv">${v}</span></div></div></div>`
       ).join('');
@@ -1392,60 +1526,88 @@ function doGet(e) {
 
     function renderDonut(kpis) {
       const items = [
-        { k: 'entregue', l: 'Entregue', c: '#10b981' }, { k: 'entrega', l: 'A Entregar', c: '#3b82f6' },
-        { k: 'retirada', l: 'Retirada', c: '#f97316' }, { k: 'agendada', l: 'Agendada', c: '#f59e0b' },
-        { k: 'pendencia', l: 'Pendência', c: '#ef4444' }, { k: 'vai_hoje', l: 'Vai Hoje', c: '#8b5cf6' },
-        { k: 'vai_amanha', l: 'Vai Amanha', c: '#ec4899' }, { k: 'em_rota', l: 'Em Rota', c: '#06b6d4' },
+        { k: 'entregue', l: 'Entregue', c: '#10b981' },
+        { k: 'entrega', l: 'A Entregar', c: '#3b82f6' },
+        { k: 'retirada', l: 'Retirada', c: '#f97316' },
+        { k: 'agendada', l: 'Agendada', c: '#f59e0b' },
+        { k: 'pendencia', l: 'Pendência', c: '#ef4444' },
+        { k: 'vai_hoje', l: 'Vai Hoje', c: '#8b5cf6' },
+        { k: 'vai_amanha', l: 'Vai Amanhã', c: '#ec4899' },
+        { k: 'em_rota', l: 'Em Rota', c: '#06b6d4' },
       ];
       const tot = items.reduce((s, i) => s + (kpis[i.k] || 0), 0) || 1;
-      const R = 56, cx = 65, cy = 65; let a = -Math.PI / 2, paths = '';
+      const R = 56,
+        cx = 65,
+        cy = 65;
+      let a = -Math.PI / 2,
+        paths = '';
       items.forEach(it => {
-        const v = kpis[it.k] || 0; if (!v) return;
+        const v = kpis[it.k] || 0;
+        if (!v) return;
         const sw = v / tot * Math.PI * 2 - .025;
-        const x1 = cx + R * Math.cos(a), y1 = cy + R * Math.sin(a), x2 = cx + R * Math.cos(a + sw), y2 = cy + R * Math.sin(a + sw);
+        const x1 = cx + R * Math.cos(a),
+          y1 = cy + R * Math.sin(a),
+          x2 = cx + R * Math.cos(a + sw),
+          y2 = cy + R * Math.sin(a + sw);
         paths += `<path d="M${cx},${cy} L${x1},${y1} A${R},${R} 0 ${sw > Math.PI ? 1 : 0},1 ${x2},${y2} Z" fill="${it.c}" opacity=".9"/>`;
         a += v / tot * Math.PI * 2;
       });
       const leg = items.filter(i => kpis[i.k] > 0).map(i =>
         `<div class="dr"><div class="dd" style="background:${i.c}"></div><span class="dl-l">${i.l}</span><span class="dl-v">${kpis[i.k] || 0}</span><span class="dl-p">${(((kpis[i.k] || 0) / tot) * 100).toFixed(0)}%</span></div>`
       ).join('');
-      const el = document.getElementById('donutWrap'); if (!el) return;
+      const el = document.getElementById('donutWrap');
+      if (!el) return;
       el.innerHTML = `<svg width="130" height="130" viewBox="0 0 130 130" style="flex-shrink:0">${paths}<circle cx="${cx}" cy="${cy}" r="33" fill="#181c27"/><text x="${cx}" y="${cy - 3}" text-anchor="middle" font-size="16" font-weight="700" fill="#e8eaf0">${tot}</text><text x="${cx}" y="${cy + 13}" text-anchor="middle" font-size="7" fill="#556080">PEDIDOS</text></svg><div class="dl">${leg}</div>`;
     }
 
     function sortT(tab, col) {
       if (sortCols[tab].col === col) sortCols[tab].asc = !sortCols[tab].asc;
-      else { sortCols[tab].col = col; sortCols[tab].asc = true; }
+      else { sortCols[tab].col = col;
+        sortCols[tab].asc = true; }
       tab === 0 ? renderTable0() : renderFatTable();
     }
 
     function renderTable0() {
       let recs = [...filtered];
       const { col, asc } = sortCols[0];
-      recs.sort((a, b) => { let av = col === 'VAL' ? a.VAL || 0 : a[col] || '', bv = col === 'VAL' ? b.VAL || 0 : b[col] || ''; return asc ? (av < bv ? -1 : av > bv ? 1 : 0) : (av > bv ? -1 : av < bv ? 1 : 0); });
-      const tot = recs.length, pg = Math.max(1, Math.ceil(tot / PS));
+      recs.sort((a, b) => { let av = col === 'VAL' ? a.VAL || 0 : a[col] || '',
+          bv = col === 'VAL' ? b.VAL || 0 : b[col] || ''; return asc ? (av < bv ? -1 : av > bv ? 1 : 0) : (av > bv ? -1 : av < bv ? 1 : 0); });
+      const tot = recs.length,
+        pg = Math.max(1, Math.ceil(tot / PS));
       if (pages[0] > pg) pages[0] = pg;
       const sl = recs.slice((pages[0] - 1) * PS, pages[0] * PS);
-      const el = document.getElementById('tbody0'); if (!el) return;
+      const el = document.getElementById('tbody0');
+      if (!el) return;
       el.innerHTML = sl.map(r => {
-        const cfg = SC[r.LOG] || { c: '#6b7280', i: '-' };
+        const cfg = SC[r.LOG] || { c: '#6b7280', i: 'fa-question-circle' };
         const v = r.VAL > 0 ? 'R$ ' + r.VAL.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '-';
-        return `<tr><td>${r.DATA || '-'}</td><td>${r.VEND || '-'}</td><td><span class="bdg" style="background:${cfg.c}22;color:${cfg.c}">${cfg.i} ${r.LOG}</span></td><td><span class="bdg" style="background:#2a305055;color:#8892aa">${r.NIV || '-'}</span></td><td>${r.CID || '-'}</td><td>${v}</td><td>${r.PED || '-'}</td></tr>`;
+        return `<tr><td>${r.DATA || '-'}</td><td>${r.VEND || '-'}</td><td><span class="bdg" style="background:${cfg.c}22;color:${cfg.c}"><i class="fas ${cfg.i}" style="margin-right:3px"></i> ${r.LOG}</span></td><td><span class="bdg" style="background:#2a305055;color:#8892aa">${r.NIV || '-'}</span></td><td>${r.CID || '-'}</td><td>${v}</td><td>${r.PED || '-'}</td></tr>`;
       }).join('');
-      const tc = document.getElementById('tcount0'), pi = document.getElementById('pi0'), pag = document.getElementById('pag0');
-      if (tc) tc.textContent = tot + ' registros'; if (pi) pi.textContent = 'Pag ' + pages[0] + ' de ' + pg;
+      const tc = document.getElementById('tcount0'),
+        pi = document.getElementById('pi0'),
+        pag = document.getElementById('pag0');
+      if (tc) tc.textContent = tot + ' registros';
+      if (pi) pi.textContent = 'Pag ' + pages[0] + ' de ' + pg;
       if (pag) renderPag(pag, pg, 0, renderTable0);
     }
 
     function renderPag(el, pg_tot, tabIdx, cb) {
       el.innerHTML = '';
       const p = pages[tabIdx];
-      const btn = (l, np, act, dis) => { const b = document.createElement('button'); b.className = 'pb' + (act ? ' active' : ''); b.textContent = l; b.disabled = dis; if (!dis) b.onclick = () => { pages[tabIdx] = np; cb(); }; el.appendChild(b); };
+      const btn = (l, np, act, dis) => { const b = document.createElement('button');
+        b.className = 'pb' + (act ? ' active' : '');
+        b.textContent = l;
+        b.disabled = dis;
+        if (!dis) b.onclick = () => { pages[tabIdx] = np;
+          cb(); };
+        el.appendChild(b); };
       btn('<', p - 1, false, p === 1);
-      const s = Math.max(1, p - 2), e = Math.min(pg_tot, p + 2);
+      const s = Math.max(1, p - 2),
+        e = Math.min(pg_tot, p + 2);
       if (s > 1) { btn('1', 1); if (s > 2) btn('...', null, false, true); }
       for (let pp = s; pp <= e; pp++) btn(pp, pp, pp === p);
-      if (e < pg_tot) { if (e < pg_tot - 1) btn('...', null, false, true); btn(pg_tot, pg_tot); }
+      if (e < pg_tot) { if (e < pg_tot - 1) btn('...', null, false, true);
+        btn(pg_tot, pg_tot); }
       btn('>', p + 1, false, p === pg_tot);
     }
 
@@ -1504,24 +1666,29 @@ function doGet(e) {
       const fatTot = fatR.reduce((s, r) => s + r.VAL, 0);
       const fatCnt = fatR.length;
       const fatAvg = fatCnt > 0 ? fatTot / fatCnt : 0;
-      const fF = document.getElementById('fFrom').value, fT = document.getElementById('fTo').value;
-      const periodoStr = (fF || fT)
-        ? 'Periodo: ' + (fF || 'inicio') + ' -> ' + (fT || 'hoje') + ' · ' + recs.length + ' faturados'
-        : recs.length + ' pedidos com faturamento registrado';
+      const fF = document.getElementById('fFrom').value,
+        fT = document.getElementById('fTo').value;
+      const periodoStr = (fF || fT) ?
+        'Periodo: ' + (fF || 'inicio') + ' -> ' + (fT || 'hoje') + ' · ' + recs.length + ' faturados' :
+        recs.length + ' pedidos com faturamento registrado';
 
       const fatStat = {};
       recs.forEach(r => { if (r.VAL > 0) fatStat[r.LOG] = (fatStat[r.LOG] || 0) + r.VAL; });
       const maxFS = Math.max(...Object.values(fatStat), 1);
-      const fsC = { 'ENTREGUE': '#10b981', 'RETIRADA': '#f97316', 'ENTREGA': '#3b82f6', 'AGENDADA': '#f59e0b', 'PENDENCIA': '#ef4444', 'PARCIAL': '#84cc16' };
+      const fsC = { 'ENTREGUE': '#10b981', 'RETIRADA': '#f97316', 'ENTREGA': '#3b82f6', 'AGENDADA': '#f59e0b', 'PENDENCIA': '#ef4444',
+        'PARCIAL': '#84cc16' };
       const fatStatHtml = Object.entries(fatStat).sort((a, b) => b[1] - a[1]).map(([k, v]) =>
         `<div class="bar-row"><span class="bar-lbl" style="width:70px">${k}</span><div class="bar-w"><div class="bar-f" style="width:${Math.round(v / maxFS * 100)}%;background:${fsC[k] || '#6b7280'}"><span class="bar-fv">R$ ${v.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span></div></div></div>`
       ).join('') || '<p style="color:var(--tx3);font-size:11px;padding:8px 0">Sem valores no periodo</p>';
 
       const cityCnt = {};
-      recs.forEach(r => { const c = r.CID || 'SEM CIDADE'; cityCnt[c] = (cityCnt[c] || 0) + 1; });
+      recs.forEach(r => { const c = r.CID || 'SEM CIDADE';
+        cityCnt[c] = (cityCnt[c] || 0) + 1; });
       const topC = Object.entries(cityCnt).sort((a, b) => b[1] - a[1]).slice(0, 10);
       const maxC = Math.max(...topC.map(e => e[1]), 1);
-      const ccols = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#f97316', '#ec4899', '#06b6d4', '#84cc16', '#ef4444', '#6b7280'];
+      const ccols = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#f97316', '#ec4899', '#06b6d4', '#84cc16', '#ef4444',
+        '#6b7280'
+      ];
       const cityHtml = topC.map(([c, v], i) =>
         `<div class="bar-row"><span class="bar-lbl" style="width:100px" title="${c}">${c.length > 13 ? c.slice(0, 13) + '...' : c}</span><div class="bar-w"><div class="bar-f" style="width:${Math.round(v / maxC * 100)}%;background:${ccols[i % 10]}"><span class="bar-fv">${v}</span></div></div></div>`
       ).join('');
@@ -1560,8 +1727,8 @@ function doGet(e) {
       };
 
       const allCities = Object.keys(cityStats).sort();
-      const cityAvgHtml = allCities.length
-        ? allCities.map(c => {
+      const cityAvgHtml = allCities.length ?
+        allCities.map(c => {
           const st = cityStats[c];
           const rate = st.total > 0 ? ((st.ent / st.total) * 100).toFixed(1) + '%' : '-';
           const allD = [...st.deltas.NORMAL, ...st.deltas.URGENTE, ...st.deltas['CARRO HORARIO']];
@@ -1575,15 +1742,17 @@ function doGet(e) {
               <td style="text-align:center">${avgStr(st.deltas['CARRO HORARIO'])}</td>
               <td style="text-align:center">${avgStr(allD)}</td>
             </tr>`;
-        }).join('')
-        : `<tr><td colspan="8" style="color:var(--tx3);text-align:center;padding:14px">Sem dados com faturamento e entrega no periodo</td></tr>`;
+        }).join('') :
+        `<tr><td colspan="8" style="color:var(--tx3);text-align:center;padding:14px">Sem dados com faturamento e entrega no periodo</td></tr>`;
 
       const rotaGrid = routes.map((r, i) => {
         const cross = Object.entries(r.cross || {}).filter(([, v]) => v > 0);
-        const crossHtml = cross.length
-          ? `<div class="rota-cross"><div class="rota-cross-t">Distribuição</div>${cross.map(([k, v]) => `<div class="rota-cross-row"><span class="rota-cross-lbl" title="${k}">${k.length > 20 ? k.slice(0, 20) + '...' : k}</span><span class="rota-cross-val">R$ ${v.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span></div>`).join('')}</div>` : '';
+        const crossHtml = cross.length ?
+          `<div class="rota-cross"><div class="rota-cross-t"><i class="fas fa-chart-bar"></i> Distribuição</div>${cross.map(([k, v]) => `<div class="rota-cross-row"><span class="rota-cross-lbl" title="${k}">${k.length > 20 ? k.slice(0, 20) + '...' : k}</span><span class="rota-cross-val">R$ ${v.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span></div>`).join('')}</div>` :
+          '';
         const pc = { 'ABAIXO': 'ABAIXO', 'EM ANALISE': 'EM_ANALISE', 'SEXTA': 'SEXTA' }[r.prev] || 'ABAIXO';
-        const pl = { 'ABAIXO': '[R] Abaixo da Meta', 'EM ANALISE': '[Y] Em Analise', 'SEXTA': '[G] Prevista Sexta' }[r.prev] || r.prev || '-';
+        const pl = { 'ABAIXO': 'Abaixo da Meta', 'EM ANALISE': 'Em Analise', 'SEXTA': 'Prevista Sexta' }[r.prev] || r
+        .prev || '-';
         return `<div class="rota-card" style="--rc:${RCOLS[i % 5]}"><div class="rota-nome">${r.nome}</div><div class="rota-val">R$ ${(r.val || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div><span class="rota-prev ${pc}">${pl}</span>${crossHtml}</div>`;
       }).join('');
 
@@ -1593,56 +1762,57 @@ function doGet(e) {
         const cells = allDests.map(d => { const v = r.cross?.[d] || 0; return `<td style="${v > 0 ? 'color:#e8eaf0;font-weight:600' : ''}">${v > 0 ? 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '-'}</td>`; }).join('');
         return `<tr><td style="color:${RCOLS[i % 5]};font-weight:600">${r.nome.length > 28 ? r.nome.slice(0, 28) + '...' : r.nome}</td>${cells}<td style="font-weight:700;color:#e8eaf0">R$ ${(r.val || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td></tr>`;
       }).join('');
-      const totRow = allDests.length
-        ? `<tr style="border-top:2px solid var(--bor)"><td style="font-weight:700;color:var(--tx3)">TOTAL</td>${allDests.map(d => { const t = routes.reduce((s, r) => s + (r.cross?.[d] || 0), 0); return `<td style="font-weight:700;color:var(--gr)">${t > 0 ? 'R$ ' + t.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '-'}</td>`; }).join('')}<td style="font-weight:700;color:var(--gr)">R$ ${routes.reduce((s, r) => s + (r.val || 0), 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td></tr>` : '';
+      const totRow = allDests.length ?
+        `<tr style="border-top:2px solid var(--bor)"><td style="font-weight:700;color:var(--tx3)">TOTAL</td>${allDests.map(d => { const t = routes.reduce((s, r) => s + (r.cross?.[d] || 0), 0); return `<td style="font-weight:700;color:var(--gr)">${t > 0 ? 'R$ ' + t.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '-'}</td>`; }).join('')}<td style="font-weight:700;color:var(--gr)">R$ ${routes.reduce((s, r) => s + (r.val || 0), 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td></tr>` :
+        '';
 
       document.getElementById('tab1-content').innerHTML = `
         <div>
-          <div class="slbl">Faturamento — referência: DATA/HORA FATURAMENTO</div>
+          <div class="slbl"><i class="fas fa-chart-simple"></i> Faturamento — referência: DATA/HORA FATURAMENTO</div>
           <div class="fat-row">
             <div class="fat-card" style="--cc:var(--gr)">
-              <div class="fat-label">[$] Faturamento Total</div>
+              <div class="fat-label"><i class="fas fa-dollar-sign"></i> Faturamento Total</div>
               <div class="fat-value">R$ ${fatTot.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
               <div class="fat-sub">${periodoStr}</div>
             </div>
             <div class="fat-card" style="--cc:var(--bl)">
-              <div class="fat-label">[F] Pedidos Faturados</div>
+              <div class="fat-label"><i class="fas fa-file-invoice"></i> Pedidos Faturados</div>
               <div class="fat-value">${recs.length.toLocaleString('pt-BR')}</div>
               <div class="fat-sub">${fatCnt} com valor · ${recs.length - fatCnt} sem valor</div>
             </div>
             <div class="fat-card" style="--cc:var(--ye)">
-              <div class="fat-label">[T] Ticket Médio</div>
+              <div class="fat-label"><i class="fas fa-receipt"></i> Ticket Médio</div>
               <div class="fat-value">R$ ${fatAvg.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
               <div class="fat-sub">Sobre pedidos com valor registrado</div>
             </div>
           </div>
         </div>
         <div class="row2">
-          <div class="cc"><div class="cc-t">[$] Faturamento por Status</div><div class="cc-s">Soma dos valores por situação logística</div><div>${fatStatHtml}</div></div>
-          <div class="cc"><div class="cc-t">[C] Pedidos por Cidade</div><div class="cc-s">Top 10 cidades no período</div>${cityHtml}</div>
+          <div class="cc"><div class="cc-t"><i class="fas fa-coins"></i> Faturamento por Status</div><div class="cc-s">Soma dos valores por situação logística</div><div>${fatStatHtml}</div></div>
+          <div class="cc"><div class="cc-t"><i class="fas fa-city"></i> Pedidos por Cidade</div><div class="cc-s">Top 10 cidades no período</div>${cityHtml}</div>
         </div>
         <div class="tc">
           <div class="th">
-            <span class="th-t">[D] Detalhes de Faturamento</span>
+            <span class="th-t"><i class="fas fa-table"></i> Detalhes de Faturamento</span>
             <input type="text" class="ts" id="ts1" placeholder="Buscar pedido, cidade..." oninput="renderFatTable()">
             <span class="rcnt" id="tcount1"></span>
           </div>
           <div class="tw"><table><thead><tr>
             <th>Pedido</th>
-            <th onclick="sortT(1,'NIV')">Nível [^]</th>
-            <th onclick="sortT(1,'FAT_DH')">Data Fat. [^]</th>
+            <th onclick="sortT(1,'NIV')">Nível <i class="fas fa-sort"></i></th>
+            <th onclick="sortT(1,'FAT_DH')">Data Fat. <i class="fas fa-sort"></i></th>
             <th>Hora Fat.</th>
-            <th onclick="sortT(1,'END')">Data Entrega [^]</th>
+            <th onclick="sortT(1,'END')">Data Entrega <i class="fas fa-sort"></i></th>
             <th>Hora Entrega</th>
-            <th>[T] Fat->Ent</th>
-            <th onclick="sortT(1,'CID')">Cidade [^]</th>
-            <th onclick="sortT(1,'LOG')">Status [^]</th>
-            <th onclick="sortT(1,'VAL')">Valor [^]</th>
+            <th><i class="fas fa-hourglass-half"></i> Fat→Ent</th>
+            <th onclick="sortT(1,'CID')">Cidade <i class="fas fa-sort"></i></th>
+            <th onclick="sortT(1,'LOG')">Status <i class="fas fa-sort"></i></th>
+            <th onclick="sortT(1,'VAL')">Valor <i class="fas fa-sort"></i></th>
           </tr></thead><tbody id="tbody1"></tbody></table></div>
           <div class="tfoot"><span id="pi1"></span><div class="pag" id="pag1"></div></div>
         </div>
         <div class="cc">
-          <div class="cc-t">[T] Média de Tempo Fat->Entrega por Cidade e Nível</div>
+          <div class="cc-t"><i class="fas fa-clock"></i> Média de Tempo Fat→Entrega por Cidade e Nível</div>
           <div class="cc-s">Calculado somente sobre pedidos ENTREGUES com DATA/HORA FATURAMENTO e hora de entrega preenchidas · seções vazias são ignoradas</div>
           <div style="overflow-x:auto">
             <table class="city-table">
@@ -1651,20 +1821,20 @@ function doGet(e) {
                 <th style="text-align:center">Total Fat.</th>
                 <th style="text-align:center">Entregues</th>
                 <th style="text-align:center">Taxa</th>
-                <th style="text-align:center">[T] Normal</th>
-                <th style="text-align:center">[T] Urgente</th>
-                <th style="text-align:center">[T] Carro Horário</th>
-                <th style="text-align:center">[T] Média Geral</th>
+                <th style="text-align:center">Normal</th>
+                <th style="text-align:center">Urgente</th>
+                <th style="text-align:center">Carro Horário</th>
+                <th style="text-align:center">Média Geral</th>
               </tr></thead>
               <tbody>${cityAvgHtml}</tbody>
             </table>
           </div>
         </div>
         <div>
-          <div class="slbl">Previsão por Rota</div>
+          <div class="slbl"><i class="fas fa-route"></i> Previsão por Rota</div>
           <div class="rota-grid">${rotaGrid || '<p style="color:var(--tx3);font-size:11px">Nenhuma rota carregada.</p>'}</div>
         </div>
-        ${allDests.length ? `<div class="cc"><div class="cc-t">[M] Tabela Cruzada de Rotas</div><div class="cc-s">Valor dos pedidos por destino</div><div style="overflow-x:auto"><table class="city-table">${crossThead}<tbody>${crossBody}${totRow}</tbody></table></div></div>` : ''}`;
+        ${allDests.length ? `<div class="cc"><div class="cc-t"><i class="fas fa-table"></i> Tabela Cruzada de Rotas</div><div class="cc-s">Valor dos pedidos por destino</div><div style="overflow-x:auto"><table class="city-table">${crossThead}<tbody>${crossBody}${totRow}</tbody></table></div></div>` : ''}`;
 
       renderFatTable();
     }
@@ -1675,22 +1845,25 @@ function doGet(e) {
       if (s) recs = recs.filter(r => [r.PED, r.CID, r.LOG, r.FAT_DH, r.VEND, r.NIV].join(' ').toLowerCase().includes(s));
       const { col, asc } = sortCols[1];
       recs.sort((a, b) => {
-        let av = col === 'VAL' ? a.VAL || 0 : a[col] || '', bv = col === 'VAL' ? b.VAL || 0 : b[col] || '';
+        let av = col === 'VAL' ? a.VAL || 0 : a[col] || '',
+          bv = col === 'VAL' ? b.VAL || 0 : b[col] || '';
         return asc ? (av < bv ? -1 : av > bv ? 1 : 0) : (av > bv ? -1 : av < bv ? 1 : 0);
       });
-      const tot = recs.length, pg = Math.max(1, Math.ceil(tot / PS));
+      const tot = recs.length,
+        pg = Math.max(1, Math.ceil(tot / PS));
       if (pages[1] > pg) pages[1] = pg;
       const sl = recs.slice((pages[1] - 1) * PS, pages[1] * PS);
 
       const NIV_COLOR = { 'URGENTE': '#ef4444', 'CARRO HORARIO': '#8b5cf6', 'NORMAL': '#3b82f6', 'RETIRADA': '#f97316' };
-      const el = document.getElementById('tbody1'); if (!el) return;
+      const el = document.getElementById('tbody1');
+      if (!el) return;
       el.innerHTML = sl.map(r => {
-        const cfg = SC[r.LOG] || { c: '#6b7280', i: '-' };
+        const cfg = SC[r.LOG] || { c: '#6b7280', i: 'fa-question-circle' };
         const nc = NIV_COLOR[r.NIV] || '#6b7280';
         const ds = tdiff(r.FAT_DH, r.END, r.ENH);
-        const dsHtml = ds !== '-'
-          ? '<span style="color:#10b981;font-weight:600;font-size:11px">' + ds + '</span>'
-          : '<span style="color:var(--tx3)">-</span>';
+        const dsHtml = ds !== '-' ?
+          '<span style="color:#10b981;font-weight:600;font-size:11px">' + ds + '</span>' :
+          '<span style="color:var(--tx3)">-</span>';
         return `<tr>
           <td>${r.PED || '-'}</td>
           <td><span class="bdg" style="background:${nc}22;color:${nc}">${r.NIV || '-'}</span></td>
@@ -1700,11 +1873,13 @@ function doGet(e) {
           <td>${r.ENH || '-'}</td>
           <td>${dsHtml}</td>
           <td>${r.CID || '-'}</td>
-          <td><span class="bdg" style="background:${cfg.c}22;color:${cfg.c}">${cfg.i} ${r.LOG}</span></td>
+          <td><span class="bdg" style="background:${cfg.c}22;color:${cfg.c}"><i class="fas ${cfg.i}" style="margin-right:3px"></i> ${r.LOG}</span></td>
           <td>${r.VAL > 0 ? 'R$ ' + r.VAL.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '-'}</td>
         </tr>`;
       }).join('');
-      const tc = document.getElementById('tcount1'), pi = document.getElementById('pi1'), pag = document.getElementById('pag1');
+      const tc = document.getElementById('tcount1'),
+        pi = document.getElementById('pi1'),
+        pag = document.getElementById('pag1');
       if (tc) tc.textContent = tot + ' registros';
       if (pi) pi.textContent = 'Pag ' + pages[1] + ' de ' + pg;
       if (pag) renderPag(pag, pg, 1, renderFatTable);
@@ -1712,6 +1887,7 @@ function doGet(e) {
 
     // -- MODAL ----------------------------------------------------------
     function openModal() { document.getElementById('modal').classList.add('open'); }
+
     function closeModal() { document.getElementById('modal').classList.remove('open'); }
     document.getElementById('modal').addEventListener('click', e => {
       if (e.target === document.getElementById('modal')) closeModal();
@@ -1721,8 +1897,10 @@ function doGet(e) {
     init();
     // -- MODAL ----------------------------------------------------------
     function openModal() { document.getElementById('modal').classList.add('open'); }
+
     function closeModal() { document.getElementById('modal').classList.remove('open'); }
-    document.getElementById('modal').addEventListener('click', e => { if (e.target === document.getElementById('modal')) closeModal(); });
+    document.getElementById('modal').addEventListener('click', e => { if (e.target === document.getElementById('modal'))
+        closeModal(); });
 
     // -- START ----------------------------------------------------------
     init();
