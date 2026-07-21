@@ -1002,6 +1002,7 @@
         <path d="M3 9h18M9 21V9" />
       </svg> Resumo de Pedidos</div>
     <div class="tab" onclick="switchTab(1)"><i class="fa-solid fa-file-invoice-dollar"></i> Faturamento & Entregas</div>
+    <div class="tab" onclick="switchTab(2)"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:4px"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Análise por Cidades</div>
   </div>
 
   <div class="fbar">
@@ -1042,6 +1043,14 @@
     <div id="tab1-content">
       <div class="loading-screen">
         <div class="loading-msg">Sincronize para ver o faturamento</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="tab2">
+    <div id="tab2-content">
+      <div class="loading-screen">
+        <div class="loading-msg">Sincronize para ver a análise por cidades</div>
       </div>
     </div>
   </div>
@@ -1161,13 +1170,13 @@ function doGet(e) {
 
   <script>
     // -- STATE ----------------------------------------------------------
-    let allRecs = [], routes = [], filtered = [], filteredFat = [];
+    let allRecs = [], routes = [], filtered = [], filteredFat = [], filteredCity = [];
     // ── URL DO APPS SCRIPT — altere aqui quando necessário ──────────
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbycPZZ8bY2Mwj_OASlKZt-3smADVeAhcufyqCu-V3rKx6IxhpJa_6brgvL0-oknIgo/exec?acao=vendas';
     let gasUrl = GAS_URL;
     let activeSt = null;
-    let sortCols = { 0: { col: 'DATA', asc: false }, 1: { col: 'FAT_DH', asc: false } };
-    let pages = { 0: 1, 1: 1 };
+    let sortCols = { 0: { col: 'DATA', asc: false }, 1: { col: 'FAT_DH', asc: false }, 2: { col: 'CID', asc: true } };
+    let pages = { 0: 1, 1: 1, 2: 1 };
     const PS = 25;
 
     const SC = {
@@ -1192,6 +1201,7 @@ function doGet(e) {
     function switchTab(i) {
       document.querySelectorAll('.tab').forEach((t, j) => t.classList.toggle('active', j === i));
       document.querySelectorAll('.tab-panel').forEach((p, j) => p.classList.toggle('active', j === i));
+      if (i === 2 && allRecs.length) renderTab2();
     }
 
     // -- SYNC -----------------------------------------------------------
@@ -1202,6 +1212,7 @@ function doGet(e) {
       const loadHtml = '<div class="loading-screen"><div class="spinner"></div><div class="loading-msg">Carregando dados da planilha...</div></div>';
       document.getElementById('tab0-content').innerHTML = loadHtml;
       document.getElementById('tab1-content').innerHTML = loadHtml;
+      document.getElementById('tab2-content').innerHTML = loadHtml;
       try {
         const url = gasUrl + (gasUrl.includes('?') ? '&' : '?') + '_t=' + Date.now();
         const resp = await fetch(url);
@@ -1235,6 +1246,7 @@ function doGet(e) {
       </div>`;
       document.getElementById('tab0-content').innerHTML = html;
       document.getElementById('tab1-content').innerHTML = html;
+      document.getElementById('tab2-content').innerHTML = html;
     }
 
     function saveUrl() {
@@ -1286,9 +1298,22 @@ function doGet(e) {
         return true;
       });
 
+      // filteredCity: mesmos filtros de data/vendedor/nivel mas sem activeSt
+      filteredCity = allRecs.filter(r => {
+        const dataISO = normDate(r.DATA);
+        if (fF && dataISO && dataISO < fF) return false;
+        if (fT && dataISO && dataISO > fT) return false;
+        if (fV && r.VEND !== fV) return false;
+        if (fN && r.NIV !== fN) return false;
+        return true;
+      });
+
       document.getElementById('rcnt').textContent = filtered.length + ' registros';
-      pages[0] = 1; pages[1] = 1;
+      pages[0] = 1; pages[1] = 1; pages[2] = 1;
       renderTab0(); renderTab1();
+      // Rerender tab2 se estiver ativa
+      const activeTab = [...document.querySelectorAll('.tab')].findIndex(t => t.classList.contains('active'));
+      if (activeTab === 2) renderTab2();
     }
 
     function resetFilters() {
@@ -1740,6 +1765,291 @@ function doGet(e) {
       if (tc) tc.textContent = tot + ' registros';
       if (pi) pi.textContent = 'Pag ' + pages[1] + ' de ' + pg;
       if (pag) renderPag(pag, pg, 1, renderFatTable);
+    }
+
+
+    // ════════════════════════════════════════════════════════════════
+    //  TAB 2 — ANÁLISE POR CIDADES
+    // ════════════════════════════════════════════════════════════════
+    function renderTab2() {
+      const recs = filteredCity;
+      if (!recs.length) {
+        document.getElementById('tab2-content').innerHTML =
+          '<div class="loading-screen"><div class="loading-msg">Sem dados para o período selecionado</div></div>';
+        return;
+      }
+
+      // ── Totais por cidade ──────────────────────────────────────────
+      const cityMap = {};   // { cidade: { total, entregues, retiradas, valor, vends:{} } }
+      recs.forEach(r => {
+        const c = r.CID || 'SEM CIDADE';
+        if (!cityMap[c]) cityMap[c] = { total:0, ent:0, ret:0, pend:0, valor:0, vends:{} };
+        cityMap[c].total++;
+        if (r.LOG === 'ENTREGUE')  cityMap[c].ent++;
+        if (r.LOG === 'RETIRADA')  cityMap[c].ret++;
+        if (r.LOG === 'PENDENCIA') cityMap[c].pend++;
+        if (r.VAL > 0) cityMap[c].valor += r.VAL;
+        if (r.LOG === 'ENTREGUE' || r.LOG === 'RETIRADA') {
+          cityMap[c].vends[r.VEND] = (cityMap[c].vends[r.VEND] || 0) + 1;
+        }
+      });
+
+      // Top cidades por total de pedidos
+      const topCities = Object.entries(cityMap).sort((a, b) => b[1].total - a[1].total);
+      const maxTotal  = topCities[0]?.[1].total || 1;
+
+      // Paleta
+      const COLS = ['#3b82f6','#10b981','#f59e0b','#8b5cf6','#f97316','#ec4899','#06b6d4','#84cc16','#ef4444','#6b7280'];
+
+      // ── Gráfico de barras: entregas por cidade (top 12) ────────────
+      const top12 = topCities.slice(0, 12);
+      const barChart = top12.map(([city, d], i) => {
+        const pct = Math.round(d.total / maxTotal * 100);
+        const pctEnt = d.total > 0 ? Math.round(d.ent / d.total * 100) : 0;
+        return `<div class="bar-row" style="margin-bottom:11px">
+          <span class="bar-lbl" style="width:110px;font-size:9px" title="${city}">${city.length>14?city.slice(0,14)+'…':city}</span>
+          <div style="flex:1;position:relative">
+            <div class="bar-w" style="height:24px">
+              <div class="bar-f" style="width:${pct}%;background:${COLS[i%10]};height:100%">
+                <span class="bar-fv">${d.total}</span>
+              </div>
+            </div>
+            <div style="position:absolute;top:0;left:0;height:24px;width:${Math.round(d.ent/maxTotal*100)}%;background:${COLS[i%10]};opacity:.35;border-radius:3px;pointer-events:none"></div>
+          </div>
+          <span style="font-size:9px;color:var(--tx3);width:38px;text-align:right">${pctEnt}% ent.</span>
+        </div>`;
+      }).join('');
+
+      // ── Mapa de calor: vendedor × cidade ──────────────────────────
+      // Top 8 cidades e top 8 vendedores por entregas
+      const top8Cities = topCities.slice(0, 8).map(([c]) => c);
+      const vendMap = {};
+      recs.filter(r => r.LOG === 'ENTREGUE' || r.LOG === 'RETIRADA').forEach(r => {
+        vendMap[r.VEND] = (vendMap[r.VEND] || 0) + 1;
+      });
+      const top8Vends = Object.entries(vendMap).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([v]) => v);
+
+      // Matriz vendedor × cidade
+      const matrix = {};
+      top8Vends.forEach(v => { matrix[v] = {}; top8Cities.forEach(c => { matrix[v][c] = 0; }); });
+      recs.forEach(r => {
+        if ((r.LOG === 'ENTREGUE' || r.LOG === 'RETIRADA') && matrix[r.VEND] && top8Cities.includes(r.CID))
+          matrix[r.VEND][r.CID]++;
+      });
+      const allVals = top8Vends.flatMap(v => top8Cities.map(c => matrix[v][c]));
+      const maxVal = Math.max(...allVals, 1);
+
+      const heatHead = `<thead><tr><th style="min-width:90px">Vendedor</th>${top8Cities.map(c =>
+        `<th style="text-align:center;min-width:60px;font-size:8px" title="${c}">${c.length>9?c.slice(0,9)+'…':c}</th>`
+      ).join('')}<th style="text-align:center">Total</th></tr></thead>`;
+
+      const heatBody = top8Vends.map(v => {
+        const cells = top8Cities.map(city => {
+          const val = matrix[v][city];
+          const alpha = val > 0 ? 0.15 + (val / maxVal) * 0.75 : 0;
+          const bg = val > 0 ? `rgba(59,130,246,${alpha.toFixed(2)})` : 'transparent';
+          return `<td style="text-align:center;background:${bg};font-weight:${val>0?600:400};color:${val>0?'var(--tx)':'var(--tx3)'}">${val||'—'}</td>`;
+        }).join('');
+        const tot = top8Cities.reduce((s, city) => s + matrix[v][city], 0);
+        return `<tr><td style="font-weight:600;color:var(--tx)">${v.length>14?v.slice(0,14)+'…':v}</td>${cells}<td style="text-align:center;font-weight:700;color:var(--bl)">${tot}</td></tr>`;
+      }).join('');
+
+      // ── KPI cards por cidade ───────────────────────────────────────
+      const totalPed   = recs.length;
+      const totalEnt   = recs.filter(r => r.LOG === 'ENTREGUE').length;
+      const totalRet   = recs.filter(r => r.LOG === 'RETIRADA').length;
+      const totalPend  = recs.filter(r => r.LOG === 'PENDENCIA').length;
+      const totalCids  = Object.keys(cityMap).length;
+      const totalValor = recs.filter(r => r.VAL > 0).reduce((s, r) => s + r.VAL, 0);
+
+      const S = (p, sz=14) => `<svg xmlns="http://www.w3.org/2000/svg" width="${sz}" height="${sz}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:4px">${p}</svg>`;
+
+      const kpis2 = [
+        { ico: S('<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>'), l:'Cidades Atendidas', v: totalCids, c:'#06b6d4' },
+        { ico: S('<rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>'), l:'Total Pedidos', v: totalPed, c:'#3b82f6' },
+        { ico: S('<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>'), l:'Entregas Realizadas', v: totalEnt, c:'#10b981' },
+        { ico: S('<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>'), l:'Retiradas em Loja', v: totalRet, c:'#f97316' },
+        { ico: S('<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>'), l:'Pendências', v: totalPend, c:'#ef4444' },
+        { ico: S('<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>'), l:'Valor Total', v:'R$ '+totalValor.toLocaleString('pt-BR',{minimumFractionDigits:2}), c:'#10b981', str:true },
+      ];
+
+      const kpiHtml = kpis2.map(k => `
+        <div class="kc" style="--cc:${k.c};cursor:default">
+          <div class="kc-i">${k.ico}</div>
+          <div class="kc-v" style="font-size:${k.str?'16px':'22px'}">${k.str ? k.v : k.v.toLocaleString('pt-BR')}</div>
+          <div class="kc-l">${k.l}</div>
+        </div>`).join('');
+
+      // ── Tabela de pedidos por cidade ───────────────────────────────
+      const cityTableRows = topCities.map(([city, d]) => {
+        const topVend = Object.entries(d.vends).sort((a,b)=>b[1]-a[1])[0];
+        const rate = d.total > 0 ? ((d.ent/d.total)*100).toFixed(1) : '0.0';
+        return `<tr>
+          <td><b>${city}</b></td>
+          <td style="text-align:center">${d.total.toLocaleString('pt-BR')}</td>
+          <td style="text-align:center"><span style="color:#10b981;font-weight:600">${d.ent}</span></td>
+          <td style="text-align:center"><span style="color:#f97316">${d.ret}</span></td>
+          <td style="text-align:center"><span style="color:#ef4444">${d.pend}</span></td>
+          <td style="text-align:center">
+            <div style="display:flex;align-items:center;gap:6px;justify-content:center">
+              <div style="width:50px;height:6px;background:var(--sur2);border-radius:3px;overflow:hidden">
+                <div style="height:100%;width:${rate}%;background:#10b981;border-radius:3px"></div>
+              </div>
+              <span style="font-size:9px;color:var(--tx2)">${rate}%</span>
+            </div>
+          </td>
+          <td>${d.valor>0?'R$ '+d.valor.toLocaleString('pt-BR',{minimumFractionDigits:2}):'—'}</td>
+          <td style="color:var(--tx2)">${topVend ? topVend[0].slice(0,16)+(topVend[0].length>16?'…':'') : '—'} ${topVend?'<span style="color:var(--tx3);font-size:8px">('+topVend[1]+')</span>':''}</td>
+        </tr>`;
+      }).join('');
+
+      // ── Tabela de pedidos individuais ──────────────────────────────
+      renderCityPedTable(recs, 'cityPedBody');
+
+      // ── Montar HTML ───────────────────────────────────────────────
+      document.getElementById('tab2-content').innerHTML = `
+        <div>
+          <div class="slbl">Análise por Cidades</div>
+          <div class="kg" style="grid-template-columns:repeat(6,1fr)">${kpiHtml}</div>
+        </div>
+
+        <div class="row2">
+          <div class="cc">
+            <div class="cc-t">${S('<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>')} Pedidos &amp; Entregas por Cidade</div>
+            <div class="cc-s">Total (barras cheias) · Entregues (overlay claro) · Top 12 cidades</div>
+            <div>${barChart}</div>
+          </div>
+          <div class="cc">
+            <div class="cc-t">${S('<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>')} Calor Vendedor × Cidade</div>
+            <div class="cc-s">Quantidade de entregas/retiradas — mais escuro = mais volume</div>
+            <div style="overflow-x:auto">
+              <table class="city-table">
+                ${heatHead}
+                <tbody>${heatBody}</tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="tc">
+          <div class="th">
+            <span class="th-t">${S('<polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/>')} Resumo por Cidade</span>
+          </div>
+          <div class="tw">
+            <table>
+              <thead><tr>
+                <th onclick="sortCity('CID')">Cidade ${sortArrow(2,'CID')}</th>
+                <th style="text-align:center" onclick="sortCity('total')">Total ${sortArrow(2,'total')}</th>
+                <th style="text-align:center" onclick="sortCity('ent')">Entregas ${sortArrow(2,'ent')}</th>
+                <th style="text-align:center">Retiradas</th>
+                <th style="text-align:center">Pendências</th>
+                <th style="text-align:center" onclick="sortCity('rate')">Taxa Entrega ${sortArrow(2,'rate')}</th>
+                <th onclick="sortCity('valor')">Valor ${sortArrow(2,'valor')}</th>
+                <th>Top Vendedor</th>
+              </tr></thead>
+              <tbody id="cityResBody">${cityTableRows}</tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="tc">
+          <div class="th">
+            <span class="th-t">${S('<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>')} Pedidos por Cidade</span>
+            <input type="text" class="ts" id="ts2" placeholder="Buscar cidade, pedido, vendedor..." oninput="renderCityPedTable(filteredCity,'cityPedBody')">
+            <select class="fi" id="fCity" style="font-size:10px" onchange="renderCityPedTable(filteredCity,'cityPedBody')">
+              <option value="">Todas as Cidades</option>
+              ${[...new Set(recs.map(r=>r.CID).filter(Boolean))].sort().map(c=>`<option value="${c}">${c}</option>`).join('')}
+            </select>
+            <span class="rcnt" id="tcount2"></span>
+          </div>
+          <div class="tw">
+            <table>
+              <thead><tr>
+                <th onclick="sortCityPed('DATA')">Data ${sortArrow(2,'DATA')}</th>
+                <th onclick="sortCityPed('CID')">Cidade ${sortArrow(2,'CID')}</th>
+                <th onclick="sortCityPed('VEND')">Vendedor ${sortArrow(2,'VEND')}</th>
+                <th onclick="sortCityPed('LOG')">Status ${sortArrow(2,'LOG')}</th>
+                <th onclick="sortCityPed('NIV')">Nível ${sortArrow(2,'NIV')}</th>
+                <th onclick="sortCityPed('VAL')">Valor ${sortArrow(2,'VAL')}</th>
+                <th>Pedido</th>
+              </tr></thead>
+              <tbody id="cityPedBody"></tbody>
+            </table>
+          </div>
+          <div class="tfoot"><span id="pi2"></span><div class="pag" id="pag2"></div></div>
+        </div>`;
+
+      renderCityPedTable(recs, 'cityPedBody');
+    }
+
+    // ── helper: seta de ordenação ──────────────────────────────────────────
+    function sortArrow(tab, col) {
+      const sc = sortCols[tab];
+      if (sc.col !== col) return '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-left:3px;opacity:.35"><polyline points="6 9 12 3 18 9"/><polyline points="6 15 12 21 18 15"/></svg>';
+      return sc.asc
+        ? '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-left:3px;opacity:.8"><polyline points="6 15 12 9 18 15"/></svg>'
+        : '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-left:3px;opacity:.8"><polyline points="6 9 12 15 18 9"/></svg>';
+    }
+
+    function sortCity(col) {
+      if (sortCols[2].col === col) sortCols[2].asc = !sortCols[2].asc;
+      else { sortCols[2].col = col; sortCols[2].asc = col !== 'total'; }
+      renderTab2();
+    }
+
+    let sortCityPedCol = { col:'DATA', asc:false };
+    function sortCityPed(col) {
+      if (sortCityPedCol.col === col) sortCityPedCol.asc = !sortCityPedCol.asc;
+      else { sortCityPedCol.col = col; sortCityPedCol.asc = true; }
+      renderCityPedTable(filteredCity, 'cityPedBody');
+    }
+
+    function renderCityPedTable(recs, tbodyId) {
+      const s  = (document.getElementById('ts2')?.value || '').toLowerCase();
+      const fc = document.getElementById('fCity')?.value || '';
+      let rows = [...recs];
+      if (fc) rows = rows.filter(r => r.CID === fc);
+      if (s)  rows = rows.filter(r => [r.DATA,r.CID,r.VEND,r.LOG,r.PED,r.NIV].join(' ').toLowerCase().includes(s));
+
+      const { col, asc } = sortCityPedCol;
+      rows.sort((a, b) => {
+        let av = col === 'VAL' ? a.VAL||0 : a[col]||'';
+        let bv = col === 'VAL' ? b.VAL||0 : b[col]||'';
+        return asc ? (av<bv?-1:av>bv?1:0) : (av>bv?-1:av<bv?1:0);
+      });
+
+      const tot = rows.length, pg = Math.max(1, Math.ceil(tot/PS));
+      if (pages[2] > pg) pages[2] = pg;
+      const sl = rows.slice((pages[2]-1)*PS, pages[2]*PS);
+
+      const SC2 = {
+        'ENTREGA':   {c:'#3b82f6'},'ENTREGUE':  {c:'#10b981'},
+        'RETIRADA':  {c:'#f97316'},'PENDENCIA': {c:'#ef4444'},
+        'AGENDADA':  {c:'#f59e0b'},'VAI HOJE':  {c:'#8b5cf6'},
+        'VAI AMANHA':{c:'#ec4899'},'CARREGADO': {c:'#06b6d4'},
+        'PARCIAL':   {c:'#84cc16'},'CANCELADO': {c:'#6b7280'},
+      };
+      const NIV_C = {'URGENTE':'#ef4444','CARRO HORARIO':'#8b5cf6','NORMAL':'#3b82f6','RETIRADA':'#f97316'};
+
+      const el = document.getElementById(tbodyId); if (!el) return;
+      el.innerHTML = sl.map(r => {
+        const lc = SC2[r.LOG]||{c:'#6b7280'};
+        const nc = NIV_C[r.NIV]||'#6b7280';
+        return `<tr>
+          <td>${r.DATA||'—'}</td>
+          <td><b style="color:var(--tx)">${r.CID||'—'}</b></td>
+          <td>${r.VEND||'—'}</td>
+          <td><span class="bdg" style="background:${lc.c}22;color:${lc.c}">${r.LOG}</span></td>
+          <td><span class="bdg" style="background:${nc}22;color:${nc}">${r.NIV||'—'}</span></td>
+          <td>${r.VAL>0?'R$ '+r.VAL.toLocaleString('pt-BR',{minimumFractionDigits:2}):'—'}</td>
+          <td style="color:var(--tx3)">${r.PED||'—'}</td>
+        </tr>`;
+      }).join('');
+
+      const tc=document.getElementById('tcount2'), pi=document.getElementById('pi2'), pag=document.getElementById('pag2');
+      if (tc) tc.textContent = tot+' pedidos';
+      if (pi) pi.textContent = 'Pág '+pages[2]+' de '+pg;
+      if (pag) renderPag(pag, pg, 2, () => renderCityPedTable(filteredCity,'cityPedBody'));
     }
 
     // -- MODAL ----------------------------------------------------------
