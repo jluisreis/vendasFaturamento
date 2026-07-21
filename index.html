@@ -1179,6 +1179,12 @@ function doGet(e) {
     let pages = { 0: 1, 1: 1, 2: 1 };
     const PS = 25;
 
+    // Normaliza string removendo acentos — usada no LOG ao receber dados
+    function normLog(s) {
+      return String(s||'').toUpperCase().trim()
+        .normalize('NFD').replace(/[̀-ͯ]/g, '');
+    }
+
     const SC = {
       'ENTREGA': { c: '#3b82f6', i: '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px;"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>' }, 'ENTREGUE': { c: '#10b981', i: '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>' },
       'RETIRADA': { c: '#f97316', i: '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px;"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>' }, 'PENDENCIA': { c: '#ef4444', i: '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>' },
@@ -1221,7 +1227,16 @@ function doGet(e) {
         if (!d.ok) throw new Error('Resposta inválida do Apps Script');
         allRecs = (d.records || []).map(r => ({
           ...r,
-          LOG: String(r.LOG || r.LOGISTICA || '').toUpperCase(),
+          LOG: (function(v) {
+            // Normaliza acentos e variações da planilha
+            const raw = String(v || '').toUpperCase().trim();
+            const norm = raw.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            // Aliases: variações da planilha → chave interna do dashboard
+            // "VAI AMANHÃ" vira "VAI AMANHA" após normalize()
+            // "EM ROTA" é alias de "CARREGADO"
+            if (norm === 'EM ROTA') return 'CARREGADO';
+            return norm;
+          })(r.LOG || r.LOGISTICA),
           NIV: String(r.NIV || r['NIVEL ENTREGA'] || '').toUpperCase(),
           VEND: String(r.VEND || r.VENDEDOR || 'DESCONHECIDO').toUpperCase(),
           CID: String(r.CID || r.CIDADE || '').toUpperCase(),
