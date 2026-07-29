@@ -1172,7 +1172,7 @@ function doGet(e) {
     // -- STATE ----------------------------------------------------------
     let allRecs = [], routes = [], filtered = [], filteredFat = [], filteredCity = [];
     // ── URL DO APPS SCRIPT — altere aqui quando necessário ──────────
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbycPZZ8bY2Mwj_OASlKZt-3smADVeAhcufyqCu-V3rKx6IxhpJa_6brgvL0-oknIgo/exec?acao=vendas';
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbwrSQ0pb31svKA4E1CnyI1k_NZOrQBcIgWVeaWCRcYyllEhRji35X3AhTsk7IUZGiA/exec?acao=vendas';
     let gasUrl = GAS_URL;
     let activeSt = null;
     let sortCols = { 0: { col: 'DATA', asc: false }, 1: { col: 'FAT_DH', asc: false }, 2: { col: 'CID', asc: true } };
@@ -1241,6 +1241,7 @@ function doGet(e) {
           VEND: String(r.VEND || r.VENDEDOR || 'DESCONHECIDO').toUpperCase(),
           CID: String(r.CID || r.CIDADE || '').toUpperCase(),
           VAL: parseFloat(r.VAL || r.VALOR || 0) || 0,
+          OBS: String(r.OBS || '').trim(),
         }));
         routes = d.routes || [];
         setUpd(d.lastUpdate || new Date().toISOString());
@@ -1385,7 +1386,7 @@ function doGet(e) {
           <div class="tw"><table><thead><tr>
             <th onclick="sortT(0,'DATA')">Data <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-left:3px;opacity:.5"><polyline points="6 9 12 3 18 9"/><polyline points="6 15 12 21 18 15"/></svg></th><th onclick="sortT(0,'VEND')">Vendedor <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-left:3px;opacity:.5"><polyline points="6 9 12 3 18 9"/><polyline points="6 15 12 21 18 15"/></svg></th>
             <th onclick="sortT(0,'LOG')">Status <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-left:3px;opacity:.5"><polyline points="6 9 12 3 18 9"/><polyline points="6 15 12 21 18 15"/></svg></th><th onclick="sortT(0,'NIV')">Nível <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-left:3px;opacity:.5"><polyline points="6 9 12 3 18 9"/><polyline points="6 15 12 21 18 15"/></svg></th>
-            <th onclick="sortT(0,'CID')">Cidade <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-left:3px;opacity:.5"><polyline points="6 9 12 3 18 9"/><polyline points="6 15 12 21 18 15"/></svg></th><th onclick="sortT(0,'VAL')">Valor <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-left:3px;opacity:.5"><polyline points="6 9 12 3 18 9"/><polyline points="6 15 12 21 18 15"/></svg></th><th>Pedido</th>
+            <th onclick="sortT(0,'CID')">Cidade <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-left:3px;opacity:.5"><polyline points="6 9 12 3 18 9"/><polyline points="6 15 12 21 18 15"/></svg></th><th onclick="sortT(0,'VAL')">Valor <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-left:3px;opacity:.5"><polyline points="6 9 12 3 18 9"/><polyline points="6 15 12 21 18 15"/></svg></th><th>Pedido</th><th>Observação</th>
           </tr></thead><tbody id="tbody0"></tbody></table></div>
           <div class="tfoot"><span id="pi0"></span><div class="pag" id="pag0"></div></div>
         </div>`;
@@ -1502,7 +1503,12 @@ function doGet(e) {
       el.innerHTML = sl.map(r => {
         const cfg = SC[r.LOG] || { c: '#6b7280', i: '-' };
         const v = r.VAL > 0 ? 'R$ ' + r.VAL.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '-';
-        return `<tr><td>${r.DATA || '-'}</td><td>${r.VEND || '-'}</td><td><span class="bdg" style="background:${cfg.c}22;color:${cfg.c}">${cfg.i} ${r.LOG}</span></td><td><span class="bdg" style="background:#2a305055;color:#8892aa">${r.NIV || '-'}</span></td><td>${r.CID || '-'}</td><td>${v}</td><td>${r.PED || '-'}</td></tr>`;
+        // Coluna de observação: só aparece se LOG === PENDENCIA e OBS preenchida
+        const hasPend = r.LOG === 'PENDENCIA';
+        const obsHtml = hasPend && r.OBS
+          ? `<span class="obs-tag">${'<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'} <span class="obs-text">${r.OBS}</span></span>`
+          : (hasPend ? '<span style="color:var(--tx3);font-size:9px">—</span>' : '');
+        return `<tr><td>${r.DATA || '-'}</td><td>${r.VEND || '-'}</td><td><span class="bdg" style="background:${cfg.c}22;color:${cfg.c}">${cfg.i} ${r.LOG}</span></td><td><span class="bdg" style="background:#2a305055;color:#8892aa">${r.NIV || '-'}</span></td><td>${r.CID || '-'}</td><td>${v}</td><td>${r.PED || '-'}</td><td style="max-width:220px">${obsHtml}</td></tr>`;
       }).join('');
       const tc = document.getElementById('tcount0'), pi = document.getElementById('pi0'), pag = document.getElementById('pag0');
       if (tc) tc.textContent = tot + ' registros'; if (pi) pi.textContent = 'Pag ' + pages[0] + ' de ' + pg;
