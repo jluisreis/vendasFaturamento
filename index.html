@@ -1072,78 +1072,152 @@
       <div class="step">
         <div class="step-n">Passo 1 — Cole este código no Apps Script</div>
         <div class="step-t">Abra sua planilha -> Extensões -> Apps Script -> substitua o código:</div>
-        <pre class="code">const SHEET_VENDAS = "Vendas";
-const SHEET_ROTAS  = "Rotas";
+        <pre class="code">const SHEET_VENDAS = "Vendas/Faturamento/Entregas";
+const SHEET_ROTAS  = "Rotas e Coletas";
 
-function doGet(e) {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+function doGet_Vendas(e) {
+  const ss  = SpreadsheetApp.getActiveSpreadsheet();
   const shV = ss.getSheetByName(SHEET_VENDAS);
+  if (!shV) return ContentService
+    .createTextOutput(JSON.stringify({ ok: false, error: "Aba não encontrada" }))
+    .setMimeType(ContentService.MimeType.JSON);
+
   const dataV = shV.getDataRange().getValues();
-  const hV = dataV[0].map(h => String(h).trim().toUpperCase());
 
-  function col(n){ return hV.indexOf(n); }
-  const iNIV=col("NIVEL ENTREGA"),iLOJ=col("LOJA"),iPED=col("PEDIDO"),
-        iVAL=col("VALOR DO PEDIDO"),iLOG=col("LOGISTICA"),iDAT=col("DATA"),
-        iVEN=col("VENDEDOR"),iFAT=col("FATURAMENTO"),
-        iDHF=col("DATA/HORA FATURAMENTO"),iCID=col("CIDADE"),
-        iEND=col("ENTREGUE DATA"),iENH=col("ENTREGUE HORA");
+  // Normaliza cabeçalhos: maiúsculo + sem acentos → "SITUAÇÃO" vira "SITUACAO"
+  const hV = dataV[0].map(h =>
+    String(h).trim().toUpperCase()
+      .normalize("NFD").replace(/[̀-ͯ]/g, "")
+  );
 
-  const fmtD = v => v instanceof Date
-    ? Utilities.formatDate(v,"America/Sao_Paulo","yyyy-MM-dd") : String(v||"").trim();
-  const fmtDH = v => {
-    if(!v) return "";
-    if(v instanceof Date)
-      return Utilities.formatDate(v,"America/Sao_Paulo","yyyy-MM-dd HH:mm:ss");
-    const s=String(v).trim();
-    return(s.includes("NAO")||s.includes("MEXER"))?"":s;
-  };
-  const cleanVal = v => {
-    const s=String(v||"").replace(/R\$\s*/g,"").replace(/\./g,"").replace(",",".").trim();
-    return isNaN(parseFloat(s))?0:parseFloat(s);
-  };
+  function col(n) { return hV.indexOf(n); }
 
-  const records=[];
-  for(let r=1;r<dataV.length;r++){
-    const row=dataV[r];
-    const log=String(row[iLOG]||"").trim().toUpperCase();
-    if(!log) continue;
+  const iNIV = col("SITUACAO"),   // coluna SITUAÇÃO na planilha
+        iLOJ = col("LOJA"),
+        iPED = col("PEDIDO"),
+        iVAL = col("VALOR DO PEDIDO"),
+        iLOG = col("LOGISTICA"),
+        iDAT = col("DATA"),
+        iVEN = col("VENDEDOR"),
+        iFAT = col("FATURAMENTO"),
+        iDHF = col("DATA/HORA FATURAMENTO"),
+        iCID = col("CIDADE"),
+        iEND = col("ENTREGUE DATA"),
+        iENH = col("ENTREGUE HORA"),
+        iOBS = col("OBSERVACAO");   // coluna OBSERVAÇÃO na planilha
+
+  function fmtD(v) {
+    return v instanceof Date
+      ? Utilities.formatDate(v, "America/Sao_Paulo", "dd-MM-yyyy")
+      : String(v || "").trim();
+  }
+  function fmtH(v) {
+    if (!v && v !== 0) return "";
+    if (v instanceof Date)
+      return Utilities.formatDate(v, ss.getSpreadsheetTimeZone(), "HH:mm:ss");
+    if (typeof v === "number") {
+      var s = Math.round(v * 86400),
+          h = Math.floor(s / 3600),
+          m = Math.floor((s % 3600) / 60),
+          sc = s % 60;
+      if (h >= 24) h = 0;
+      return [h, m, sc].map(x => x < 10 ? "0" + x : String(x)).join(":");
+    }
+    var sv = String(v).trim();
+    return (sv.includes("NAO") || sv.includes("MEXER")) ? "" : sv;
+  }
+  function fmtDH(v) {
+    if (!v) return "";
+    if (v instanceof Date)
+      return Utilities.formatDate(v, "America/Sao_Paulo", "dd-MM-yyyy HH:mm:ss");
+    var s = String(v).trim();
+    return (s.includes("NAO") || s.includes("MEXER")) ? "" : s;
+  }
+  function cleanVal(v) {
+    if (!v && v !== 0) return 0;
+    if (typeof v === "number") return v;
+    var s = String(v).replace(/R\$\s*/gi, "").trim();
+    if (!s) return 0;
+    if (s.includes(",")) s = s.replace(/\./g, "").replace(",", ".");
+    var n = parseFloat(s);
+    return isNaN(n) ? 0 : n;
+  }
+
+  // ── ABA VENDAS/FATURAMENTO/ENTREGAS ────────────────────────────────
+  const records = [];
+  for (var r = 1; r < dataV.length; r++) {
+    var row = dataV[r];
+    var log = String(row[iLOG] || "").trim().toUpperCase();
+    if (!log) continue;
     records.push({
-      DATA:fmtD(row[iDAT]),LOG:log,
-      NIV:String(row[iNIV]||"").trim().toUpperCase(),
-      VEND:String(row[iVEN]||"DESCONHECIDO").trim().toUpperCase(),
-      VAL:cleanVal(row[iVAL]),
-      CID:String(row[iCID]||"").trim().toUpperCase(),
-      PED:String(row[iPED]||"").trim(),
-      LOJA:String(row[iLOJ]||"").trim(),
-      FAT:String(row[iFAT]||"").trim(),
-      FAT_DH:fmtDH(row[iDHF]),
-      END:fmtD(row[iEND]),
-      ENH:String(row[iENH]||"").trim(),
+      DATA:   fmtD(row[iDAT]),
+      LOG:    log,
+      NIV:    String(row[iNIV] || "").trim().toUpperCase(),   // SITUAÇÃO
+      VEND:   String(row[iVEN] || "DESCONHECIDO").trim().toUpperCase(),
+      VAL:    cleanVal(row[iVAL]),
+      CID:    String(row[iCID] || "").trim().toUpperCase(),
+      PED:    String(row[iPED] || "").trim(),
+      LOJA:   String(row[iLOJ] || "").trim(),
+      FAT:    String(row[iFAT] || "").trim(),
+      FAT_DH: fmtDH(row[iDHF]),
+      END:    fmtD(row[iEND]),
+      ENH:    fmtH(row[iENH]),
+      OBS:    String(row[iOBS] || "").trim(),                 // OBSERVAÇÃO
     });
   }
 
-  const shR=ss.getSheetByName(SHEET_ROTAS);
-  const dataR=shR?shR.getDataRange().getValues():[];
-  const routes=[];
-  for(let r=1;r<dataR.length;r++){
-    const row=dataR[r];
-    const nome=String(row[0]||"").trim();
-    if(!nome||nome.includes("=")) continue;
-    const cross={};
-    [7,8,9,10,11].forEach(c=>{
-      const key=String(dataR[1]?.[c]||"").trim();
-      const val=cleanVal(row[c]);
-      if(key&&val>0) cross[key]=val;
+  // ── ABA ROTAS E COLETAS ─────────────────────────────────────────────
+  // Mapeamento das células:
+  //   Linha 12  (índice 11) → F:J = nomes dos 5 destinos
+  //   Linhas 13-17 (índices 12-16) → B=rota, C=valor total, D=previsão, F:J=valores cruzados
+  //   Linha 23  (índice 22) → F:J = totais por destino (TOTAL →)
+  var shR = ss.getSheetByName(SHEET_ROTAS);
+  var routes = [];
+  if (shR) {
+    var d = shR.getDataRange().getValues();
+
+    // Nomes dos destinos (linha 12, colunas F-J = índices 5-9)
+    var destinos = (d[11] || []).slice(5, 10).map(function(v) {
+      return String(v || "").trim();
     });
-    routes.push({nome,val:cleanVal(row[1]),prev:String(row[2]||"").trim(),cross});
+
+    // Linha TOTAL → (linha 23 = índice 22), colunas F-J
+    var totLine    = d[22] || [];
+    var totByDest  = {};
+    destinos.forEach(function(dest, i) {
+      if (dest) totByDest[dest] = cleanVal(totLine[5 + i]);
+    });
+
+    // 5 rotas: linhas 13-17 (índices 12-16)
+    for (var rr = 12; rr <= 16; rr++) {
+      var rowR = d[rr];
+      if (!rowR) continue;
+      var nome = String(rowR[1] || "").trim();
+      if (!nome) continue;
+      var cross = {};
+      destinos.forEach(function(dest, i) {
+        var v = cleanVal(rowR[5 + i]);
+        if (dest && v > 0) cross[dest] = v;
+      });
+      routes.push({
+        nome:       nome,
+        val:        cleanVal(rowR[2]),
+        prev:       String(rowR[3] || "").trim(),
+        cross:      cross,
+        totByDest:  totByDest,
+      });
+    }
   }
 
-  const out=ContentService.createTextOutput(JSON.stringify({
-    ok:true,lastUpdate:new Date().toISOString(),
-    total:records.length,records,routes
-  }));
-  out.setMimeType(ContentService.MimeType.JSON);
-  return out;
+  return ContentService
+    .createTextOutput(JSON.stringify({
+      ok:         true,
+      lastUpdate: new Date().toISOString(),
+      total:      records.length,
+      records,
+      routes,
+    }))
+    .setMimeType(ContentService.MimeType.JSON);
 }</pre>
       </div>
       <div class="step">
@@ -1172,7 +1246,7 @@ function doGet(e) {
     // -- STATE ----------------------------------------------------------
     let allRecs = [], routes = [], filtered = [], filteredFat = [], filteredCity = [];
     // ── URL DO APPS SCRIPT — altere aqui quando necessário ──────────
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbwrSQ0pb31svKA4E1CnyI1k_NZOrQBcIgWVeaWCRcYyllEhRji35X3AhTsk7IUZGiA/exec?acao=vendas';
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbw7Dq0SEOkhNZmc9A9FUt9ltbbAfecygUPZ0ugDRoldw03bMt3MNKAbJrFGMajYORk/exec?acao=vendas';
     let gasUrl = GAS_URL;
     let activeSt = null;
     let sortCols = { 0: { col: 'DATA', asc: false }, 1: { col: 'FAT_DH', asc: false }, 2: { col: 'CID', asc: true } };
@@ -1656,72 +1730,147 @@ function doGet(e) {
         }).join('')
         : `<tr><td colspan="8" style="color:var(--tx3);text-align:center;padding:14px">Sem dados com faturamento e entrega no periodo</td></tr>`;
 
+      // ── ROTAS: cards B13:D17 + tabela cruzada F12:J23 ─────────────
+      // Previsão label e cor
+      const prevLabel = { 'EM ANÁLISE':'Em Análise','EM ANALISE':'Em Análise','SEXTA':'Prevista Sexta','ABAIXO':'Abaixo da Meta' };
+      const prevClass = { 'EM ANÁLISE':'EM_ANALISE','EM ANALISE':'EM_ANALISE','SEXTA':'SEXTA','ABAIXO':'ABAIXO' };
+      const prevIco = {
+        'EM_ANALISE': '<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+        'SEXTA':      '<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>',
+        'ABAIXO':     '<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>',
+      };
+
+      // Cards das rotas (B13:D17)
       const rotaGrid = routes.map((r, i) => {
-        const cross = Object.entries(r.cross || {}).filter(([, v]) => v > 0);
-        const crossHtml = cross.length
-          ? `<div class="rota-cross"><div class="rota-cross-t">Distribuição</div>${cross.map(([k, v]) => `<div class="rota-cross-row"><span class="rota-cross-lbl" title="${k}">${k.length > 20 ? k.slice(0, 20) + '...' : k}</span><span class="rota-cross-val">R$ ${v.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span></div>`).join('')}</div>` : '';
-        const pc = { 'ABAIXO': 'ABAIXO', 'EM ANALISE': 'EM_ANALISE', 'SEXTA': 'SEXTA' }[r.prev] || 'ABAIXO';
-        const pl = { 'ABAIXO': '<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:4px;"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>Abaixo da Meta', 'EM ANALISE': '<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:4px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Em Análise', 'SEXTA': '<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:4px;"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>Prevista Sexta' }[r.prev] || r.prev || '-';
-        return `<div class="rota-card" style="--rc:${RCOLS[i % 5]}"><div class="rota-nome">${r.nome}</div><div class="rota-val">R$ ${(r.val || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div><span class="rota-prev ${pc}">${pl}</span>${crossHtml}</div>`;
+        const norm = String(r.prev||'').trim().toUpperCase()
+          .normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+        const pc  = prevClass[r.prev] || prevClass[norm] || 'EM_ANALISE';
+        const ico = prevIco[pc] || '';
+        const pl  = prevLabel[r.prev] || prevLabel[norm] || r.prev || '—';
+
+        // Pedidos desta rota: lista de destinos com valor (coluna cruzada)
+        const crossEntries = Object.entries(r.cross || {}).filter(([,v]) => v > 0);
+        const crossHtml = crossEntries.length
+          ? `<div class="rota-cross">
+               <div class="rota-cross-t">Pedidos por Destino</div>
+               ${crossEntries.map(([dest, val]) => `
+                 <div class="rota-cross-row">
+                   <span class="rota-cross-lbl" title="${dest}" style="max-width:140px">${dest.length>19?dest.slice(0,19)+'…':dest}</span>
+                   <span class="rota-cross-val">R$ ${val.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>
+                 </div>`).join('')}
+             </div>` : '';
+
+        return `<div class="rota-card" style="--rc:${RCOLS[i%5]}">
+          <div class="rota-nome" title="${r.nome}">${r.nome.length>38?r.nome.slice(0,38)+'…':r.nome}</div>
+          <div class="rota-val">R$ ${(r.val||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
+          <span class="rota-prev ${pc}">${ico}${pl}</span>
+          ${crossHtml}
+        </div>`;
       }).join('');
 
-      const allDests = [...new Set(routes.flatMap(r => Object.keys(r.cross || {})))];
-      const crossThead = `<thead><tr><th>Rota</th>${allDests.map(d => `<th title="${d}">${d.length > 14 ? d.slice(0, 14) + '...' : d}</th>`).join('')}<th>Total</th></tr></thead>`;
-      const crossBody = routes.map((r, i) => {
-        const cells = allDests.map(d => { const v = r.cross?.[d] || 0; return `<td style="${v > 0 ? 'color:#e8eaf0;font-weight:600' : ''}">${v > 0 ? 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '-'}</td>`; }).join('');
-        return `<tr><td style="color:${RCOLS[i % 5]};font-weight:600">${r.nome.length > 28 ? r.nome.slice(0, 28) + '...' : r.nome}</td>${cells}<td style="font-weight:700;color:#e8eaf0">R$ ${(r.val || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td></tr>`;
+      // Tabela cruzada completa (F12:J23)
+      const allDests = routes.length ? [...new Set(routes.flatMap(r => Object.keys(r.cross||{})))] : [];
+      const totByDest = routes[0]?.totByDest || {};
+      const totalGeral = routes.reduce((s,r) => s+(r.val||0), 0);
+
+      const crossThead = allDests.length ? `<thead><tr>
+        <th style="min-width:160px">Rota</th>
+        <th style="text-align:center;color:var(--bl)">Valor Total</th>
+        <th style="text-align:center">Previsão</th>
+        ${allDests.map(d=>`<th style="text-align:center;min-width:80px;font-size:8px" title="${d}">${d.length>16?d.slice(0,16)+'…':d}</th>`).join('')}
+      </tr></thead>` : '';
+
+      const crossBody = routes.map((r,i) => {
+        const norm = String(r.prev||'').trim().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+        const pc   = prevClass[r.prev] || prevClass[norm] || 'EM_ANALISE';
+        const pl   = prevLabel[r.prev] || prevLabel[norm] || r.prev || '—';
+        const cells = allDests.map(d => {
+          const v = r.cross?.[d] || 0;
+          return `<td style="text-align:center;${v>0?'color:#e8eaf0;font-weight:600':'color:var(--tx3)'}">${v>0?'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2}):'—'}</td>`;
+        }).join('');
+        return `<tr>
+          <td style="font-weight:600;color:${RCOLS[i%5]}" title="${r.nome}">${r.nome.length>26?r.nome.slice(0,26)+'…':r.nome}</td>
+          <td style="text-align:center;font-weight:700;color:var(--gr)">R$ ${(r.val||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}</td>
+          <td style="text-align:center"><span class="rota-prev ${pc}" style="font-size:8px">${pl}</span></td>
+          ${cells}
+        </tr>`;
+      }).join('');
+
+      // Linha de totais (F23:J23)
+      const totCells = allDests.map(d => {
+        const t = totByDest[d] || routes.reduce((s,r)=>s+(r.cross?.[d]||0),0);
+        return `<td style="text-align:center;font-weight:700;color:var(--gr)">${t>0?'R$ '+t.toLocaleString('pt-BR',{minimumFractionDigits:2}):'—'}</td>`;
       }).join('');
       const totRow = allDests.length
-        ? `<tr style="border-top:2px solid var(--bor)"><td style="font-weight:700;color:var(--tx3)">TOTAL</td>${allDests.map(d => { const t = routes.reduce((s, r) => s + (r.cross?.[d] || 0), 0); return `<td style="font-weight:700;color:var(--gr)">${t > 0 ? 'R$ ' + t.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '-'}</td>`; }).join('')}<td style="font-weight:700;color:var(--gr)">R$ ${routes.reduce((s, r) => s + (r.val || 0), 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td></tr>` : '';
+        ? `<tr style="border-top:2px solid var(--bor);background:var(--sur2)">
+            <td style="font-weight:700;color:var(--tx3)">TOTAL</td>
+            <td style="text-align:center;font-weight:800;color:var(--gr)">R$ ${totalGeral.toLocaleString('pt-BR',{minimumFractionDigits:2})}</td>
+            <td></td>
+            ${totCells}
+           </tr>` : ''
+
+      // ── Montar innerHTML da aba ─────────────────────────────────────
+      const SVG = (p, sz=14, ml=5) => `<svg xmlns="http://www.w3.org/2000/svg" width="${sz}" height="${sz}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:${ml}px">${p}</svg>`;
 
       document.getElementById('tab1-content').innerHTML = `
         <div>
           <div class="slbl">Faturamento — referência: DATA/HORA FATURAMENTO</div>
           <div class="fat-row">
             <div class="fat-card" style="--cc:var(--gr)">
-              <div class="fat-label" ><i class="fa-solid fa-file-invoice-dollar"></i> Faturamento Total</div>
-              <div class="fat-value">R$ ${fatTot.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+              <div class="fat-label">${SVG('<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>')} Faturamento Total</div>
+              <div class="fat-value">R$ ${fatTot.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
               <div class="fat-sub">${periodoStr}</div>
             </div>
             <div class="fat-card" style="--cc:var(--bl)">
-              <div class="fat-label"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:5px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Pedidos Faturados</div>
+              <div class="fat-label">${SVG('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>')} Pedidos Faturados</div>
               <div class="fat-value">${recs.length.toLocaleString('pt-BR')}</div>
               <div class="fat-sub">${fatCnt} com valor · ${recs.length - fatCnt} sem valor</div>
             </div>
             <div class="fat-card" style="--cc:var(--ye)">
-              <div class="fat-label"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:5px;"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg> Ticket Médio</div>
-              <div class="fat-value">R$ ${fatAvg.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
+              <div class="fat-label">${SVG('<path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>')} Ticket Médio</div>
+              <div class="fat-value">R$ ${fatAvg.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
               <div class="fat-sub">Sobre pedidos com valor registrado</div>
             </div>
           </div>
         </div>
+
         <div class="row2">
-          <div class="cc"><div class="cc-t"><i class="fa-solid fa-file-invoice-dollar"></i> Faturamento por Status</div><div class="cc-s">Soma dos valores por situação logística</div><div>${fatStatHtml}</div></div>
-          <div class="cc"><div class="cc-t"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:5px;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Pedidos por Cidade</div><div Google Sheets ao vivo class="cc-s">Top 10 cidades no período</div>${cityHtml}</div>
+          <div class="cc">
+            <div class="cc-t">${SVG('<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>')} Faturamento por Status</div>
+            <div class="cc-s">Soma dos valores por situação logística no período</div>
+            <div>${fatStatHtml}</div>
+          </div>
+          <div class="cc">
+            <div class="cc-t">${SVG('<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>')} Pedidos por Cidade</div>
+            <div class="cc-s">Top 10 cidades no período</div>
+            ${cityHtml}
+          </div>
         </div>
+
         <div class="tc">
           <div class="th">
-            <span class="th-t"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:5px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Detalhes de Faturamento</span>
+            <span class="th-t">${SVG('<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>')} Detalhes de Faturamento</span>
             <input type="text" class="ts" id="ts1" placeholder="Buscar pedido, cidade..." oninput="renderFatTable()">
             <span class="rcnt" id="tcount1"></span>
           </div>
           <div class="tw"><table><thead><tr>
             <th>Pedido</th>
-            <th onclick="sortT(1,'NIV')">Nível <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-left:3px;opacity:.5"><polyline points="6 9 12 3 18 9"/><polyline points="6 15 12 21 18 15"/></svg></th>
-            <th onclick="sortT(1,'FAT_DH')">Data Fat. <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-left:3px;opacity:.5"><polyline points="6 9 12 3 18 9"/><polyline points="6 15 12 21 18 15"/></svg></th>
+            <th onclick="sortT(1,'NIV')">Nível</th>
+            <th onclick="sortT(1,'FAT_DH')">Data Fat.</th>
             <th>Hora Fat.</th>
-            <th onclick="sortT(1,'END')">Data Entrega <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-left:3px;opacity:.5"><polyline points="6 9 12 3 18 9"/><polyline points="6 15 12 21 18 15"/></svg></th>
-            <th>Hora Entrega</th>
-            <th><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Fat→Ent</th>
-            <th onclick="sortT(1,'CID')">Cidade <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-left:3px;opacity:.5"><polyline points="6 9 12 3 18 9"/><polyline points="6 15 12 21 18 15"/></svg></th>
-            <th onclick="sortT(1,'LOG')">Status <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-left:3px;opacity:.5"><polyline points="6 9 12 3 18 9"/><polyline points="6 15 12 21 18 15"/></svg></th>
-            <th onclick="sortT(1,'VAL')">Valor <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-left:3px;opacity:.5"><polyline points="6 9 12 3 18 9"/><polyline points="6 15 12 21 18 15"/></svg></th>
+            <th onclick="sortT(1,'END')">Data Entrega</th>
+            <th>Hora</th>
+            <th>${SVG('<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',11,3)} Fat→Ent</th>
+            <th onclick="sortT(1,'CID')">Cidade</th>
+            <th onclick="sortT(1,'LOG')">Status</th>
+            <th onclick="sortT(1,'VAL')">Valor</th>
           </tr></thead><tbody id="tbody1"></tbody></table></div>
           <div class="tfoot"><span id="pi1"></span><div class="pag" id="pag1"></div></div>
         </div>
+
         <div class="cc">
-          <div class="cc-t"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:5px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Média de Tempo Fat→Entrega por Cidade e Nível</div>
-          <div class="cc-s">Calculado somente sobre pedidos ENTREGUES com DATA/HORA FATURAMENTO e hora de entrega preenchidas · seções vazias são ignoradas</div>
+          <div class="cc-t">${SVG('<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>')} Média de Tempo Fat→Entrega por Cidade e Nível</div>
+          <div class="cc-s">Calculado sobre ENTREGUES com FAT_DH e hora de entrega preenchidas · colunas sem dados exibem —</div>
           <div style="overflow-x:auto">
             <table class="city-table">
               <thead><tr>
@@ -1729,20 +1878,33 @@ function doGet(e) {
                 <th style="text-align:center">Total Fat.</th>
                 <th style="text-align:center">Entregues</th>
                 <th style="text-align:center">Taxa</th>
-                <th style="text-align:center"><svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Normal</th>
-                <th style="text-align:center"><svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Urgente</th>
-                <th style="text-align:center"><svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Carro Horário</th>
-                <th style="text-align:center"><svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Média Geral</th>
+                <th style="text-align:center">${SVG('<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',11,2)} Normal</th>
+                <th style="text-align:center">${SVG('<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',11,2)} Urgente</th>
+                <th style="text-align:center">${SVG('<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',11,2)} Carro Horário</th>
+                <th style="text-align:center">${SVG('<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',11,2)} Média Geral</th>
               </tr></thead>
               <tbody>${cityAvgHtml}</tbody>
             </table>
           </div>
         </div>
+
         <div>
-          <div class="slbl">Previsão por Rota</div>
-          <div class="rota-grid">${rotaGrid || '<p style="color:var(--tx3);font-size:11px">Nenhuma rota carregada.</p>'}</div>
+          <div class="slbl">${SVG('<polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/>',12,5)} Previsão por Rota — Semana ${new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})}</div>
+          <div class="rota-grid">${rotaGrid || '<p style="color:var(--tx3);font-size:11px">Nenhuma rota. Verifique a aba <b>Rotas e Coletas</b>.</p>'}</div>
         </div>
-        ${allDests.length ? `<div class="cc"><div class="cc-t"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:5px;"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg> Tabela Cruzada de Rotas</div><div class="cc-s">Valor dos pedidos por destino</div><div style="overflow-x:auto"><table class="city-table">${crossThead}<tbody>${crossBody}${totRow}</tbody></table></div></div>` : ''}`;
+
+        ${allDests.length ? `
+        <div class="cc">
+          <div class="cc-t">${SVG('<polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/>')} Tabela Cruzada — Pedidos por Rota × Destino</div>
+          <div class="cc-s">Valores F12:J23 da planilha Rotas e Coletas · linha TOTAL = F23:J23</div>
+          <div style="overflow-x:auto">
+            <table class="city-table">
+              ${crossThead}
+              <tbody>${crossBody}${totRow}</tbody>
+            </table>
+          </div>
+        </div>` : ''}
+      `;
 
       renderFatTable();
     }
