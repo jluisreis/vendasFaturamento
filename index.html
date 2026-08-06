@@ -320,8 +320,7 @@
       color: var(--tx3);
       text-transform: uppercase;
       letter-spacing: .1em;
-      margin-bottom: 8px;
-      margin-top:10px;
+      margin-bottom: 8px
     }
 
     .kg {
@@ -1004,6 +1003,7 @@
       </svg> Resumo de Pedidos</div>
     <div class="tab" onclick="switchTab(1)"><i class="fa-solid fa-file-invoice-dollar"></i> Faturamento & Entregas</div>
     <div class="tab" onclick="switchTab(2)"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:4px"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Análise por Cidades</div>
+    <div class="tab" onclick="switchTab(3)"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:4px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Ciclo de Tempo</div>
   </div>
 
   <div class="fbar">
@@ -1052,6 +1052,14 @@
     <div id="tab2-content">
       <div class="loading-screen">
         <div class="loading-msg">Sincronize para ver a análise por cidades</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" id="tab3">
+    <div id="tab3-content">
+      <div class="loading-screen">
+        <div class="loading-msg">Sincronize para ver a análise de ciclo de tempo</div>
       </div>
     </div>
   </div>
@@ -1105,7 +1113,9 @@ function doGet_Vendas(e) {
         iCID = col("CIDADE"),
         iEND = col("ENTREGUE DATA"),
         iENH = col("ENTREGUE HORA"),
-        iOBS = col("OBSERVACAO");   // coluna OBSERVAÇÃO na planilha
+        iOBS = col("OBSERVACAO"),   // coluna OBSERVAÇÃO na planilha
+        iENT = col("ENTRADA"),      // hora de entrada do pedido
+        iSAI = col("SAIDA");        // hora de saída para entrega
 
   function fmtD(v) {
     return v instanceof Date
@@ -1164,6 +1174,8 @@ function doGet_Vendas(e) {
       END:    fmtD(row[iEND]),
       ENH:    fmtH(row[iENH]),
       OBS:    String(row[iOBS] || "").trim(),                 // OBSERVAÇÃO
+      ENT:    fmtH(row[iENT]),   // hora ENTRADA
+      SAI:    fmtH(row[iSAI]),   // hora SAIDA
     });
   }
 
@@ -1245,13 +1257,13 @@ function doGet_Vendas(e) {
 
   <script>
     // -- STATE ----------------------------------------------------------
-    let allRecs = [], routes = [], filtered = [], filteredFat = [], filteredCity = [];
+    let allRecs = [], routes = [], filtered = [], filteredFat = [], filteredCity = [], filteredCiclo = [];
     // ── URL DO APPS SCRIPT — altere aqui quando necessário ──────────
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbw7Dq0SEOkhNZmc9A9FUt9ltbbAfecygUPZ0ugDRoldw03bMt3MNKAbJrFGMajYORk/exec?acao=vendas';
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbw0-d4kZ_0W579XERU6giBTkCWOy2VTOVaQ3ALoVk7uHy5Ybemz2nB3xnLtwQJ9pvY/exec?acao=vendas';
     let gasUrl = GAS_URL;
     let activeSt = null;
-    let sortCols = { 0: { col: 'DATA', asc: false }, 1: { col: 'FAT_DH', asc: false }, 2: { col: 'CID', asc: true } };
-    let pages = { 0: 1, 1: 1, 2: 1 };
+    let sortCols = { 0: { col: 'DATA', asc: false }, 1: { col: 'FAT_DH', asc: false }, 2: { col: 'CID', asc: true }, 3: { col: 'DATA', asc: false } };
+    let pages = { 0: 1, 1: 1, 2: 1, 3: 1 };
     const PS = 25;
 
     // Normaliza string removendo acentos — usada no LOG ao receber dados
@@ -1283,6 +1295,7 @@ function doGet_Vendas(e) {
       document.querySelectorAll('.tab').forEach((t, j) => t.classList.toggle('active', j === i));
       document.querySelectorAll('.tab-panel').forEach((p, j) => p.classList.toggle('active', j === i));
       if (i === 2 && allRecs.length) renderTab2();
+      if (i === 3 && allRecs.length) renderTab3();
     }
 
     // -- SYNC -----------------------------------------------------------
@@ -1294,6 +1307,7 @@ function doGet_Vendas(e) {
       document.getElementById('tab0-content').innerHTML = loadHtml;
       document.getElementById('tab1-content').innerHTML = loadHtml;
       document.getElementById('tab2-content').innerHTML = loadHtml;
+      document.getElementById('tab3-content').innerHTML = loadHtml;
       try {
         const url = gasUrl + (gasUrl.includes('?') ? '&' : '?') + '_t=' + Date.now();
         const resp = await fetch(url);
@@ -1338,6 +1352,7 @@ function doGet_Vendas(e) {
       document.getElementById('tab0-content').innerHTML = html;
       document.getElementById('tab1-content').innerHTML = html;
       document.getElementById('tab2-content').innerHTML = html;
+      document.getElementById('tab3-content').innerHTML = html;
     }
 
     function saveUrl() {
@@ -1399,12 +1414,22 @@ function doGet_Vendas(e) {
         return true;
       });
 
+      // filteredCiclo: pedidos ENTREGUES com DATA, FAT_DH, SAIDA e hora de entrega preenchidos
+      filteredCiclo = allRecs.filter(r => {
+        const dataISO = normDate(r.DATA);
+        if (fF && dataISO && dataISO < fF) return false;
+        if (fT && dataISO && dataISO > fT) return false;
+        if (fV && r.VEND !== fV) return false;
+        if (fN && r.NIV  !== fN) return false;
+        return true;
+      });
+
       document.getElementById('rcnt').textContent = filtered.length + ' registros';
-      pages[0] = 1; pages[1] = 1; pages[2] = 1;
+      pages[0] = 1; pages[1] = 1; pages[2] = 1; pages[3] = 1;
       renderTab0(); renderTab1();
-      // Rerender tab2 se estiver ativa
       const activeTab = [...document.querySelectorAll('.tab')].findIndex(t => t.classList.contains('active'));
       if (activeTab === 2) renderTab2();
+      if (activeTab === 3) renderTab3();
     }
 
     function resetFilters() {
@@ -2234,6 +2259,305 @@ function doGet_Vendas(e) {
       if (tc) tc.textContent = tot+' pedidos';
       if (pi) pi.textContent = 'Pág '+pages[2]+' de '+pg;
       if (pag) renderPag(pag, pg, 2, () => renderCityPedTable(filteredCity,'cityPedBody'));
+    }
+
+
+    // ════════════════════════════════════════════════════════════════
+    //  TAB 3 — CICLO DE TEMPO
+    //  Compara 4 etapas do ciclo de vida do pedido:
+    //  1. Entrada → Faturamento   (atendimento)
+    //  2. Faturamento → Saída     (expedição)
+    //  3. Saída → Entregue        (trânsito)
+    //  4. Entrada → Entregue      (ciclo total)
+    // ════════════════════════════════════════════════════════════════
+
+    // Converte "dd-MM-yyyy" + "HH:mm:ss" em Date
+    function toDateTime(data, hora) {
+      if (!data || !hora) return null;
+      try {
+        const nd = normDate(data);
+        if (!nd) return null;
+        const h = String(hora).trim();
+        const hh = h.length === 5 ? h + ':00' : h;
+        const d = new Date(nd + 'T' + hh);
+        return isNaN(d) ? null : d;
+      } catch(e) { return null; }
+    }
+
+    // Converte "dd-MM-yyyy HH:mm:ss" em Date
+    function toDT(s) {
+      if (!s) return null;
+      try {
+        const m = s.match(/^(\d{2})-(\d{2})-(\d{4})\s+(\d{2}:\d{2}(?::\d{2})?)$/);
+        if (m) return new Date(`${m[3]}-${m[2]}-${m[1]}T${m[4]}`);
+        return new Date(s.replace(' ','T'));
+      } catch(e) { return null; }
+    }
+
+    // Formata duração em segundos → "Xd HH:MM:SS" ou "HH:MM:SS"
+    function fmtDur(seg) {
+      if (seg == null || isNaN(seg) || seg < 0) return null;
+      const d  = Math.floor(seg / 86400);
+      const h  = Math.floor((seg % 86400) / 3600);
+      const m  = Math.floor((seg % 3600) / 60);
+      const s  = seg % 60;
+      const hms = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+      return d > 0 ? `${d}d ${hms}` : hms;
+    }
+
+    // Calcula os 4 deltas de um registro (em segundos), null se dados faltam
+    function calcDeltas(r) {
+      const tEnt  = toDateTime(r.DATA, r.ENT);       // Entrada
+      const tFat  = toDT(r.FAT_DH);                  // Faturamento
+      const tSai  = toDateTime(r.DATA, r.SAI);       // Saída
+      const tEnt2 = toDateTime(r.END,  r.ENH);       // Entregue
+      return {
+        ent_fat: (tEnt && tFat) ? Math.round((tFat - tEnt) / 1000) : null,   // Entrada→Fat
+        fat_sai: (tFat && tSai) ? Math.round((tSai - tFat) / 1000) : null,   // Fat→Saída
+        sai_ent: (tSai && tEnt2) ? Math.round((tEnt2 - tSai) / 1000) : null, // Saída→Entregue
+        tot:     (tEnt && tEnt2) ? Math.round((tEnt2 - tEnt) / 1000) : null, // Total
+      };
+    }
+
+    // Média de um array de segundos (ignora null/negativos)
+    function avgSeg(arr) {
+      const valid = arr.filter(v => v != null && v >= 0);
+      if (!valid.length) return null;
+      return Math.round(valid.reduce((a,b)=>a+b,0) / valid.length);
+    }
+
+    // Badge colorido por duração
+    function durBadge(seg, thresholds) {
+      if (seg == null) return '<span style="color:var(--tx3);font-size:9px">—</span>';
+      const label = fmtDur(seg);
+      // thresholds: [ok_max_seg, warn_max_seg] → verde / amarelo / vermelho
+      const [ok, warn] = thresholds || [3600, 7200];
+      const color = seg <= ok ? '#10b981' : seg <= warn ? '#f59e0b' : '#ef4444';
+      return `<span style="color:${color};font-weight:600;font-size:10px">${label}</span>`;
+    }
+
+    function renderTab3() {
+      const recs = filteredCiclo;
+
+      // Calcular deltas de todos os registros
+      const rows = recs.map(r => ({ ...r, d: calcDeltas(r) }));
+
+      // KPIs globais
+      const comFat  = rows.filter(r => r.d.ent_fat != null).length;
+      const comSai  = rows.filter(r => r.d.fat_sai != null).length;
+      const comEnt  = rows.filter(r => r.d.sai_ent != null).length;
+      const comTot  = rows.filter(r => r.d.tot != null).length;
+
+      const avgEF  = avgSeg(rows.map(r => r.d.ent_fat));
+      const avgFS  = avgSeg(rows.map(r => r.d.fat_sai));
+      const avgSE  = avgSeg(rows.map(r => r.d.sai_ent));
+      const avgTot = avgSeg(rows.map(r => r.d.tot));
+
+      // Thresholds (em segundos) para cada etapa
+      const TH_EF  = [7200,   18000];  // Ent→Fat: ok ≤2h, warn ≤5h
+      const TH_FS  = [3600,   7200];   // Fat→Sai: ok ≤1h, warn ≤2h
+      const TH_SE  = [86400,  172800]; // Sai→Ent: ok ≤1d, warn ≤2d
+      const TH_TOT = [172800, 432000]; // Total:   ok ≤2d, warn ≤5d
+
+      const S = (p, sz=14) => `<svg xmlns="http://www.w3.org/2000/svg" width="${sz}" height="${sz}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:5px">${p}</svg>`;
+      const clockP = '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>';
+      const arrowP = '<line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>';
+      const checkP = '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>';
+
+      // ── Médias por cidade ─────────────────────────────────────────
+      const cityC = {};
+      rows.forEach(r => {
+        const c = r.CID || 'SEM CIDADE';
+        if (!cityC[c]) cityC[c] = { ef:[], fs:[], se:[], tot:[], n:0 };
+        cityC[c].n++;
+        if (r.d.ent_fat != null) cityC[c].ef.push(r.d.ent_fat);
+        if (r.d.fat_sai != null) cityC[c].fs.push(r.d.fat_sai);
+        if (r.d.sai_ent != null) cityC[c].se.push(r.d.sai_ent);
+        if (r.d.tot     != null) cityC[c].tot.push(r.d.tot);
+      });
+      const cityRows = Object.entries(cityC)
+        .sort((a,b) => b[1].n - a[1].n)
+        .map(([city, d]) => {
+          const aEF  = avgSeg(d.ef),  aFS = avgSeg(d.fs),
+                aSE  = avgSeg(d.se),  aTot = avgSeg(d.tot);
+          return `<tr>
+            <td><b style="color:var(--tx)">${city}</b></td>
+            <td style="text-align:center">${d.n}</td>
+            <td style="text-align:center">${d.ef.length}</td>
+            <td style="text-align:center">${durBadge(aEF,  TH_EF)}</td>
+            <td style="text-align:center">${d.fs.length}</td>
+            <td style="text-align:center">${durBadge(aFS,  TH_FS)}</td>
+            <td style="text-align:center">${d.se.length}</td>
+            <td style="text-align:center">${durBadge(aSE,  TH_SE)}</td>
+            <td style="text-align:center">${durBadge(aTot, TH_TOT)}</td>
+          </tr>`;
+        }).join('');
+
+      // ── Médias por vendedor ───────────────────────────────────────
+      const vendC = {};
+      rows.forEach(r => {
+        const v = r.VEND || 'DESCONHECIDO';
+        if (!vendC[v]) vendC[v] = { ef:[], fs:[], se:[], tot:[], n:0 };
+        vendC[v].n++;
+        if (r.d.ent_fat != null) vendC[v].ef.push(r.d.ent_fat);
+        if (r.d.fat_sai != null) vendC[v].fs.push(r.d.fat_sai);
+        if (r.d.sai_ent != null) vendC[v].se.push(r.d.sai_ent);
+        if (r.d.tot     != null) vendC[v].tot.push(r.d.tot);
+      });
+      const vendRows = Object.entries(vendC)
+        .sort((a,b) => b[1].n - a[1].n)
+        .slice(0, 12)
+        .map(([vend, d]) => {
+          const aEF  = avgSeg(d.ef),  aFS = avgSeg(d.fs),
+                aSE  = avgSeg(d.se),  aTot = avgSeg(d.tot);
+          return `<tr>
+            <td><b style="color:var(--tx)">${vend.length>18?vend.slice(0,18)+'…':vend}</b></td>
+            <td style="text-align:center">${d.n}</td>
+            <td style="text-align:center">${durBadge(aEF,  TH_EF)}</td>
+            <td style="text-align:center">${durBadge(aFS,  TH_FS)}</td>
+            <td style="text-align:center">${durBadge(aSE,  TH_SE)}</td>
+            <td style="text-align:center">${durBadge(aTot, TH_TOT)}</td>
+          </tr>`;
+        }).join('');
+
+      // ── Tabela individual paginada ────────────────────────────────
+      const SC3 = { 'ENTREGA':'#3b82f6','ENTREGUE':'#10b981','RETIRADA':'#f97316','PENDENCIA':'#ef4444','AGENDADA':'#f59e0b','VAI HOJE':'#8b5cf6','VAI AMANHA':'#ec4899','CARREGADO':'#06b6d4' };
+      const sortedRows = [...rows].sort((a,b) => {
+        const av = a.DATA||'', bv = b.DATA||'';
+        return av < bv ? 1 : av > bv ? -1 : 0;
+      });
+      const totPed = sortedRows.length, pgPed = Math.max(1, Math.ceil(totPed / PS));
+      if (pages[3] > pgPed) pages[3] = pgPed;
+      const slPed = sortedRows.slice((pages[3]-1)*PS, pages[3]*PS);
+
+      const pedRows = slPed.map(r => {
+        const lc = SC3[r.LOG] || '#6b7280';
+        return `<tr>
+          <td>${r.DATA||'—'}</td>
+          <td>${r.PED||'—'}</td>
+          <td style="color:var(--tx2)">${r.VEND||'—'}</td>
+          <td><span class="bdg" style="background:${lc}22;color:${lc}">${r.LOG}</span></td>
+          <td>${r.CID||'—'}</td>
+          <td style="text-align:center;font-size:9px;color:var(--tx3)">${r.ENT||'—'}</td>
+          <td style="text-align:center;font-size:9px;color:var(--tx3)">${r.FAT_DH?r.FAT_DH.slice(11,19)||'—':'—'}</td>
+          <td style="text-align:center;font-size:9px;color:var(--tx3)">${r.SAI||'—'}</td>
+          <td style="text-align:center;font-size:9px;color:var(--tx3)">${r.ENH||'—'}</td>
+          <td style="text-align:center">${durBadge(r.d.ent_fat, TH_EF)}</td>
+          <td style="text-align:center">${durBadge(r.d.fat_sai, TH_FS)}</td>
+          <td style="text-align:center">${durBadge(r.d.sai_ent, TH_SE)}</td>
+          <td style="text-align:center">${durBadge(r.d.tot,     TH_TOT)}</td>
+        </tr>`;
+      }).join('');
+
+      // ── Legenda de cores ──────────────────────────────────────────
+      const legendaHtml = `
+        <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:9px;color:var(--tx2);padding:8px 0">
+          <span><span style="color:#10b981;font-weight:700">■</span> Dentro do prazo</span>
+          <span><span style="color:#f59e0b;font-weight:700">■</span> Atenção</span>
+          <span><span style="color:#ef4444;font-weight:700">■</span> Acima do esperado</span>
+          <span style="color:var(--tx3)">Ent→Fat: ok≤2h · Fat→Saí: ok≤1h · Saí→Ent: ok≤1d · Total: ok≤2d</span>
+        </div>`;
+
+      // ── Montar HTML ───────────────────────────────────────────────
+      document.getElementById('tab3-content').innerHTML = `
+        <div>
+          <div class="slbl">${S(clockP,12)} Ciclo de Tempo dos Pedidos</div>
+          <div class="kg" style="grid-template-columns:repeat(4,1fr);gap:12px">
+
+            <div class="cc" style="border-top:3px solid #3b82f6">
+              <div class="cc-t">${S(arrowP)} Entrada ${S(arrowP,11,3)} Faturamento</div>
+              <div class="cc-s">Tempo de atendimento até faturar · ${comFat} pedidos com dados</div>
+              <div style="font-size:28px;font-weight:800;color:#3b82f6;margin:8px 0">${fmtDur(avgEF)||'—'}</div>
+              <div style="font-size:9px;color:var(--tx3)">média geral</div>
+            </div>
+
+            <div class="cc" style="border-top:3px solid #f59e0b">
+              <div class="cc-t">${S(arrowP)} Faturamento ${S(arrowP,11,3)} Saída</div>
+              <div class="cc-s">Tempo de expedição após faturar · ${comSai} pedidos com dados</div>
+              <div style="font-size:28px;font-weight:800;color:#f59e0b;margin:8px 0">${fmtDur(avgFS)||'—'}</div>
+              <div style="font-size:9px;color:var(--tx3)">média geral</div>
+            </div>
+
+            <div class="cc" style="border-top:3px solid #10b981">
+              <div class="cc-t">${S(arrowP)} Saída ${S(arrowP,11,3)} Entregue</div>
+              <div class="cc-s">Tempo em trânsito · ${comEnt} pedidos com dados</div>
+              <div style="font-size:28px;font-weight:800;color:#10b981;margin:8px 0">${fmtDur(avgSE)||'—'}</div>
+              <div style="font-size:9px;color:var(--tx3)">média geral</div>
+            </div>
+
+            <div class="cc" style="border-top:3px solid #8b5cf6">
+              <div class="cc-t">${S(clockP)} Ciclo Total (Entrada ${S(arrowP,10,2)} Entregue)</div>
+              <div class="cc-s">Da entrada até a entrega · ${comTot} pedidos com dados</div>
+              <div style="font-size:28px;font-weight:800;color:#8b5cf6;margin:8px 0">${fmtDur(avgTot)||'—'}</div>
+              <div style="font-size:9px;color:var(--tx3)">média geral</div>
+            </div>
+
+          </div>
+          ${legendaHtml}
+        </div>
+
+        <div class="tc">
+          <div class="th"><span class="th-t">${S(clockP,13)} Médias por Cidade</span></div>
+          <div class="tw">
+            <table><thead><tr>
+              <th>Cidade</th>
+              <th style="text-align:center">Pedidos</th>
+              <th style="text-align:center">N</th>
+              <th style="text-align:center;color:#3b82f6">Ent→Fat</th>
+              <th style="text-align:center">N</th>
+              <th style="text-align:center;color:#f59e0b">Fat→Saí</th>
+              <th style="text-align:center">N</th>
+              <th style="text-align:center;color:#10b981">Saí→Ent</th>
+              <th style="text-align:center;color:#8b5cf6">Ciclo Total</th>
+            </tr></thead>
+            <tbody>${cityRows || '<tr><td colspan="9" style="color:var(--tx3);text-align:center;padding:14px">Sem dados no período</td></tr>'}</tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="tc">
+          <div class="th"><span class="th-t">${S('<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',13)} Médias por Vendedor</span></div>
+          <div class="tw">
+            <table><thead><tr>
+              <th>Vendedor</th>
+              <th style="text-align:center">Pedidos</th>
+              <th style="text-align:center;color:#3b82f6">Ent→Fat</th>
+              <th style="text-align:center;color:#f59e0b">Fat→Saí</th>
+              <th style="text-align:center;color:#10b981">Saí→Ent</th>
+              <th style="text-align:center;color:#8b5cf6">Ciclo Total</th>
+            </tr></thead>
+            <tbody>${vendRows || '<tr><td colspan="6" style="color:var(--tx3);text-align:center;padding:14px">Sem dados no período</td></tr>'}</tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="tc">
+          <div class="th">
+            <span class="th-t">${S('<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>',13)} Detalhamento por Pedido</span>
+            <span class="rcnt">${totPed} pedidos</span>
+          </div>
+          <div class="tw">
+            <table><thead><tr>
+              <th>Data</th><th>Pedido</th><th>Vendedor</th><th>Status</th><th>Cidade</th>
+              <th style="text-align:center">Entrada</th>
+              <th style="text-align:center">Hr Fat.</th>
+              <th style="text-align:center">Saída</th>
+              <th style="text-align:center">Hr Entrega</th>
+              <th style="text-align:center;color:#3b82f6">Ent→Fat</th>
+              <th style="text-align:center;color:#f59e0b">Fat→Saí</th>
+              <th style="text-align:center;color:#10b981">Saí→Ent</th>
+              <th style="text-align:center;color:#8b5cf6">Total</th>
+            </tr></thead>
+            <tbody id="cicloBody">${pedRows}</tbody>
+            </table>
+          </div>
+          <div class="tfoot"><span id="pi3">Pág ${pages[3]} de ${pgPed}</span><div class="pag" id="pag3"></div></div>
+        </div>
+      `;
+
+      // Paginação
+      const pag3 = document.getElementById('pag3');
+      if (pag3) renderPag(pag3, pgPed, 3, renderTab3);
     }
 
     // -- MODAL ----------------------------------------------------------
