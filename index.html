@@ -206,6 +206,121 @@
       background: var(--sur2)
     }
 
+    .custom-select {
+      position: relative;
+      display: inline-block;
+      min-width: 150px;
+    }
+
+    .select-trigger {
+      background: var(--sur2);
+      border: 1px solid var(--bor);
+      color: var(--tx);
+      padding: 5px 8px;
+      border-radius: 5px;
+      font-size: 10px;
+      font-family: inherit;
+      outline: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      min-width: 120px;
+      user-select: none;
+    }
+
+    .select-trigger:hover {
+      border-color: var(--bl);
+    }
+
+    .select-trigger .arrow {
+      font-size: 8px;
+      color: var(--tx3);
+      transition: transform .2s;
+    }
+
+    .select-trigger.open .arrow {
+      transform: rotate(180deg);
+    }
+
+    .custom-select select {
+      background: var(--sur2);
+      border: 1px solid var(--bor);
+      color: var(--tx);
+      padding: 5px 8px;
+      border-radius: 5px;
+      font-size: 10px;
+      font-family: inherit;
+      outline: none;
+      cursor: pointer;
+      width: 100%;
+      appearance: none;
+      -webkit-appearance: none;
+      padding-right: 24px;
+    }
+
+    .custom-select select:focus {
+      border-color: var(--bl)
+    }
+
+    .custom-select::after {
+      content: '▼';
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--tx3);
+      font-size: 8px;
+      pointer-events: none;
+    }
+
+    .dropdown-checkboxes {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--sur);
+      border: 1px solid var(--bor);
+      border-radius: 5px;
+      padding: 8px 10px;
+      z-index: 100;
+      margin-top: 2px;
+      min-width: 160px;
+      flex-direction: column;
+      gap: 4px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    }
+
+    .dropdown-checkboxes.open {
+      display: flex;
+    }
+
+    .dropdown-checkboxes label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      color: var(--tx2);
+      cursor: pointer;
+      padding: 3px 4px;
+      border-radius: 3px;
+      transition: background .15s;
+    }
+
+    .dropdown-checkboxes label:hover {
+      background: var(--sur2);
+      color: var(--tx);
+    }
+
+    .dropdown-checkboxes input[type="checkbox"] {
+      accent-color: var(--bl);
+      cursor: pointer;
+      width: 14px;
+      height: 14px;
+    }
+
     .rbtn {
       background: transparent;
       border: 1px solid var(--bor);
@@ -321,13 +436,14 @@
       text-transform: uppercase;
       letter-spacing: .1em;
       margin-bottom: 8px;
-      margin-top:10px;
+      margin-top: 10px;
     }
 
     .kg {
       display: grid;
       grid-template-columns: repeat(8, 1fr);
-      gap: 8px
+      gap: 8px;
+      margin-bottom: 8px;
     }
 
     .kc {
@@ -390,7 +506,8 @@
     .fat-row {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
-      gap: 12px
+      gap: 12px;
+      margin-bottom: 10px;
     }
 
     .fat-card {
@@ -1003,8 +1120,18 @@
         <path d="M3 9h18M9 21V9" />
       </svg> Resumo de Pedidos</div>
     <div class="tab" onclick="switchTab(1)"><i class="fa-solid fa-file-invoice-dollar"></i> Faturamento & Entregas</div>
-    <div class="tab" onclick="switchTab(2)"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:4px"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Análise por Cidades</div>
-    <div class="tab" onclick="switchTab(3)"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:4px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Ciclo de Tempo</div>
+    <div class="tab" onclick="switchTab(2)"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13"
+        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+        stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:4px">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+        <polyline points="9 22 9 12 15 12 15 22" />
+      </svg> Análise por Cidades</div>
+    <div class="tab" onclick="switchTab(3)"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13"
+        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+        stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:4px">
+        <circle cx="12" cy="12" r="10" />
+        <polyline points="12 6 12 12 16 14" />
+      </svg> Ciclo de Tempo</div>
   </div>
 
   <div class="fbar">
@@ -1015,13 +1142,20 @@
     <select id="fVend" class="fi" onchange="applyFilters()">
       <option value="">Todos Vendedores</option>
     </select>
-    <select id="fNivel" class="fi" onchange="applyFilters()">
-      <option value="">Todos Níveis</option>
-      <option value="NORMAL">Normal</option>
-      <option value="URGENTE">Urgente</option>
-      <option value="RETIRADA">Retirada</option>
-      <option value="CARRO HORARIO">Carro Horário</option>
-    </select>
+    <div class="custom-select">
+      <div class="select-trigger" onclick="toggleDropdown()">
+        <span id="selectedNiveisLabel">Níveis</span>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="dropdown-checkboxes" id="nivelDropdown">
+        <label><input type="checkbox" value="NORMAL" checked onchange="applyFilters()"> Normal</label>
+        <label><input type="checkbox" value="URGENTE" checked onchange="applyFilters()"> Urgente</label>
+        <label><input type="checkbox" value="RETIRADA" checked onchange="applyFilters()"> Retirada</label>
+        <label><input type="checkbox" value="CARRO HORARIO" checked onchange="applyFilters()"> Carro Horário</label>
+        <label><input type="checkbox" value="PROGRAMADO" checked onchange="applyFilters()"
+            style="accent-color:#8b5cf6;"> Programado</label>
+      </div>
+    </div>
     <button class="rbtn" onclick="resetFilters()"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13"
         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
         stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:4px;">
@@ -1260,7 +1394,7 @@ function doGet_Vendas(e) {
     // -- STATE ----------------------------------------------------------
     let allRecs = [], routes = [], filtered = [], filteredFat = [], filteredCity = [], filteredCiclo = [];
     // ── URL DO APPS SCRIPT — altere aqui quando necessário ──────────
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbzq1r5BLfH657qpU-7y8AqsBkXT5ohIphhFxw4fWVfhdQ3FN06W3xotaa3WLsB4gPs/exec?acao=vendas';
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbzC839-5p-jp225sMruL-R-ITT-7M_lBn43Re5InqTpr6wfT_8S7iILwwMDrujjiBs/exec?acao=vendas';
     let gasUrl = GAS_URL;
     let activeSt = null;
     let sortCols = { 0: { col: 'DATA', asc: false }, 1: { col: 'FAT_DH', asc: false }, 2: { col: 'CID', asc: true }, 3: { col: 'DATA', asc: false } };
@@ -1269,7 +1403,7 @@ function doGet_Vendas(e) {
 
     // Normaliza string removendo acentos — usada no LOG ao receber dados
     function normLog(s) {
-      return String(s||'').toUpperCase().trim()
+      return String(s || '').toUpperCase().trim()
         .normalize('NFD').replace(/[̀-ͯ]/g, '');
     }
 
@@ -1279,6 +1413,7 @@ function doGet_Vendas(e) {
       'AGENDADA': { c: '#f59e0b', i: '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>' }, 'VAI HOJE': { c: '#8b5cf6', i: '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>' },
       'VAI AMANHA': { c: '#ec4899', i: '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px;"><path d="M17 18a5 5 0 0 0-10 0"/><line x1="12" y1="2" x2="12" y2="9"/><line x1="4.22" y1="10.22" x2="5.64" y2="11.64"/><line x1="1" y1="18" x2="3" y2="18"/><line x1="21" y1="18" x2="23" y2="18"/><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"/></svg>' }, 'CARREGADO': { c: '#06b6d4', i: '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px;"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>' },
       'PARCIAL': { c: '#84cc16', i: '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px;"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg>' }, 'CANCELADO': { c: '#6b7280', i: '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' },
+      'PROGRAMADO': { c: '#8b5cf6', i: '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>' },
     };
     const RCOLS = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#f97316'];
 
@@ -1317,13 +1452,9 @@ function doGet_Vendas(e) {
         if (!d.ok) throw new Error('Resposta inválida do Apps Script');
         allRecs = (d.records || []).map(r => ({
           ...r,
-          LOG: (function(v) {
-            // Normaliza acentos e variações da planilha
+          LOG: (function (v) {
             const raw = String(v || '').toUpperCase().trim();
             const norm = raw.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-            // Aliases: variações da planilha → chave interna do dashboard
-            // "VAI AMANHÃ" vira "VAI AMANHA" após normalize()
-            // "EM ROTA" é alias de "CARREGADO"
             if (norm === 'EM ROTA') return 'CARREGADO';
             return norm;
           })(r.LOG || r.LOGISTICA),
@@ -1373,12 +1504,34 @@ function doGet_Vendas(e) {
       sel.value = cur;
     }
 
+    function toggleDropdown() {
+      const dropdown = document.getElementById('nivelDropdown');
+      dropdown.classList.toggle('open');
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function (e) {
+      const container = document.querySelector('.custom-select');
+      if (container && !container.contains(e.target)) {
+        document.getElementById('nivelDropdown').classList.remove('open');
+      }
+    });
+
+    function getSelectedNiveis() {
+      const checkboxes = document.querySelectorAll('#nivelDropdown input[type="checkbox"]');
+      const selected = [];
+      checkboxes.forEach(cb => {
+        if (cb.checked) selected.push(cb.value);
+      });
+      return selected;
+    }
+
     function applyFilters() {
       if (!allRecs.length) return;
       const fF = document.getElementById('fFrom').value;
       const fT = document.getElementById('fTo').value;
       const fV = document.getElementById('fVend').value;
-      const fN = document.getElementById('fNivel').value;
+      const selectedNiveis = getSelectedNiveis();
       const s = (document.getElementById('ts0') ? document.getElementById('ts0').value : '').toLowerCase();
 
       filtered = allRecs.filter(r => {
@@ -1386,7 +1539,7 @@ function doGet_Vendas(e) {
         if (fF && dataISO && dataISO < fF) return false;
         if (fT && dataISO && dataISO > fT) return false;
         if (fV && r.VEND !== fV) return false;
-        if (fN && r.NIV !== fN) return false;
+        if (selectedNiveis.length > 0 && !selectedNiveis.includes(r.NIV)) return false;
         if (activeSt && r.LOG !== activeSt) return false;
         if (s) {
           const h = [r.DATA, r.VEND, r.LOG, r.NIV, r.CID, r.PED].join(' ').toLowerCase();
@@ -1401,27 +1554,25 @@ function doGet_Vendas(e) {
         if (fF && refISO && refISO < fF) return false;
         if (fT && refISO && refISO > fT) return false;
         if (fV && r.VEND !== fV) return false;
-        if (fN && r.NIV !== fN) return false;
+        if (selectedNiveis.length > 0 && !selectedNiveis.includes(r.NIV)) return false;
         return true;
       });
 
-      // filteredCity: mesmos filtros de data/vendedor/nivel mas sem activeSt
       filteredCity = allRecs.filter(r => {
         const dataISO = normDate(r.DATA);
         if (fF && dataISO && dataISO < fF) return false;
         if (fT && dataISO && dataISO > fT) return false;
         if (fV && r.VEND !== fV) return false;
-        if (fN && r.NIV !== fN) return false;
+        if (selectedNiveis.length > 0 && !selectedNiveis.includes(r.NIV)) return false;
         return true;
       });
 
-      // filteredCiclo: pedidos ENTREGUES com DATA, FAT_DH, SAIDA e hora de entrega preenchidos
       filteredCiclo = allRecs.filter(r => {
         const dataISO = normDate(r.DATA);
         if (fF && dataISO && dataISO < fF) return false;
         if (fT && dataISO && dataISO > fT) return false;
         if (fV && r.VEND !== fV) return false;
-        if (fN && r.NIV  !== fN) return false;
+        if (selectedNiveis.length > 0 && !selectedNiveis.includes(r.NIV)) return false;
         return true;
       });
 
@@ -1434,7 +1585,11 @@ function doGet_Vendas(e) {
     }
 
     function resetFilters() {
-      ['fFrom', 'fTo', 'fVend', 'fNivel'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+      document.getElementById('fFrom').value = '';
+      document.getElementById('fTo').value = '';
+      document.getElementById('fVend').value = '';
+      const checkboxes = document.querySelectorAll('#nivelDropdown input[type="checkbox"]');
+      checkboxes.forEach(cb => cb.checked = true);
       activeSt = null;
       document.querySelectorAll('.kc').forEach(c => c.classList.remove('active'));
       applyFilters();
@@ -1461,7 +1616,7 @@ function doGet_Vendas(e) {
         em_rota: recs.filter(r => r.LOG === 'CARREGADO').length,
       };
       const nivel = {};
-      ['NORMAL', 'URGENTE', 'RETIRADA', 'CARRO HORARIO'].forEach(n => nivel[n] = recs.filter(r => r.NIV === n).length);
+      ['NORMAL', 'URGENTE', 'RETIRADA', 'CARRO HORARIO', 'PROGRAMADO'].forEach(n => nivel[n] = recs.filter(r => r.NIV === n).length);
       const mt = {}, me = {};
       recs.forEach(r => {
         if (!r.DATA || r.DATA.length < 7) return;
@@ -1526,6 +1681,7 @@ function doGet_Vendas(e) {
         { k: 'URGENTE', l: 'Urgente', c: '#ef4444' },
         { k: 'RETIRADA', l: 'Retirada', c: '#f97316' },
         { k: 'CARRO HORARIO', l: 'Carro Horário', c: '#8b5cf6' },
+        { k: 'PROGRAMADO', l: 'Programado', c: '#8b5cf6' },
       ];
       const max = Math.max(...items.map(i => nivel[i.k] || 0), 1);
       const el = document.getElementById('nivelChart'); if (!el) return;
@@ -1604,7 +1760,6 @@ function doGet_Vendas(e) {
       el.innerHTML = sl.map(r => {
         const cfg = SC[r.LOG] || { c: '#6b7280', i: '-' };
         const v = r.VAL > 0 ? 'R$ ' + r.VAL.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '-';
-        // Coluna de observação: só aparece se LOG === PENDENCIA e OBS preenchida
         const hasPend = r.LOG === 'PENDENCIA';
         const obsHtml = hasPend && r.OBS
           ? `<span class="obs-tag">${'<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'} <span class="obs-text">${r.OBS}</span></span>`
@@ -1691,7 +1846,7 @@ function doGet_Vendas(e) {
       const fatStat = {};
       recs.forEach(r => { if (r.VAL > 0) fatStat[r.LOG] = (fatStat[r.LOG] || 0) + r.VAL; });
       const maxFS = Math.max(...Object.values(fatStat), 1);
-      const fsC = { 'ENTREGUE': '#10b981', 'RETIRADA': '#f97316', 'ENTREGA': '#3b82f6', 'AGENDADA': '#f59e0b', 'PENDENCIA': '#ef4444', 'PARCIAL': '#84cc16' };
+      const fsC = { 'ENTREGUE': '#10b981', 'RETIRADA': '#f97316', 'ENTREGA': '#3b82f6', 'AGENDADA': '#f59e0b', 'PENDENCIA': '#ef4444', 'PARCIAL': '#84cc16', 'PROGRAMADO': '#8b5cf6' };
       const fatStatHtml = Object.entries(fatStat).sort((a, b) => b[1] - a[1]).map(([k, v]) =>
         `<div class="bar-row"><span class="bar-lbl" style="width:70px">${k}</span><div class="bar-w"><div class="bar-f" style="width:${Math.round(v / maxFS * 100)}%;background:${fsC[k] || '#6b7280'}"><span class="bar-fv">R$ ${v.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span></div></div></div>`
       ).join('') || '<p style="color:var(--tx3);font-size:11px;padding:8px 0">Sem valores no periodo</p>';
@@ -1758,86 +1913,80 @@ function doGet_Vendas(e) {
         : `<tr><td colspan="8" style="color:var(--tx3);text-align:center;padding:14px">Sem dados com faturamento e entrega no periodo</td></tr>`;
 
       // ── ROTAS: cards B13:D17 + tabela cruzada F12:J23 ─────────────
-      // Previsão label e cor
-      const prevLabel = { 'EM ANÁLISE':'Em Análise','EM ANALISE':'Em Análise','SEXTA':'Prevista Sexta','ABAIXO':'Abaixo da Meta' };
-      const prevClass = { 'EM ANÁLISE':'EM_ANALISE','EM ANALISE':'EM_ANALISE','SEXTA':'SEXTA','ABAIXO':'ABAIXO' };
+      const prevLabel = { 'EM ANÁLISE': 'Em Análise', 'EM ANALISE': 'Em Análise', 'SEXTA': 'Prevista Sexta', 'ABAIXO': 'Abaixo da Meta' };
+      const prevClass = { 'EM ANÁLISE': 'EM_ANALISE', 'EM ANALISE': 'EM_ANALISE', 'SEXTA': 'SEXTA', 'ABAIXO': 'ABAIXO' };
       const prevIco = {
         'EM_ANALISE': '<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
-        'SEXTA':      '<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>',
-        'ABAIXO':     '<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>',
+        'SEXTA': '<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>',
+        'ABAIXO': '<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>',
       };
 
-      // Cards das rotas (B13:D17)
       const rotaGrid = routes.map((r, i) => {
-        const norm = String(r.prev||'').trim().toUpperCase()
-          .normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-        const pc  = prevClass[r.prev] || prevClass[norm] || 'EM_ANALISE';
+        const norm = String(r.prev || '').trim().toUpperCase()
+          .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        const pc = prevClass[r.prev] || prevClass[norm] || 'EM_ANALISE';
         const ico = prevIco[pc] || '';
-        const pl  = prevLabel[r.prev] || prevLabel[norm] || r.prev || '—';
+        const pl = prevLabel[r.prev] || prevLabel[norm] || r.prev || '—';
 
-        // Pedidos desta rota: lista de destinos com valor (coluna cruzada)
-        const crossEntries = Object.entries(r.cross || {}).filter(([,v]) => v > 0);
+        const crossEntries = Object.entries(r.cross || {}).filter(([, v]) => v > 0);
         const crossHtml = crossEntries.length
           ? `<div class="rota-cross">
                <div class="rota-cross-t">Pedidos por Destino</div>
                ${crossEntries.map(([dest, val]) => `
                  <div class="rota-cross-row">
-                   <span class="rota-cross-lbl" title="${dest}" style="max-width:140px">${dest.length>19?dest.slice(0,19)+'…':dest}</span>
-                   <span class="rota-cross-val">R$ ${val.toLocaleString('pt-BR',{minimumFractionDigits:2})}</span>
+                   <span class="rota-cross-lbl" title="${dest}" style="max-width:140px">${dest.length > 19 ? dest.slice(0, 19) + '…' : dest}</span>
+                   <span class="rota-cross-val">R$ ${val.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
                  </div>`).join('')}
              </div>` : '';
 
-        return `<div class="rota-card" style="--rc:${RCOLS[i%5]}">
-          <div class="rota-nome" title="${r.nome}">${r.nome.length>38?r.nome.slice(0,38)+'…':r.nome}</div>
-          <div class="rota-val">R$ ${(r.val||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
+        return `<div class="rota-card" style="--rc:${RCOLS[i % 5]}">
+          <div class="rota-nome" title="${r.nome}">${r.nome.length > 38 ? r.nome.slice(0, 38) + '…' : r.nome}</div>
+          <div class="rota-val">R$ ${(r.val || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
           <span class="rota-prev ${pc}">${ico}${pl}</span>
           ${crossHtml}
         </div>`;
       }).join('');
 
-      // Tabela cruzada completa (F12:J23)
-      const allDests = routes.length ? [...new Set(routes.flatMap(r => Object.keys(r.cross||{})))] : [];
+      const allDests = routes.length ? [...new Set(routes.flatMap(r => Object.keys(r.cross || {})))] : [];
       const totByDest = routes[0]?.totByDest || {};
-      const totalGeral = routes.reduce((s,r) => s+(r.val||0), 0);
+      const totalGeral = routes.reduce((s, r) => s + (r.val || 0), 0);
 
       const crossThead = allDests.length ? `<thead><tr>
         <th style="min-width:160px">Rota</th>
         <th style="text-align:center;color:var(--bl)">Valor Total</th>
         <th style="text-align:center">Previsão</th>
-        ${allDests.map(d=>`<th style="text-align:center;min-width:80px;font-size:8px" title="${d}">${d.length>16?d.slice(0,16)+'…':d}</th>`).join('')}
+        ${allDests.map(d => `<th style="text-align:center;min-width:80px;font-size:8px" title="${d}">${d.length > 16 ? d.slice(0, 16) + '…' : d}</th>`).join('')}
       </tr></thead>` : '';
 
-      const crossBody = routes.map((r,i) => {
-        const norm = String(r.prev||'').trim().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-        const pc   = prevClass[r.prev] || prevClass[norm] || 'EM_ANALISE';
-        const pl   = prevLabel[r.prev] || prevLabel[norm] || r.prev || '—';
+      const crossBody = routes.map((r, i) => {
+        const norm = String(r.prev || '').trim().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        const pc = prevClass[r.prev] || prevClass[norm] || 'EM_ANALISE';
+        const pl = prevLabel[r.prev] || prevLabel[norm] || r.prev || '—';
         const cells = allDests.map(d => {
           const v = r.cross?.[d] || 0;
-          return `<td style="text-align:center;${v>0?'color:#e8eaf0;font-weight:600':'color:var(--tx3)'}">${v>0?'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:2}):'—'}</td>`;
+          return `<td style="text-align:center;${v > 0 ? 'color:#e8eaf0;font-weight:600' : 'color:var(--tx3)'}">${v > 0 ? 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '—'}</td>`;
         }).join('');
         return `<tr>
-          <td style="font-weight:600;color:${RCOLS[i%5]}" title="${r.nome}">${r.nome.length>26?r.nome.slice(0,26)+'…':r.nome}</td>
-          <td style="text-align:center;font-weight:700;color:var(--gr)">R$ ${(r.val||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}</td>
+          <td style="font-weight:600;color:${RCOLS[i % 5]}" title="${r.nome}">${r.nome.length > 26 ? r.nome.slice(0, 26) + '…' : r.nome}</td>
+          <td style="text-align:center;font-weight:700;color:var(--gr)">R$ ${(r.val || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
           <td style="text-align:center"><span class="rota-prev ${pc}" style="font-size:8px">${pl}</span></td>
           ${cells}
         </tr>`;
       }).join('');
 
-      // Linha de totais (F23:J23)
       const totCells = allDests.map(d => {
-        const t = totByDest[d] || routes.reduce((s,r)=>s+(r.cross?.[d]||0),0);
-        return `<td style="text-align:center;font-weight:700;color:var(--gr)">${t>0?'R$ '+t.toLocaleString('pt-BR',{minimumFractionDigits:2}):'—'}</td>`;
+        const t = totByDest[d] || routes.reduce((s, r) => s + (r.cross?.[d] || 0), 0);
+        return `<td style="text-align:center;font-weight:700;color:var(--gr)">${t > 0 ? 'R$ ' + t.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '—'}</td>`;
       }).join('');
       const totRow = allDests.length
         ? `<tr style="border-top:2px solid var(--bor);background:var(--sur2)">
             <td style="font-weight:700;color:var(--tx3)">TOTAL</td>
-            <td style="text-align:center;font-weight:800;color:var(--gr)">R$ ${totalGeral.toLocaleString('pt-BR',{minimumFractionDigits:2})}</td>
+            <td style="text-align:center;font-weight:800;color:var(--gr)">R$ ${totalGeral.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
             <td></td>
             ${totCells}
            </tr>` : ''
 
-      // ── Montar innerHTML da aba ─────────────────────────────────────
-      const SVG = (p, sz=14, ml=5) => `<svg xmlns="http://www.w3.org/2000/svg" width="${sz}" height="${sz}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:${ml}px">${p}</svg>`;
+      const SVG = (p, sz = 14, ml = 5) => `<svg xmlns="http://www.w3.org/2000/svg" width="${sz}" height="${sz}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:${ml}px">${p}</svg>`;
 
       document.getElementById('tab1-content').innerHTML = `
         <div>
@@ -1845,7 +1994,7 @@ function doGet_Vendas(e) {
           <div class="fat-row">
             <div class="fat-card" style="--cc:var(--gr)">
               <div class="fat-label">${SVG('<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>')} Faturamento Total</div>
-              <div class="fat-value">R$ ${fatTot.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
+              <div class="fat-value">R$ ${fatTot.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
               <div class="fat-sub">${periodoStr}</div>
             </div>
             <div class="fat-card" style="--cc:var(--bl)">
@@ -1855,7 +2004,7 @@ function doGet_Vendas(e) {
             </div>
             <div class="fat-card" style="--cc:var(--ye)">
               <div class="fat-label">${SVG('<path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>')} Ticket Médio</div>
-              <div class="fat-value">R$ ${fatAvg.toLocaleString('pt-BR',{minimumFractionDigits:2})}</div>
+              <div class="fat-value">R$ ${fatAvg.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
               <div class="fat-sub">Sobre pedidos com valor registrado</div>
             </div>
           </div>
@@ -1887,7 +2036,7 @@ function doGet_Vendas(e) {
             <th>Hora Fat.</th>
             <th onclick="sortT(1,'END')">Data Entrega</th>
             <th>Hora</th>
-            <th>${SVG('<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',11,3)} Fat→Ent</th>
+            <th>${SVG('<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>', 11, 3)} Fat→Ent</th>
             <th onclick="sortT(1,'CID')">Cidade</th>
             <th onclick="sortT(1,'LOG')">Status</th>
             <th onclick="sortT(1,'VAL')">Valor</th>
@@ -1905,10 +2054,10 @@ function doGet_Vendas(e) {
                 <th style="text-align:center">Total Fat.</th>
                 <th style="text-align:center">Entregues</th>
                 <th style="text-align:center">Taxa</th>
-                <th style="text-align:center">${SVG('<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',11,2)} Normal</th>
-                <th style="text-align:center">${SVG('<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',11,2)} Urgente</th>
-                <th style="text-align:center">${SVG('<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',11,2)} Carro Horário</th>
-                <th style="text-align:center">${SVG('<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',11,2)} Média Geral</th>
+                <th style="text-align:center">${SVG('<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>', 11, 2)} Normal</th>
+                <th style="text-align:center">${SVG('<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>', 11, 2)} Urgente</th>
+                <th style="text-align:center">${SVG('<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>', 11, 2)} Carro Horário</th>
+                <th style="text-align:center">${SVG('<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>', 11, 2)} Média Geral</th>
               </tr></thead>
               <tbody>${cityAvgHtml}</tbody>
             </table>
@@ -1916,7 +2065,7 @@ function doGet_Vendas(e) {
         </div>
 
         <div>
-          <div class="slbl">${SVG('<polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/>',12,5)} Previsão por Rota — Semana ${new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})}</div>
+          <div class="slbl">${SVG('<polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/>', 12, 5)} Previsão por Rota — Semana ${new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}</div>
           <div class="rota-grid">${rotaGrid || '<p style="color:var(--tx3);font-size:11px">Nenhuma rota. Verifique a aba <b>Rotas e Coletas</b>.</p>'}</div>
         </div>
 
@@ -1949,7 +2098,7 @@ function doGet_Vendas(e) {
       if (pages[1] > pg) pages[1] = pg;
       const sl = recs.slice((pages[1] - 1) * PS, pages[1] * PS);
 
-      const NIV_COLOR = { 'URGENTE': '#ef4444', 'CARRO HORARIO': '#8b5cf6', 'NORMAL': '#3b82f6', 'RETIRADA': '#f97316' };
+      const NIV_COLOR = { 'URGENTE': '#ef4444', 'CARRO HORARIO': '#8b5cf6', 'NORMAL': '#3b82f6', 'RETIRADA': '#f97316', 'PROGRAMADO': '#8b5cf6' };
       const el = document.getElementById('tbody1'); if (!el) return;
       el.innerHTML = sl.map(r => {
         const cfg = SC[r.LOG] || { c: '#6b7280', i: '-' };
@@ -1993,10 +2142,45 @@ function doGet_Vendas(e) {
       const cityMap = {};   // { cidade: { total, entregues, retiradas, valor, vends:{} } }
       recs.forEach(r => {
         const c = r.CID || 'SEM CIDADE';
-        if (!cityMap[c]) cityMap[c] = { total:0, ent:0, ret:0, pend:0, valor:0, vends:{} };
+        if (!cityMap[c]) cityMap[c] = {
+          total: 0,
+          ent: 0,
+          ret: 0,
+          pend: 0,
+          valor: 0,
+          vends: {},
+          programados: 0,
+          entreguesSemProgramados: 0,
+          tempoTotal: 0,
+          tempoCount: 0
+        };
         cityMap[c].total++;
-        if (r.LOG === 'ENTREGUE')  cityMap[c].ent++;
-        if (r.LOG === 'RETIRADA')  cityMap[c].ret++;
+
+        if (r.LOG === 'ENTREGUE') {
+          cityMap[c].ent++;
+          if (r.NIV === 'PROGRAMADO') {
+            cityMap[c].programados++;
+          } else {
+            cityMap[c].entreguesSemProgramados++;
+          }
+
+          // Calcular tempo de entrega (ENT → ENTREGUE) apenas se tiver todas as informações
+          // Verifica se tem DATA, ENT, END e ENH preenchidos
+          if (r.DATA && r.ENT && r.END && r.ENH) {
+            const tEnt = toDateTime(r.DATA, r.ENT);
+            const tEnt2 = toDateTime(r.END, r.ENH);
+            if (tEnt && tEnt2) {
+              const diffSeg = Math.round((tEnt2 - tEnt) / 1000);
+              // Filtra para evitar valores negativos ou extremamente grandes
+              if (diffSeg > 0 && diffSeg < 86400 * 30) { // Máximo 30 dias
+                cityMap[c].tempoTotal += diffSeg;
+                cityMap[c].tempoCount++;
+              }
+            }
+          }
+        }
+
+        if (r.LOG === 'RETIRADA') cityMap[c].ret++;
         if (r.LOG === 'PENDENCIA') cityMap[c].pend++;
         if (r.VAL > 0) cityMap[c].valor += r.VAL;
         if (r.LOG === 'ENTREGUE' || r.LOG === 'RETIRADA') {
@@ -2006,27 +2190,30 @@ function doGet_Vendas(e) {
 
       // Top cidades por total de pedidos
       const topCities = Object.entries(cityMap).sort((a, b) => b[1].total - a[1].total);
-      const maxTotal  = topCities[0]?.[1].total || 1;
+      const maxTotal = topCities[0]?.[1].total || 1;
 
       // Paleta
-      const COLS = ['#3b82f6','#10b981','#f59e0b','#8b5cf6','#f97316','#ec4899','#06b6d4','#84cc16','#ef4444','#6b7280'];
+      const COLS = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#f97316', '#ec4899', '#06b6d4', '#84cc16', '#ef4444', '#6b7280'];
 
       // ── Gráfico de barras: entregas por cidade (top 12) ────────────
       const top12 = topCities.slice(0, 12);
       const barChart = top12.map(([city, d], i) => {
         const pct = Math.round(d.total / maxTotal * 100);
         const pctEnt = d.total > 0 ? Math.round(d.ent / d.total * 100) : 0;
+        const pctProg = d.ent > 0 ? Math.round(d.programados / d.ent * 100) : 0;
+        const tempoMedio = d.tempoCount > 0 ? fmtDur(Math.round(d.tempoTotal / d.tempoCount)) : '—';
         return `<div class="bar-row" style="margin-bottom:11px">
-          <span class="bar-lbl" style="width:110px;font-size:9px" title="${city}">${city.length>14?city.slice(0,14)+'…':city}</span>
+          <span class="bar-lbl" style="width:110px;font-size:9px" title="${city}">${city.length > 14 ? city.slice(0, 14) + '…' : city}</span>
           <div style="flex:1;position:relative">
             <div class="bar-w" style="height:24px">
-              <div class="bar-f" style="width:${pct}%;background:${COLS[i%10]};height:100%">
+              <div class="bar-f" style="width:${pct}%;background:${COLS[i % 10]};height:100%">
                 <span class="bar-fv">${d.total}</span>
               </div>
             </div>
-            <div style="position:absolute;top:0;left:0;height:24px;width:${Math.round(d.ent/maxTotal*100)}%;background:${COLS[i%10]};opacity:.35;border-radius:3px;pointer-events:none"></div>
+            <div style="position:absolute;top:0;left:0;height:24px;width:${Math.round(d.ent / maxTotal * 100)}%;background:${COLS[i % 10]};opacity:.35;border-radius:3px;pointer-events:none"></div>
           </div>
           <span style="font-size:9px;color:var(--tx3);width:38px;text-align:right">${pctEnt}% ent.</span>
+          <span style="font-size:9px;color:var(--pu);width:38px;text-align:right">${pctProg}% prog.</span>
         </div>`;
       }).join('');
 
@@ -2050,7 +2237,7 @@ function doGet_Vendas(e) {
       const maxVal = Math.max(...allVals, 1);
 
       const heatHead = `<thead><tr><th style="min-width:90px">Vendedor</th>${top8Cities.map(c =>
-        `<th style="text-align:center;min-width:60px;font-size:8px" title="${c}">${c.length>9?c.slice(0,9)+'…':c}</th>`
+        `<th style="text-align:center;min-width:60px;font-size:8px" title="${c}">${c.length > 9 ? c.slice(0, 9) + '…' : c}</th>`
       ).join('')}<th style="text-align:center">Total</th></tr></thead>`;
 
       const heatBody = top8Vends.map(v => {
@@ -2058,42 +2245,81 @@ function doGet_Vendas(e) {
           const val = matrix[v][city];
           const alpha = val > 0 ? 0.15 + (val / maxVal) * 0.75 : 0;
           const bg = val > 0 ? `rgba(59,130,246,${alpha.toFixed(2)})` : 'transparent';
-          return `<td style="text-align:center;background:${bg};font-weight:${val>0?600:400};color:${val>0?'var(--tx)':'var(--tx3)'}">${val||'—'}</td>`;
+          return `<td style="text-align:center;background:${bg};font-weight:${val > 0 ? 600 : 400};color:${val > 0 ? 'var(--tx)' : 'var(--tx3)'}">${val || '—'}</td>`;
         }).join('');
         const tot = top8Cities.reduce((s, city) => s + matrix[v][city], 0);
-        return `<tr><td style="font-weight:600;color:var(--tx)">${v.length>14?v.slice(0,14)+'…':v}</td>${cells}<td style="text-align:center;font-weight:700;color:var(--bl)">${tot}</td></tr>`;
+        return `<tr><td style="font-weight:600;color:var(--tx)">${v.length > 14 ? v.slice(0, 14) + '…' : v}</td>${cells}<td style="text-align:center;font-weight:700;color:var(--bl)">${tot}</td></tr>`;
       }).join('');
 
       // ── KPI cards por cidade ───────────────────────────────────────
-      const totalPed   = recs.length;
-      const totalEnt   = recs.filter(r => r.LOG === 'ENTREGUE').length;
-      const totalRet   = recs.filter(r => r.LOG === 'RETIRADA').length;
-      const totalPend  = recs.filter(r => r.LOG === 'PENDENCIA').length;
-      const totalCids  = Object.keys(cityMap).length;
+      const totalPed = recs.length;
+      const totalEnt = recs.filter(r => r.LOG === 'ENTREGUE').length;
+      const totalRet = recs.filter(r => r.LOG === 'RETIRADA').length;
+      const totalPend = recs.filter(r => r.LOG === 'PENDENCIA').length;
+      const totalCids = Object.keys(cityMap).length;
       const totalValor = recs.filter(r => r.VAL > 0).reduce((s, r) => s + r.VAL, 0);
+      const totalProgramados = recs.filter(r => r.NIV === 'PROGRAMADO').length;
+      const tempoGeral = { total: 0, count: 0 };
+      recs.filter(r => r.LOG === 'ENTREGUE').forEach(r => {
+        // Verifica se tem todas as informações necessárias
+        if (r.DATA && r.ENT && r.END && r.ENH) {
+          const tEnt = toDateTime(r.DATA, r.ENT);
+          const tEnt2 = toDateTime(r.END, r.ENH);
+          if (tEnt && tEnt2) {
+            const diffSeg = Math.round((tEnt2 - tEnt) / 1000);
+            if (diffSeg > 0 && diffSeg < 86400 * 30) {
+              tempoGeral.total += diffSeg;
+              tempoGeral.count++;
+            }
+          }
+        }
+      });
+      const tempoMedioGeral = tempoGeral.count > 0 ? fmtDur(Math.round(tempoGeral.total / tempoGeral.count)) : '—';
 
-      const S = (p, sz=14) => `<svg xmlns="http://www.w3.org/2000/svg" width="${sz}" height="${sz}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:4px">${p}</svg>`;
+      // ── Média de entregas com e sem PROGRAMADO por cidade ──────
+      const cityAvgTable = Object.entries(cityMap)
+        .sort((a, b) => b[1].total - a[1].total)
+        .map(([city, d]) => {
+          const total = d.total;
+          const entregues = d.ent;
+          const programados = d.programados;
+          const semProgramados = entregues - programados;
+          const pctEntregue = total > 0 ? ((entregues / total) * 100).toFixed(1) : '0.0';
+          const pctProgramado = entregues > 0 ? ((programados / entregues) * 100).toFixed(1) : '0.0';
+          return `<tr>
+            <td><b>${city}</b></td>
+            <td style="text-align:center">${total}</td>
+            <td style="text-align:center"><span style="color:#10b981;font-weight:600">${entregues}</span></td>
+            <td style="text-align:center"><span style="color:#8b5cf6">${programados}</span></td>
+            <td style="text-align:center"><span style="color:#3b82f6">${semProgramados}</span></td>
+            <td style="text-align:center">${pctEntregue}%</td>
+            <td style="text-align:center">${pctProgramado}%</td>
+          </tr>`;
+        }).join('');
+
+      const S = (p, sz = 14) => `<svg xmlns="http://www.w3.org/2000/svg" width="${sz}" height="${sz}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:4px">${p}</svg>`;
 
       const kpis2 = [
-        { ico: S('<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>'), l:'Cidades Atendidas', v: totalCids, c:'#06b6d4' },
-        { ico: S('<rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>'), l:'Total Pedidos', v: totalPed, c:'#3b82f6' },
-        { ico: S('<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>'), l:'Entregas Realizadas', v: totalEnt, c:'#10b981' },
-        { ico: S('<path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>'), l:'Retiradas em Loja', v: totalRet, c:'#f97316' },
-        { ico: S('<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>'), l:'Pendências', v: totalPend, c:'#ef4444' },
-        { ico: S('<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>'), l:'Valor Total', v:'R$ '+totalValor.toLocaleString('pt-BR',{minimumFractionDigits:2}), c:'#10b981', str:true },
+        { ico: S('<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>'), l: 'Cidades Atendidas', v: totalCids, c: '#06b6d4' },
+        { ico: S('<rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>'), l: 'Total Pedidos', v: totalPed, c: '#3b82f6' },
+        { ico: S('<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>'), l: 'Entregas Realizadas', v: totalEnt, c: '#10b981' },
+        { ico: S('<rect x="3" y="4" width="20" height="20" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/>'), l: 'Programados', v: totalProgramados, c: '#8b5cf6' },
       ];
 
       const kpiHtml = kpis2.map(k => `
         <div class="kc" style="--cc:${k.c};cursor:default">
           <div class="kc-i">${k.ico}</div>
-          <div class="kc-v" style="font-size:${k.str?'16px':'22px'}">${k.str ? k.v : k.v.toLocaleString('pt-BR')}</div>
+          <div class="kc-v" style="font-size:${k.str ? '16px' : '22px'}">${k.str ? k.v : k.v.toLocaleString('pt-BR')}</div>
           <div class="kc-l">${k.l}</div>
         </div>`).join('');
 
       // ── Tabela de pedidos por cidade ───────────────────────────────
       const cityTableRows = topCities.map(([city, d]) => {
-        const topVend = Object.entries(d.vends).sort((a,b)=>b[1]-a[1])[0];
-        const rate = d.total > 0 ? ((d.ent/d.total)*100).toFixed(1) : '0.0';
+        const topVend = Object.entries(d.vends).sort((a, b) => b[1] - a[1])[0];
+        const rate = d.total > 0 ? ((d.ent / d.total) * 100).toFixed(1) : '0.0';
+        const rateProg = d.ent > 0 ? ((d.programados / d.ent) * 100).toFixed(1) : '0.0';
+        const tempoMedio = d.tempoCount > 0 ? fmtDur(Math.round(d.tempoTotal / d.tempoCount)) : '—';
+        const metaOk = d.tempoCount > 0 && (Math.round(d.tempoTotal / d.tempoCount) <= 432000);
         return `<tr>
           <td><b>${city}</b></td>
           <td style="text-align:center">${d.total.toLocaleString('pt-BR')}</td>
@@ -2108,8 +2334,12 @@ function doGet_Vendas(e) {
               <span style="font-size:9px;color:var(--tx2)">${rate}%</span>
             </div>
           </td>
-          <td>${d.valor>0?'R$ '+d.valor.toLocaleString('pt-BR',{minimumFractionDigits:2}):'—'}</td>
-          <td style="color:var(--tx2)">${topVend ? topVend[0].slice(0,16)+(topVend[0].length>16?'…':'') : '—'} ${topVend?'<span style="color:var(--tx3);font-size:8px">('+topVend[1]+')</span>':''}</td>
+          <td style="text-align:center"><span style="color:var(--pu)">${d.programados}</span></td>
+          <td style="text-align:center">${rateProg}%</td>
+          <td style="text-align:center;font-weight:600;color:${metaOk ? '#10b981' : '#f59e0b'}">${tempoMedio}</td>
+          <td style="text-align:center">${metaOk ? '✅' : '⚠️'}</td>
+          <td>${d.valor > 0 ? 'R$ ' + d.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '—'}</td>
+          <td style="color:var(--tx2)">${topVend ? topVend[0].slice(0, 16) + (topVend[0].length > 16 ? '…' : '') : '—'} ${topVend ? '<span style="color:var(--tx3);font-size:8px">(' + topVend[1] + ')</span>' : ''}</td>
         </tr>`;
       }).join('');
 
@@ -2120,13 +2350,13 @@ function doGet_Vendas(e) {
       document.getElementById('tab2-content').innerHTML = `
         <div>
           <div class="slbl">Análise por Cidades</div>
-          <div class="kg" style="grid-template-columns:repeat(6,1fr)">${kpiHtml}</div>
+          <div class="kg" style="grid-template-columns:repeat(4,1fr)">${kpiHtml}</div>
         </div>
 
         <div class="row2">
           <div class="cc">
             <div class="cc-t">${S('<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>')} Pedidos &amp; Entregas por Cidade</div>
-            <div class="cc-s">Total (barras cheias) · Entregues (overlay claro) · Top 12 cidades</div>
+            <div class="cc-s">Total (barras cheias) · Entregues (overlay claro) · % Programados (texto) · ⏱ Tempo médio de entrega</div>
             <div>${barChart}</div>
           </div>
           <div class="cc">
@@ -2143,21 +2373,20 @@ function doGet_Vendas(e) {
 
         <div class="tc">
           <div class="th">
-            <span class="th-t">${S('<polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/>')} Resumo por Cidade</span>
+            <span class="th-t">${S('<polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/>')} Análise de Programados por Cidade</span>
           </div>
           <div class="tw">
             <table>
               <thead><tr>
-                <th onclick="sortCity('CID')">Cidade ${sortArrow(2,'CID')}</th>
-                <th style="text-align:center" onclick="sortCity('total')">Total ${sortArrow(2,'total')}</th>
-                <th style="text-align:center" onclick="sortCity('ent')">Entregas ${sortArrow(2,'ent')}</th>
-                <th style="text-align:center">Retiradas</th>
-                <th style="text-align:center">Pendências</th>
-                <th style="text-align:center" onclick="sortCity('rate')">Taxa Entrega ${sortArrow(2,'rate')}</th>
-                <th onclick="sortCity('valor')">Valor ${sortArrow(2,'valor')}</th>
-                <th>Top Vendedor</th>
+                <th>Cidade</th>
+                <th style="text-align:center">Total</th>
+                <th style="text-align:center">Entregues</th>
+                <th style="text-align:center;color:#8b5cf6">Programados</th>
+                <th style="text-align:center;color:#3b82f6">Sem Programado</th>
+                <th style="text-align:center">% Entrega</th>
+                <th style="text-align:center;color:#8b5cf6">% Programado</th>
               </tr></thead>
-              <tbody id="cityResBody">${cityTableRows}</tbody>
+              <tbody>${cityAvgTable}</tbody>
             </table>
           </div>
         </div>
@@ -2168,19 +2397,19 @@ function doGet_Vendas(e) {
             <input type="text" class="ts" id="ts2" placeholder="Buscar cidade, pedido, vendedor..." oninput="renderCityPedTable(filteredCity,'cityPedBody')">
             <select class="fi" id="fCity" style="font-size:10px" onchange="renderCityPedTable(filteredCity,'cityPedBody')">
               <option value="">Todas as Cidades</option>
-              ${[...new Set(recs.map(r=>r.CID).filter(Boolean))].sort().map(c=>`<option value="${c}">${c}</option>`).join('')}
+              ${[...new Set(recs.map(r => r.CID).filter(Boolean))].sort().map(c => `<option value="${c}">${c}</option>`).join('')}
             </select>
             <span class="rcnt" id="tcount2"></span>
           </div>
           <div class="tw">
             <table>
               <thead><tr>
-                <th onclick="sortCityPed('DATA')">Data ${sortArrow(2,'DATA')}</th>
-                <th onclick="sortCityPed('CID')">Cidade ${sortArrow(2,'CID')}</th>
-                <th onclick="sortCityPed('VEND')">Vendedor ${sortArrow(2,'VEND')}</th>
-                <th onclick="sortCityPed('LOG')">Status ${sortArrow(2,'LOG')}</th>
-                <th onclick="sortCityPed('NIV')">Nível ${sortArrow(2,'NIV')}</th>
-                <th onclick="sortCityPed('VAL')">Valor ${sortArrow(2,'VAL')}</th>
+                <th onclick="sortCityPed('DATA')">Data ${sortArrow(2, 'DATA')}</th>
+                <th onclick="sortCityPed('CID')">Cidade ${sortArrow(2, 'CID')}</th>
+                <th onclick="sortCityPed('VEND')">Vendedor ${sortArrow(2, 'VEND')}</th>
+                <th onclick="sortCityPed('LOG')">Status ${sortArrow(2, 'LOG')}</th>
+                <th onclick="sortCityPed('NIV')">Nível ${sortArrow(2, 'NIV')}</th>
+                <th onclick="sortCityPed('VAL')">Valor ${sortArrow(2, 'VAL')}</th>
                 <th>Pedido</th>
               </tr></thead>
               <tbody id="cityPedBody"></tbody>
@@ -2207,7 +2436,7 @@ function doGet_Vendas(e) {
       renderTab2();
     }
 
-    let sortCityPedCol = { col:'DATA', asc:false };
+    let sortCityPedCol = { col: 'DATA', asc: false };
     function sortCityPed(col) {
       if (sortCityPedCol.col === col) sortCityPedCol.asc = !sortCityPedCol.asc;
       else { sortCityPedCol.col = col; sortCityPedCol.asc = true; }
@@ -2215,61 +2444,57 @@ function doGet_Vendas(e) {
     }
 
     function renderCityPedTable(recs, tbodyId) {
-      const s  = (document.getElementById('ts2')?.value || '').toLowerCase();
+      const s = (document.getElementById('ts2')?.value || '').toLowerCase();
       const fc = document.getElementById('fCity')?.value || '';
       let rows = [...recs];
       if (fc) rows = rows.filter(r => r.CID === fc);
-      if (s)  rows = rows.filter(r => [r.DATA,r.CID,r.VEND,r.LOG,r.PED,r.NIV].join(' ').toLowerCase().includes(s));
+      if (s) rows = rows.filter(r => [r.DATA, r.CID, r.VEND, r.LOG, r.PED, r.NIV].join(' ').toLowerCase().includes(s));
 
       const { col, asc } = sortCityPedCol;
       rows.sort((a, b) => {
-        let av = col === 'VAL' ? a.VAL||0 : a[col]||'';
-        let bv = col === 'VAL' ? b.VAL||0 : b[col]||'';
-        return asc ? (av<bv?-1:av>bv?1:0) : (av>bv?-1:av<bv?1:0);
+        let av = col === 'VAL' ? a.VAL || 0 : a[col] || '';
+        let bv = col === 'VAL' ? b.VAL || 0 : b[col] || '';
+        return asc ? (av < bv ? -1 : av > bv ? 1 : 0) : (av > bv ? -1 : av < bv ? 1 : 0);
       });
 
-      const tot = rows.length, pg = Math.max(1, Math.ceil(tot/PS));
+      const tot = rows.length, pg = Math.max(1, Math.ceil(tot / PS));
       if (pages[2] > pg) pages[2] = pg;
-      const sl = rows.slice((pages[2]-1)*PS, pages[2]*PS);
+      const sl = rows.slice((pages[2] - 1) * PS, pages[2] * PS);
 
       const SC2 = {
-        'ENTREGA':   {c:'#3b82f6'},'ENTREGUE':  {c:'#10b981'},
-        'RETIRADA':  {c:'#f97316'},'PENDENCIA': {c:'#ef4444'},
-        'AGENDADA':  {c:'#f59e0b'},'VAI HOJE':  {c:'#8b5cf6'},
-        'VAI AMANHA':{c:'#ec4899'},'CARREGADO': {c:'#06b6d4'},
-        'PARCIAL':   {c:'#84cc16'},'CANCELADO': {c:'#6b7280'},
+        'ENTREGA': { c: '#3b82f6' }, 'ENTREGUE': { c: '#10b981' },
+        'RETIRADA': { c: '#f97316' }, 'PENDENCIA': { c: '#ef4444' },
+        'AGENDADA': { c: '#f59e0b' }, 'VAI HOJE': { c: '#8b5cf6' },
+        'VAI AMANHA': { c: '#ec4899' }, 'CARREGADO': { c: '#06b6d4' },
+        'PARCIAL': { c: '#84cc16' }, 'CANCELADO': { c: '#6b7280' },
+        'PROGRAMADO': { c: '#8b5cf6' },
       };
-      const NIV_C = {'URGENTE':'#ef4444','CARRO HORARIO':'#8b5cf6','NORMAL':'#3b82f6','RETIRADA':'#f97316'};
+      const NIV_C = { 'URGENTE': '#ef4444', 'CARRO HORARIO': '#8b5cf6', 'NORMAL': '#3b82f6', 'RETIRADA': '#f97316', 'PROGRAMADO': '#8b5cf6' };
 
       const el = document.getElementById(tbodyId); if (!el) return;
       el.innerHTML = sl.map(r => {
-        const lc = SC2[r.LOG]||{c:'#6b7280'};
-        const nc = NIV_C[r.NIV]||'#6b7280';
+        const lc = SC2[r.LOG] || { c: '#6b7280' };
+        const nc = NIV_C[r.NIV] || '#6b7280';
         return `<tr>
-          <td>${r.DATA||'—'}</td>
-          <td><b style="color:var(--tx)">${r.CID||'—'}</b></td>
-          <td>${r.VEND||'—'}</td>
+          <td>${r.DATA || '—'}</td>
+          <td><b style="color:var(--tx)">${r.CID || '—'}</b></td>
+          <td>${r.VEND || '—'}</td>
           <td><span class="bdg" style="background:${lc.c}22;color:${lc.c}">${r.LOG}</span></td>
-          <td><span class="bdg" style="background:${nc}22;color:${nc}">${r.NIV||'—'}</span></td>
-          <td>${r.VAL>0?'R$ '+r.VAL.toLocaleString('pt-BR',{minimumFractionDigits:2}):'—'}</td>
-          <td style="color:var(--tx3)">${r.PED||'—'}</td>
+          <td><span class="bdg" style="background:${nc}22;color:${nc}">${r.NIV || '—'}</span></td>
+          <td>${r.VAL > 0 ? 'R$ ' + r.VAL.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '—'}</td>
+          <td style="color:var(--tx3)">${r.PED || '—'}</td>
         </tr>`;
       }).join('');
 
-      const tc=document.getElementById('tcount2'), pi=document.getElementById('pi2'), pag=document.getElementById('pag2');
-      if (tc) tc.textContent = tot+' pedidos';
-      if (pi) pi.textContent = 'Pág '+pages[2]+' de '+pg;
-      if (pag) renderPag(pag, pg, 2, () => renderCityPedTable(filteredCity,'cityPedBody'));
+      const tc = document.getElementById('tcount2'), pi = document.getElementById('pi2'), pag = document.getElementById('pag2');
+      if (tc) tc.textContent = tot + ' pedidos';
+      if (pi) pi.textContent = 'Pág ' + pages[2] + ' de ' + pg;
+      if (pag) renderPag(pag, pg, 2, () => renderCityPedTable(filteredCity, 'cityPedBody'));
     }
 
 
     // ════════════════════════════════════════════════════════════════
     //  TAB 3 — CICLO DE TEMPO
-    //  Compara 4 etapas do ciclo de vida do pedido:
-    //  1. Entrada → Faturamento   (atendimento)
-    //  2. Faturamento → Saída     (expedição)
-    //  3. Saída → Entregue        (trânsito)
-    //  4. Entrada → Entregue      (ciclo total)
     // ════════════════════════════════════════════════════════════════
 
     // Converte "dd-MM-yyyy" + "HH:mm:ss" em Date
@@ -2282,7 +2507,7 @@ function doGet_Vendas(e) {
         const hh = h.length === 5 ? h + ':00' : h;
         const d = new Date(nd + 'T' + hh);
         return isNaN(d) ? null : d;
-      } catch(e) { return null; }
+      } catch (e) { return null; }
     }
 
     // Converte "dd-MM-yyyy HH:mm:ss" em Date
@@ -2291,32 +2516,32 @@ function doGet_Vendas(e) {
       try {
         const m = s.match(/^(\d{2})-(\d{2})-(\d{4})\s+(\d{2}:\d{2}(?::\d{2})?)$/);
         if (m) return new Date(`${m[3]}-${m[2]}-${m[1]}T${m[4]}`);
-        return new Date(s.replace(' ','T'));
-      } catch(e) { return null; }
+        return new Date(s.replace(' ', 'T'));
+      } catch (e) { return null; }
     }
 
     // Formata duração em segundos → "Xd HH:MM:SS" ou "HH:MM:SS"
     function fmtDur(seg) {
       if (seg == null || isNaN(seg) || seg < 0) return null;
-      const d  = Math.floor(seg / 86400);
-      const h  = Math.floor((seg % 86400) / 3600);
-      const m  = Math.floor((seg % 3600) / 60);
-      const s  = seg % 60;
-      const hms = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+      const d = Math.floor(seg / 86400);
+      const h = Math.floor((seg % 86400) / 3600);
+      const m = Math.floor((seg % 3600) / 60);
+      const s = seg % 60;
+      const hms = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
       return d > 0 ? `${d}d ${hms}` : hms;
     }
 
     // Calcula os 4 deltas de um registro (em segundos), null se dados faltam
     function calcDeltas(r) {
-      const tEnt  = toDateTime(r.DATA, r.ENT);       // Entrada
-      const tFat  = toDT(r.FAT_DH);                  // Faturamento
-      const tSai  = toDateTime(r.DATA, r.SAI);       // Saída
-      const tEnt2 = toDateTime(r.END,  r.ENH);       // Entregue
+      const tEnt = toDateTime(r.DATA, r.ENT);       // Entrada
+      const tFat = toDT(r.FAT_DH);                  // Faturamento
+      const tSai = toDateTime(r.DATA, r.SAI);       // Saída
+      const tEnt2 = toDateTime(r.END, r.ENH);       // Entregue
       return {
         ent_fat: (tEnt && tFat) ? Math.round((tFat - tEnt) / 1000) : null,   // Entrada→Fat
         fat_sai: (tFat && tSai) ? Math.round((tSai - tFat) / 1000) : null,   // Fat→Saída
         sai_ent: (tSai && tEnt2) ? Math.round((tEnt2 - tSai) / 1000) : null, // Saída→Entregue
-        tot:     (tEnt && tEnt2) ? Math.round((tEnt2 - tEnt) / 1000) : null, // Total
+        tot: (tEnt && tEnt2) ? Math.round((tEnt2 - tEnt) / 1000) : null, // Total
       };
     }
 
@@ -2324,14 +2549,13 @@ function doGet_Vendas(e) {
     function avgSeg(arr) {
       const valid = arr.filter(v => v != null && v >= 0);
       if (!valid.length) return null;
-      return Math.round(valid.reduce((a,b)=>a+b,0) / valid.length);
+      return Math.round(valid.reduce((a, b) => a + b, 0) / valid.length);
     }
 
     // Badge colorido por duração
     function durBadge(seg, thresholds) {
       if (seg == null) return '<span style="color:var(--tx3);font-size:9px">—</span>';
       const label = fmtDur(seg);
-      // thresholds: [ok_max_seg, warn_max_seg] → verde / amarelo / vermelho
       const [ok, warn] = thresholds || [3600, 7200];
       const color = seg <= ok ? '#10b981' : seg <= warn ? '#f59e0b' : '#ef4444';
       return `<span style="color:${color};font-weight:600;font-size:10px">${label}</span>`;
@@ -2344,23 +2568,23 @@ function doGet_Vendas(e) {
       const rows = recs.map(r => ({ ...r, d: calcDeltas(r) }));
 
       // KPIs globais
-      const comFat  = rows.filter(r => r.d.ent_fat != null).length;
-      const comSai  = rows.filter(r => r.d.fat_sai != null).length;
-      const comEnt  = rows.filter(r => r.d.sai_ent != null).length;
-      const comTot  = rows.filter(r => r.d.tot != null).length;
+      const comFat = rows.filter(r => r.d.ent_fat != null).length;
+      const comSai = rows.filter(r => r.d.fat_sai != null).length;
+      const comEnt = rows.filter(r => r.d.sai_ent != null).length;
+      const comTot = rows.filter(r => r.d.tot != null).length;
 
-      const avgEF  = avgSeg(rows.map(r => r.d.ent_fat));
-      const avgFS  = avgSeg(rows.map(r => r.d.fat_sai));
-      const avgSE  = avgSeg(rows.map(r => r.d.sai_ent));
+      const avgEF = avgSeg(rows.map(r => r.d.ent_fat));
+      const avgFS = avgSeg(rows.map(r => r.d.fat_sai));
+      const avgSE = avgSeg(rows.map(r => r.d.sai_ent));
       const avgTot = avgSeg(rows.map(r => r.d.tot));
 
       // Thresholds (em segundos) para cada etapa
-      const TH_EF  = [7200,   18000];  // Ent→Fat: ok ≤2h, warn ≤5h
-      const TH_FS  = [3600,   7200];   // Fat→Sai: ok ≤1h, warn ≤2h
-      const TH_SE  = [86400,  172800]; // Sai→Ent: ok ≤1d, warn ≤2d
+      const TH_EF = [7200, 18000];  // Ent→Fat: ok ≤2h, warn ≤5h
+      const TH_FS = [3600, 7200];   // Fat→Sai: ok ≤1h, warn ≤2h
+      const TH_SE = [86400, 172800]; // Sai→Ent: ok ≤1d, warn ≤2d
       const TH_TOT = [172800, 432000]; // Total:   ok ≤2d, warn ≤5d
 
-      const S = (p, sz=14) => `<svg xmlns="http://www.w3.org/2000/svg" width="${sz}" height="${sz}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:5px">${p}</svg>`;
+      const S = (p, sz = 14) => `<svg xmlns="http://www.w3.org/2000/svg" width="${sz}" height="${sz}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:5px">${p}</svg>`;
       const clockP = '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>';
       const arrowP = '<line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>';
       const checkP = '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>';
@@ -2369,27 +2593,27 @@ function doGet_Vendas(e) {
       const cityC = {};
       rows.forEach(r => {
         const c = r.CID || 'SEM CIDADE';
-        if (!cityC[c]) cityC[c] = { ef:[], fs:[], se:[], tot:[], n:0 };
+        if (!cityC[c]) cityC[c] = { ef: [], fs: [], se: [], tot: [], n: 0 };
         cityC[c].n++;
         if (r.d.ent_fat != null) cityC[c].ef.push(r.d.ent_fat);
         if (r.d.fat_sai != null) cityC[c].fs.push(r.d.fat_sai);
         if (r.d.sai_ent != null) cityC[c].se.push(r.d.sai_ent);
-        if (r.d.tot     != null) cityC[c].tot.push(r.d.tot);
+        if (r.d.tot != null) cityC[c].tot.push(r.d.tot);
       });
       const cityRows = Object.entries(cityC)
-        .sort((a,b) => b[1].n - a[1].n)
+        .sort((a, b) => b[1].n - a[1].n)
         .map(([city, d]) => {
-          const aEF  = avgSeg(d.ef),  aFS = avgSeg(d.fs),
-                aSE  = avgSeg(d.se),  aTot = avgSeg(d.tot);
+          const aEF = avgSeg(d.ef), aFS = avgSeg(d.fs),
+            aSE = avgSeg(d.se), aTot = avgSeg(d.tot);
           return `<tr>
             <td><b style="color:var(--tx)">${city}</b></td>
             <td style="text-align:center">${d.n}</td>
             <td style="text-align:center">${d.ef.length}</td>
-            <td style="text-align:center">${durBadge(aEF,  TH_EF)}</td>
+            <td style="text-align:center">${durBadge(aEF, TH_EF)}</td>
             <td style="text-align:center">${d.fs.length}</td>
-            <td style="text-align:center">${durBadge(aFS,  TH_FS)}</td>
+            <td style="text-align:center">${durBadge(aFS, TH_FS)}</td>
             <td style="text-align:center">${d.se.length}</td>
-            <td style="text-align:center">${durBadge(aSE,  TH_SE)}</td>
+            <td style="text-align:center">${durBadge(aSE, TH_SE)}</td>
             <td style="text-align:center">${durBadge(aTot, TH_TOT)}</td>
           </tr>`;
         }).join('');
@@ -2398,55 +2622,55 @@ function doGet_Vendas(e) {
       const vendC = {};
       rows.forEach(r => {
         const v = r.VEND || 'DESCONHECIDO';
-        if (!vendC[v]) vendC[v] = { ef:[], fs:[], se:[], tot:[], n:0 };
+        if (!vendC[v]) vendC[v] = { ef: [], fs: [], se: [], tot: [], n: 0 };
         vendC[v].n++;
         if (r.d.ent_fat != null) vendC[v].ef.push(r.d.ent_fat);
         if (r.d.fat_sai != null) vendC[v].fs.push(r.d.fat_sai);
         if (r.d.sai_ent != null) vendC[v].se.push(r.d.sai_ent);
-        if (r.d.tot     != null) vendC[v].tot.push(r.d.tot);
+        if (r.d.tot != null) vendC[v].tot.push(r.d.tot);
       });
       const vendRows = Object.entries(vendC)
-        .sort((a,b) => b[1].n - a[1].n)
+        .sort((a, b) => b[1].n - a[1].n)
         .slice(0, 12)
         .map(([vend, d]) => {
-          const aEF  = avgSeg(d.ef),  aFS = avgSeg(d.fs),
-                aSE  = avgSeg(d.se),  aTot = avgSeg(d.tot);
+          const aEF = avgSeg(d.ef), aFS = avgSeg(d.fs),
+            aSE = avgSeg(d.se), aTot = avgSeg(d.tot);
           return `<tr>
-            <td><b style="color:var(--tx)">${vend.length>18?vend.slice(0,18)+'…':vend}</b></td>
+            <td><b style="color:var(--tx)">${vend.length > 18 ? vend.slice(0, 18) + '…' : vend}</b></td>
             <td style="text-align:center">${d.n}</td>
-            <td style="text-align:center">${durBadge(aEF,  TH_EF)}</td>
-            <td style="text-align:center">${durBadge(aFS,  TH_FS)}</td>
-            <td style="text-align:center">${durBadge(aSE,  TH_SE)}</td>
+            <td style="text-align:center">${durBadge(aEF, TH_EF)}</td>
+            <td style="text-align:center">${durBadge(aFS, TH_FS)}</td>
+            <td style="text-align:center">${durBadge(aSE, TH_SE)}</td>
             <td style="text-align:center">${durBadge(aTot, TH_TOT)}</td>
           </tr>`;
         }).join('');
 
       // ── Tabela individual paginada ────────────────────────────────
-      const SC3 = { 'ENTREGA':'#3b82f6','ENTREGUE':'#10b981','RETIRADA':'#f97316','PENDENCIA':'#ef4444','AGENDADA':'#f59e0b','VAI HOJE':'#8b5cf6','VAI AMANHA':'#ec4899','CARREGADO':'#06b6d4' };
-      const sortedRows = [...rows].sort((a,b) => {
-        const av = a.DATA||'', bv = b.DATA||'';
+      const SC3 = { 'ENTREGA': '#3b82f6', 'ENTREGUE': '#10b981', 'RETIRADA': '#f97316', 'PENDENCIA': '#ef4444', 'AGENDADA': '#f59e0b', 'VAI HOJE': '#8b5cf6', 'VAI AMANHA': '#ec4899', 'CARREGADO': '#06b6d4', 'PROGRAMADO': '#8b5cf6' };
+      const sortedRows = [...rows].sort((a, b) => {
+        const av = a.DATA || '', bv = b.DATA || '';
         return av < bv ? 1 : av > bv ? -1 : 0;
       });
       const totPed = sortedRows.length, pgPed = Math.max(1, Math.ceil(totPed / PS));
       if (pages[3] > pgPed) pages[3] = pgPed;
-      const slPed = sortedRows.slice((pages[3]-1)*PS, pages[3]*PS);
+      const slPed = sortedRows.slice((pages[3] - 1) * PS, pages[3] * PS);
 
       const pedRows = slPed.map(r => {
         const lc = SC3[r.LOG] || '#6b7280';
         return `<tr>
-          <td>${r.DATA||'—'}</td>
-          <td>${r.PED||'—'}</td>
-          <td style="color:var(--tx2)">${r.VEND||'—'}</td>
+          <td>${r.DATA || '—'}</td>
+          <td>${r.PED || '—'}</td>
+          <td style="color:var(--tx2)">${r.VEND || '—'}</td>
           <td><span class="bdg" style="background:${lc}22;color:${lc}">${r.LOG}</span></td>
-          <td>${r.CID||'—'}</td>
-          <td style="text-align:center;font-size:9px;color:var(--tx3)">${r.ENT||'—'}</td>
-          <td style="text-align:center;font-size:9px;color:var(--tx3)">${r.FAT_DH?r.FAT_DH.slice(11,19)||'—':'—'}</td>
-          <td style="text-align:center;font-size:9px;color:var(--tx3)">${r.SAI||'—'}</td>
-          <td style="text-align:center;font-size:9px;color:var(--tx3)">${r.ENH||'—'}</td>
+          <td>${r.CID || '—'}</td>
+          <td style="text-align:center;font-size:9px;color:var(--tx3)">${r.ENT || '—'}</td>
+          <td style="text-align:center;font-size:9px;color:var(--tx3)">${r.FAT_DH ? r.FAT_DH.slice(11, 19) || '—' : '—'}</td>
+          <td style="text-align:center;font-size:9px;color:var(--tx3)">${r.SAI || '—'}</td>
+          <td style="text-align:center;font-size:9px;color:var(--tx3)">${r.ENH || '—'}</td>
           <td style="text-align:center">${durBadge(r.d.ent_fat, TH_EF)}</td>
           <td style="text-align:center">${durBadge(r.d.fat_sai, TH_FS)}</td>
           <td style="text-align:center">${durBadge(r.d.sai_ent, TH_SE)}</td>
-          <td style="text-align:center">${durBadge(r.d.tot,     TH_TOT)}</td>
+          <td style="text-align:center">${durBadge(r.d.tot, TH_TOT)}</td>
         </tr>`;
       }).join('');
 
@@ -2462,34 +2686,34 @@ function doGet_Vendas(e) {
       // ── Montar HTML ───────────────────────────────────────────────
       document.getElementById('tab3-content').innerHTML = `
         <div>
-          <div class="slbl">${S(clockP,12)} Ciclo de Tempo dos Pedidos</div>
+          <div class="slbl">${S(clockP, 12)} Ciclo de Tempo dos Pedidos</div>
           <div class="kg" style="grid-template-columns:repeat(4,1fr);gap:12px">
 
             <div class="cc" style="border-top:3px solid #3b82f6">
-              <div class="cc-t">${S(arrowP)} Entrada ${S(arrowP,11,3)} Faturamento</div>
+              <div class="cc-t">${S(arrowP)} Entrada ${S(arrowP, 11, 3)} Faturamento</div>
               <div class="cc-s">Tempo de atendimento até faturar · ${comFat} pedidos com dados</div>
-              <div style="font-size:28px;font-weight:800;color:#3b82f6;margin:8px 0">${fmtDur(avgEF)||'—'}</div>
+              <div style="font-size:28px;font-weight:800;color:#3b82f6;margin:8px 0">${fmtDur(avgEF) || '—'}</div>
               <div style="font-size:9px;color:var(--tx3)">média geral</div>
             </div>
 
             <div class="cc" style="border-top:3px solid #f59e0b">
-              <div class="cc-t">${S(arrowP)} Faturamento ${S(arrowP,11,3)} Saída</div>
+              <div class="cc-t">${S(arrowP)} Faturamento ${S(arrowP, 11, 3)} Saída</div>
               <div class="cc-s">Tempo de expedição após faturar · ${comSai} pedidos com dados</div>
-              <div style="font-size:28px;font-weight:800;color:#f59e0b;margin:8px 0">${fmtDur(avgFS)||'—'}</div>
+              <div style="font-size:28px;font-weight:800;color:#f59e0b;margin:8px 0">${fmtDur(avgFS) || '—'}</div>
               <div style="font-size:9px;color:var(--tx3)">média geral</div>
             </div>
 
             <div class="cc" style="border-top:3px solid #10b981">
-              <div class="cc-t">${S(arrowP)} Saída ${S(arrowP,11,3)} Entregue</div>
+              <div class="cc-t">${S(arrowP)} Saída ${S(arrowP, 11, 3)} Entregue</div>
               <div class="cc-s">Tempo em trânsito · ${comEnt} pedidos com dados</div>
-              <div style="font-size:28px;font-weight:800;color:#10b981;margin:8px 0">${fmtDur(avgSE)||'—'}</div>
+              <div style="font-size:28px;font-weight:800;color:#10b981;margin:8px 0">${fmtDur(avgSE) || '—'}</div>
               <div style="font-size:9px;color:var(--tx3)">média geral</div>
             </div>
 
             <div class="cc" style="border-top:3px solid #8b5cf6">
-              <div class="cc-t">${S(clockP)} Ciclo Total (Entrada ${S(arrowP,10,2)} Entregue)</div>
+              <div class="cc-t">${S(clockP)} Ciclo Total (Entrada ${S(arrowP, 10, 2)} Entregue)</div>
               <div class="cc-s">Da entrada até a entrega · ${comTot} pedidos com dados</div>
-              <div style="font-size:28px;font-weight:800;color:#8b5cf6;margin:8px 0">${fmtDur(avgTot)||'—'}</div>
+              <div style="font-size:28px;font-weight:800;color:#8b5cf6;margin:8px 0">${fmtDur(avgTot) || '—'}</div>
               <div style="font-size:9px;color:var(--tx3)">média geral</div>
             </div>
 
@@ -2498,7 +2722,7 @@ function doGet_Vendas(e) {
         </div>
 
         <div class="tc">
-          <div class="th"><span class="th-t">${S(clockP,13)} Médias por Cidade</span></div>
+          <div class="th"><span class="th-t">${S(clockP, 13)} Médias por Cidade</span></div>
           <div class="tw">
             <table><thead><tr>
               <th>Cidade</th>
@@ -2517,7 +2741,7 @@ function doGet_Vendas(e) {
         </div>
 
         <div class="tc">
-          <div class="th"><span class="th-t">${S('<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',13)} Médias por Vendedor</span></div>
+          <div class="th"><span class="th-t">${S('<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>', 13)} Médias por Vendedor</span></div>
           <div class="tw">
             <table><thead><tr>
               <th>Vendedor</th>
@@ -2534,7 +2758,7 @@ function doGet_Vendas(e) {
 
         <div class="tc">
           <div class="th">
-            <span class="th-t">${S('<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>',13)} Detalhamento por Pedido</span>
+            <span class="th-t">${S('<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>', 13)} Detalhamento por Pedido</span>
             <span class="rcnt">${totPed} pedidos</span>
           </div>
           <div class="tw">
