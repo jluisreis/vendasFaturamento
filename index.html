@@ -1316,16 +1316,16 @@ function doGet_Vendas(e) {
 
   // ── ABA ROTAS E COLETAS ─────────────────────────────────────────────
   // Mapeamento das células:
-  //   Linha 12  (índice 11) → F:J = nomes dos 5 destinos
-  //   Linhas 13-17 (índices 12-16) → B=rota, C=valor total, D=previsão, F:J=valores cruzados
+  //   Linha 12  (índice 11) → F:K = nomes dos 6 destinos
+  //   Linhas 13-18 (índices 12-17) → B=rota, C=valor total, D=previsão, F:K=valores cruzados
   //   Linha 23  (índice 22) → F:J = totais por destino (TOTAL →)
   var shR = ss.getSheetByName(SHEET_ROTAS);
   var routes = [];
   if (shR) {
     var d = shR.getDataRange().getValues();
 
-    // Nomes dos destinos (linha 12, colunas F-J = índices 5-9)
-    var destinos = (d[11] || []).slice(5, 10).map(function(v) {
+    // Nomes dos destinos (linha 12, colunas F-K = índices 5-10)
+    var destinos = (d[11] || []).slice(5, 11).map(function(v) {
       return String(v || "").trim();
     });
 
@@ -1336,8 +1336,8 @@ function doGet_Vendas(e) {
       if (dest) totByDest[dest] = cleanVal(totLine[5 + i]);
     });
 
-    // 5 rotas: linhas 13-17 (índices 12-16)
-    for (var rr = 12; rr <= 16; rr++) {
+    // 6 rotas: linhas 13-18 (índices 12-17)
+    for (var rr = 12; rr <= 17; rr++) {
       var rowR = d[rr];
       if (!rowR) continue;
       var nome = String(rowR[1] || "").trim();
@@ -1394,7 +1394,7 @@ function doGet_Vendas(e) {
     // -- STATE ----------------------------------------------------------
     let allRecs = [], routes = [], filtered = [], filteredFat = [], filteredCity = [], filteredCiclo = [];
     // ── URL DO APPS SCRIPT — altere aqui quando necessário ──────────
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbzC839-5p-jp225sMruL-R-ITT-7M_lBn43Re5InqTpr6wfT_8S7iILwwMDrujjiBs/exec?acao=vendas';
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbzHoV45JEpYnb2QOlOw8DywYV1Tgk21TZGs2gToLjGGhvUCSoEbxyUjKQipFRW33t0/exec?acao=vendas';
     let gasUrl = GAS_URL;
     let activeSt = null;
     let sortCols = { 0: { col: 'DATA', asc: false }, 1: { col: 'FAT_DH', asc: false }, 2: { col: 'CID', asc: true }, 3: { col: 'DATA', asc: false } };
@@ -1415,7 +1415,7 @@ function doGet_Vendas(e) {
       'PARCIAL': { c: '#84cc16', i: '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px;"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg>' }, 'CANCELADO': { c: '#6b7280', i: '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>' },
       'PROGRAMADO': { c: '#8b5cf6', i: '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>' },
     };
-    const RCOLS = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#f97316'];
+    const RCOLS = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#f97316', '#06b6d4'];
 
     // -- INIT -----------------------------------------------------------
     function init() {
@@ -1912,7 +1912,7 @@ function doGet_Vendas(e) {
         }).join('')
         : `<tr><td colspan="8" style="color:var(--tx3);text-align:center;padding:14px">Sem dados com faturamento e entrega no periodo</td></tr>`;
 
-      // ── ROTAS: cards B13:D17 + tabela cruzada F12:J23 ─────────────
+      // ── ROTAS: cards B13:D17 (mesma lógica de antes) ──────────────
       const prevLabel = { 'EM ANÁLISE': 'Em Análise', 'EM ANALISE': 'Em Análise', 'SEXTA': 'Prevista Sexta', 'ABAIXO': 'Abaixo da Meta' };
       const prevClass = { 'EM ANÁLISE': 'EM_ANALISE', 'EM ANALISE': 'EM_ANALISE', 'SEXTA': 'SEXTA', 'ABAIXO': 'ABAIXO' };
       const prevIco = {
@@ -1921,70 +1921,73 @@ function doGet_Vendas(e) {
         'ABAIXO': '<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>',
       };
 
+      // Normaliza texto p/ comparação (maiúsculo, sem acento, sem espaços extras)
+      const normKey = s => String(s || '').toUpperCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+      // Casa o nome da rota com a(s) cidade(s) de cityStats e retorna a média Fat→Entrega combinada
+      const cityStatsKeys = Object.keys(cityStats);
+      function routeAvgGeral(nomeRota) {
+        const tokens = nomeRota.split(' - ').map(t => normKey(t));
+        let combined = [];
+        cityStatsKeys.forEach(cityKey => {
+          const nk = normKey(cityKey);
+          if (tokens.includes(nk)) {
+            const st = cityStats[cityKey];
+            combined = combined.concat(st.deltas.NORMAL, st.deltas.URGENTE, st.deltas['CARRO HORARIO']);
+          }
+        });
+        return { html: avgStr(combined), n: combined.length };
+      }
+
       const rotaGrid = routes.map((r, i) => {
         const norm = String(r.prev || '').trim().toUpperCase()
           .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
         const pc = prevClass[r.prev] || prevClass[norm] || 'EM_ANALISE';
         const ico = prevIco[pc] || '';
         const pl = prevLabel[r.prev] || prevLabel[norm] || r.prev || '—';
+        const avg = routeAvgGeral(r.nome);
 
-        const crossEntries = Object.entries(r.cross || {}).filter(([, v]) => v > 0);
-        const crossHtml = crossEntries.length
-          ? `<div class="rota-cross">
-               <div class="rota-cross-t">Pedidos por Destino</div>
-               ${crossEntries.map(([dest, val]) => `
-                 <div class="rota-cross-row">
-                   <span class="rota-cross-lbl" title="${dest}" style="max-width:140px">${dest.length > 19 ? dest.slice(0, 19) + '…' : dest}</span>
-                   <span class="rota-cross-val">R$ ${val.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
-                 </div>`).join('')}
-             </div>` : '';
-
-        return `<div class="rota-card" style="--rc:${RCOLS[i % 5]}">
+        return `<div class="rota-card" style="--rc:${RCOLS[i % RCOLS.length]}">
           <div class="rota-nome" title="${r.nome}">${r.nome.length > 38 ? r.nome.slice(0, 38) + '…' : r.nome}</div>
           <div class="rota-val">R$ ${(r.val || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</div>
           <span class="rota-prev ${pc}">${ico}${pl}</span>
-          ${crossHtml}
+          <div style="margin-top:9px;padding-top:8px;border-top:1px solid var(--bor);display:flex;align-items:center;gap:5px">
+            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--tx3)"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span style="font-size:8px;color:var(--tx3);text-transform:uppercase;letter-spacing:.04em">Média Fat→Ent:</span>
+            <span style="font-size:10px;font-weight:700;color:var(--tx)">${avg.html}</span>
+          </div>
         </div>`;
       }).join('');
 
-      const allDests = routes.length ? [...new Set(routes.flatMap(r => Object.keys(r.cross || {})))] : [];
-      const totByDest = routes[0]?.totByDest || {};
-      const totalGeral = routes.reduce((s, r) => s + (r.val || 0), 0);
-
-      const crossThead = allDests.length ? `<thead><tr>
-        <th style="min-width:160px">Rota</th>
-        <th style="text-align:center;color:var(--bl)">Valor Total</th>
-        <th style="text-align:center">Previsão</th>
-        ${allDests.map(d => `<th style="text-align:center;min-width:80px;font-size:8px" title="${d}">${d.length > 16 ? d.slice(0, 16) + '…' : d}</th>`).join('')}
-      </tr></thead>` : '';
-
-      const crossBody = routes.map((r, i) => {
+      // ── TABELA SIMPLES DE ROTAS: Rota | Nº Pedidos | Valor Total | Média Fat→Ent | Previsão ──
+      const totalGeralRotas = routes.reduce((s, r) => s + (r.val || 0), 0);
+      const routeTableRows = routes.map((r, i) => {
         const norm = String(r.prev || '').trim().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
         const pc = prevClass[r.prev] || prevClass[norm] || 'EM_ANALISE';
+        const ico = prevIco[pc] || '';
         const pl = prevLabel[r.prev] || prevLabel[norm] || r.prev || '—';
-        const cells = allDests.map(d => {
-          const v = r.cross?.[d] || 0;
-          return `<td style="text-align:center;${v > 0 ? 'color:#e8eaf0;font-weight:600' : 'color:var(--tx3)'}">${v > 0 ? 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '—'}</td>`;
-        }).join('');
+        const nPed = Object.keys(r.cross || {}).length;
+        const pctDoTotal = totalGeralRotas > 0 ? (((r.val || 0) / totalGeralRotas) * 100).toFixed(1) : '0.0';
+        const avg = routeAvgGeral(r.nome);
         return `<tr>
-          <td style="font-weight:600;color:${RCOLS[i % 5]}" title="${r.nome}">${r.nome.length > 26 ? r.nome.slice(0, 26) + '…' : r.nome}</td>
+          <td style="font-weight:600;color:${RCOLS[i % RCOLS.length]}">${r.nome}</td>
+          <td style="text-align:center">${nPed || '—'}</td>
           <td style="text-align:center;font-weight:700;color:var(--gr)">R$ ${(r.val || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
-          <td style="text-align:center"><span class="rota-prev ${pc}" style="font-size:8px">${pl}</span></td>
-          ${cells}
+          <td style="text-align:center;color:var(--tx2)">${pctDoTotal}%</td>
+          <td style="text-align:center">${avg.html}</td>
+          <td style="text-align:center"><span class="rota-prev ${pc}">${ico}${pl}</span></td>
         </tr>`;
       }).join('');
-
-      const totCells = allDests.map(d => {
-        const t = totByDest[d] || routes.reduce((s, r) => s + (r.cross?.[d] || 0), 0);
-        return `<td style="text-align:center;font-weight:700;color:var(--gr)">${t > 0 ? 'R$ ' + t.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '—'}</td>`;
-      }).join('');
-      const totRow = allDests.length
+      const routeTotalRow = routes.length
         ? `<tr style="border-top:2px solid var(--bor);background:var(--sur2)">
-            <td style="font-weight:700;color:var(--tx3)">TOTAL</td>
-            <td style="text-align:center;font-weight:800;color:var(--gr)">R$ ${totalGeral.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+            <td style="font-weight:700;color:var(--tx3)">TOTAL GERAL</td>
+            <td style="text-align:center;font-weight:700;color:var(--tx3)">${routes.reduce((s, r) => s + Object.keys(r.cross || {}).length, 0)}</td>
+            <td style="text-align:center;font-weight:800;color:var(--gr)">R$ ${totalGeralRotas.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+            <td style="text-align:center;color:var(--tx3)">100%</td>
+            <td style="text-align:center">${avgStr([].concat(...Object.values(cityStats).map(st => [...st.deltas.NORMAL, ...st.deltas.URGENTE, ...st.deltas['CARRO HORARIO']])))}</td>
             <td></td>
-            ${totCells}
-           </tr>` : ''
+           </tr>`
+        : '';
 
       const SVG = (p, sz = 14, ml = 5) => `<svg xmlns="http://www.w3.org/2000/svg" width="${sz}" height="${sz}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:${ml}px">${p}</svg>`;
 
@@ -2069,14 +2072,21 @@ function doGet_Vendas(e) {
           <div class="rota-grid">${rotaGrid || '<p style="color:var(--tx3);font-size:11px">Nenhuma rota. Verifique a aba <b>Rotas e Coletas</b>.</p>'}</div>
         </div>
 
-        ${allDests.length ? `
+        ${routes.length ? `
         <div class="cc">
-          <div class="cc-t">${SVG('<polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/>')} Tabela Cruzada — Pedidos por Rota × Destino</div>
-          <div class="cc-s">Valores F12:J23 da planilha Rotas e Coletas · linha TOTAL = F23:J23</div>
+          <div class="cc-t">${SVG('<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>')} Resumo de Rotas — Valores e Totais</div>
+          <div class="cc-s">Valor total faturado por rota e previsão da semana</div>
           <div style="overflow-x:auto">
             <table class="city-table">
-              ${crossThead}
-              <tbody>${crossBody}${totRow}</tbody>
+              <thead><tr>
+                <th>Rota</th>
+                <th style="text-align:center">Destinos c/ Pedido</th>
+                <th style="text-align:center">Valor Total</th>
+                <th style="text-align:center">% do Total</th>
+                <th style="text-align:center">Média Fat→Ent</th>
+                <th style="text-align:center">Previsão</th>
+              </tr></thead>
+              <tbody>${routeTableRows}${routeTotalRow}</tbody>
             </table>
           </div>
         </div>` : ''}
@@ -2791,13 +2801,6 @@ function doGet_Vendas(e) {
     document.getElementById('modal').addEventListener('click', e => {
       if (e.target === document.getElementById('modal')) closeModal();
     });
-
-    // -- START ----------------------------------------------------------
-    init();
-    // -- MODAL ----------------------------------------------------------
-    function openModal() { document.getElementById('modal').classList.add('open'); }
-    function closeModal() { document.getElementById('modal').classList.remove('open'); }
-    document.getElementById('modal').addEventListener('click', e => { if (e.target === document.getElementById('modal')) closeModal(); });
 
     // -- START ----------------------------------------------------------
     init();
