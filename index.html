@@ -1454,7 +1454,7 @@ function doGet_Vendas(e) {
           ...r,
           LOG: (function (v) {
             const raw = String(v || '').toUpperCase().trim();
-            const norm = raw.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+            const norm = raw.normalize('NFD').replace(/[̀-ͯ]/g, '');
             if (norm === 'EM ROTA') return 'CARREGADO';
             return norm;
           })(r.LOG || r.LOGISTICA),
@@ -1526,7 +1526,36 @@ function doGet_Vendas(e) {
       return selected;
     }
 
-        function applyFilters() {
+    // ── Período do filtro + regras de data ───────────────────────────
+    let fRange = { de: '', ate: '' };
+
+    // Converte datas (dd-MM-yyyy, dd/MM/yyyy, dd.MM.yyyy ou yyyy-MM-dd) para yyyy-MM-dd
+    function normDate(s) {
+      if (!s) return null;
+      s = String(s).trim();
+      const m = s.match(/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{4})/);
+      if (m) return m[3] + '-' + m[2].padStart(2, '0') + '-' + m[1].padStart(2, '0');
+      if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10);
+      return null;
+    }
+
+    function inRange(iso) {
+      if (!iso) return true; // sem data → não exclui (mesmo comportamento anterior)
+      if (fRange.de && iso < fRange.de) return false;
+      if (fRange.ate && iso > fRange.ate) return false;
+      return true;
+    }
+
+    // Data em que o pedido foi entregue (ENTREGUE DATA; se vazia, usa DATA do pedido)
+    function dataEntrega(r) { return normDate(r.END) || normDate(r.DATA); }
+
+    // Pedido feito dentro do período
+    function pedidoNoPeriodo(r) { return inRange(normDate(r.DATA)); }
+
+    // Pedido ENTREGUE dentro do período — independente do dia em que foi feito
+    function isEntNoPeriodo(r) { return r.LOG === 'ENTREGUE' && inRange(dataEntrega(r)); }
+
+    function applyFilters() {
       if (!allRecs.length) return;
       const fF = document.getElementById('fFrom').value;
       const fT = document.getElementById('fTo').value;
@@ -1576,14 +1605,6 @@ function doGet_Vendas(e) {
       if (activeTab === 3) renderTab3();
     }
 
-      document.getElementById('rcnt').textContent = filtered.length + ' registros';
-      pages[0] = 1; pages[1] = 1; pages[2] = 1; pages[3] = 1;
-      renderTab0(); renderTab1();
-      const activeTab = [...document.querySelectorAll('.tab')].findIndex(t => t.classList.contains('active'));
-      if (activeTab === 2) renderTab2();
-      if (activeTab === 3) renderTab3();
-    }
-
     function resetFilters() {
       document.getElementById('fFrom').value = '';
       document.getElementById('fTo').value = '';
@@ -1603,7 +1624,8 @@ function doGet_Vendas(e) {
     }
 
     // -- TAB 0 ----------------------------------------------------------
-          const recs = filtered;
+    function renderTab0() {
+      const recs = filtered;
       const kpis = {
         entrega: recs.filter(r => r.LOG === 'ENTREGA').length,
         entregue: recs.filter(r => isEntNoPeriodo(r)).length,
@@ -1673,7 +1695,7 @@ function doGet_Vendas(e) {
       CARDS.forEach(c => {
         const v = kpis[c.k] || 0;
         const div = document.createElement('div');
-        div.className = 'kc'; div.style.setProperty('--cc', c.c);
+        div.className = 'kc' + (activeSt === c.s ? ' active' : ''); div.style.setProperty('--cc', c.c);
         div.innerHTML = `<div class="kc-i">${c.i}</div><div class="kc-v">${v.toLocaleString('pt-BR')}</div><div class="kc-l">${c.l}</div><div class="kc-p">${((v / tot) * 100).toFixed(1)}%</div>`;
         div.onclick = () => toggleSt(c.s, div);
         row.appendChild(div);
@@ -1701,7 +1723,7 @@ function doGet_Vendas(e) {
       if (!months.length) return;
       const TV = months.map(m => tot[m] || 0), EV = months.map(m => ent[m] || 0);
       const W = 500, H = 145, p = { t: 16, r: 16, b: 26, l: 36 };
-      const iW = W - p.l - p.r, iH = H - p.t - p.b, maxV = Math.max(...TV, 1);
+      const iW = W - p.l - p.r, iH = H - p.t - p.b, maxV = Math.max(...TV, ...EV, 1);
       const xS = i => p.l + (months.length > 1 ? iW / (months.length - 1) * i : iW / 2);
       const yS = v => p.t + iH - (v / maxV) * iH;
       const MO = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
@@ -1789,35 +1811,6 @@ function doGet_Vendas(e) {
     }
 
     // -- TAB 1 -- FATURAMENTO -------------------------------------------
-        function normDate(s) {
-      if (!s) return null;
-      s = String(s).trim();
-      // aceita dd-MM-yyyy, dd/MM/yyyy e dd.MM.yyyy (com ou sem hora depois)
-      const m = s.match(/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{4})/);
-      if (m) return m[3] + '-' + m[2].padStart(2, '0') + '-' + m[1].padStart(2, '0');
-      if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10);
-      return null;
-    }
-
-    // ── Período do filtro + regras de data ───────────────────────────
-    let fRange = { de: '', ate: '' };
-
-    function inRange(iso) {
-      if (!iso) return true; // sem data → não exclui (mesmo comportamento anterior)
-      if (fRange.de && iso < fRange.de) return false;
-      if (fRange.ate && iso > fRange.ate) return false;
-      return true;
-    }
-
-    // Data em que o pedido foi entregue (ENTREGUE DATA; se vazia, usa DATA do pedido)
-    function dataEntrega(r) { return normDate(r.END) || normDate(r.DATA); }
-
-    // Pedido feito dentro do período
-    function pedidoNoPeriodo(r) { return inRange(normDate(r.DATA)); }
-
-    // Pedido ENTREGUE dentro do período — independente do dia em que foi feito
-    function isEntNoPeriodo(r) { return r.LOG === 'ENTREGUE' && inRange(dataEntrega(r)); }
-
     function parseTS(s) {
       if (!s) return null;
       try {
@@ -1947,7 +1940,7 @@ function doGet_Vendas(e) {
       };
 
       // Normaliza texto p/ comparação (maiúsculo, sem acento, sem espaços extras)
-      const normKey = s => String(s || '').toUpperCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const normKey = s => String(s || '').toUpperCase().trim().normalize('NFD').replace(/[̀-ͯ]/g, '');
 
       // Casa o nome da rota com a(s) cidade(s) de cityStats e retorna a média Fat→Entrega combinada
       const cityStatsKeys = Object.keys(cityStats);
@@ -1966,7 +1959,7 @@ function doGet_Vendas(e) {
 
       const rotaGrid = routes.map((r, i) => {
         const norm = String(r.prev || '').trim().toUpperCase()
-          .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+          .normalize('NFD').replace(/[̀-ͯ]/g, '');
         const pc = prevClass[r.prev] || prevClass[norm] || 'EM_ANALISE';
         const ico = prevIco[pc] || '';
         const pl = prevLabel[r.prev] || prevLabel[norm] || r.prev || '—';
@@ -1987,7 +1980,7 @@ function doGet_Vendas(e) {
       // ── TABELA SIMPLES DE ROTAS: Rota | Nº Pedidos | Valor Total | Média Fat→Ent | Previsão ──
       const totalGeralRotas = routes.reduce((s, r) => s + (r.val || 0), 0);
       const routeTableRows = routes.map((r, i) => {
-        const norm = String(r.prev || '').trim().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        const norm = String(r.prev || '').trim().toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
         const pc = prevClass[r.prev] || prevClass[norm] || 'EM_ANALISE';
         const ico = prevIco[pc] || '';
         const pl = prevLabel[r.prev] || prevLabel[norm] || r.prev || '—';
@@ -2191,7 +2184,7 @@ function doGet_Vendas(e) {
         };
         cityMap[c].total++;
 
-        if (r.LOG === 'ENTREGUE') {
+        if (isEntNoPeriodo(r)) {
           cityMap[c].ent++;
           if (r.NIV === 'PROGRAMADO') {
             cityMap[c].programados++;
@@ -2200,7 +2193,6 @@ function doGet_Vendas(e) {
           }
 
           // Calcular tempo de entrega (ENT → ENTREGUE) apenas se tiver todas as informações
-          // Verifica se tem DATA, ENT, END e ENH preenchidos
           if (r.DATA && r.ENT && r.END && r.ENH) {
             const tEnt = toDateTime(r.DATA, r.ENT);
             const tEnt2 = toDateTime(r.END, r.ENH);
@@ -2218,7 +2210,7 @@ function doGet_Vendas(e) {
         if (r.LOG === 'RETIRADA') cityMap[c].ret++;
         if (r.LOG === 'PENDENCIA') cityMap[c].pend++;
         if (r.VAL > 0) cityMap[c].valor += r.VAL;
-        if (r.LOG === 'ENTREGUE' || r.LOG === 'RETIRADA') {
+        if (isEntNoPeriodo(r) || r.LOG === 'RETIRADA') {
           cityMap[c].vends[r.VEND] = (cityMap[c].vends[r.VEND] || 0) + 1;
         }
       });
@@ -2236,7 +2228,6 @@ function doGet_Vendas(e) {
         const pct = Math.round(d.total / maxTotal * 100);
         const pctEnt = d.total > 0 ? Math.round(d.ent / d.total * 100) : 0;
         const pctProg = d.ent > 0 ? Math.round(d.programados / d.ent * 100) : 0;
-        const tempoMedio = d.tempoCount > 0 ? fmtDur(Math.round(d.tempoTotal / d.tempoCount)) : '—';
         return `<div class="bar-row" style="margin-bottom:11px">
           <span class="bar-lbl" style="width:110px;font-size:9px" title="${city}">${city.length > 14 ? city.slice(0, 14) + '…' : city}</span>
           <div style="flex:1;position:relative">
@@ -2256,7 +2247,7 @@ function doGet_Vendas(e) {
       // Top 8 cidades e top 8 vendedores por entregas
       const top8Cities = topCities.slice(0, 8).map(([c]) => c);
       const vendMap = {};
-      recs.filter(r => r.LOG === 'ENTREGUE' || r.LOG === 'RETIRADA').forEach(r => {
+      recs.filter(r => isEntNoPeriodo(r) || r.LOG === 'RETIRADA').forEach(r => {
         vendMap[r.VEND] = (vendMap[r.VEND] || 0) + 1;
       });
       const top8Vends = Object.entries(vendMap).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([v]) => v);
@@ -2265,7 +2256,7 @@ function doGet_Vendas(e) {
       const matrix = {};
       top8Vends.forEach(v => { matrix[v] = {}; top8Cities.forEach(c => { matrix[v][c] = 0; }); });
       recs.forEach(r => {
-        if ((r.LOG === 'ENTREGUE' || r.LOG === 'RETIRADA') && matrix[r.VEND] && top8Cities.includes(r.CID))
+        if ((isEntNoPeriodo(r) || r.LOG === 'RETIRADA') && matrix[r.VEND] && top8Cities.includes(r.CID))
           matrix[r.VEND][r.CID]++;
       });
       const allVals = top8Vends.flatMap(v => top8Cities.map(c => matrix[v][c]));
@@ -2288,28 +2279,9 @@ function doGet_Vendas(e) {
 
       // ── KPI cards por cidade ───────────────────────────────────────
       const totalPed = recs.length;
-      const totalEnt = recs.filter(r => r.LOG === 'ENTREGUE').length;
-      const totalRet = recs.filter(r => r.LOG === 'RETIRADA').length;
-      const totalPend = recs.filter(r => r.LOG === 'PENDENCIA').length;
+      const totalEnt = recs.filter(r => isEntNoPeriodo(r)).length;
       const totalCids = Object.keys(cityMap).length;
-      const totalValor = recs.filter(r => r.VAL > 0).reduce((s, r) => s + r.VAL, 0);
       const totalProgramados = recs.filter(r => r.NIV === 'PROGRAMADO').length;
-      const tempoGeral = { total: 0, count: 0 };
-      recs.filter(r => r.LOG === 'ENTREGUE').forEach(r => {
-        // Verifica se tem todas as informações necessárias
-        if (r.DATA && r.ENT && r.END && r.ENH) {
-          const tEnt = toDateTime(r.DATA, r.ENT);
-          const tEnt2 = toDateTime(r.END, r.ENH);
-          if (tEnt && tEnt2) {
-            const diffSeg = Math.round((tEnt2 - tEnt) / 1000);
-            if (diffSeg > 0 && diffSeg < 86400 * 30) {
-              tempoGeral.total += diffSeg;
-              tempoGeral.count++;
-            }
-          }
-        }
-      });
-      const tempoMedioGeral = tempoGeral.count > 0 ? fmtDur(Math.round(tempoGeral.total / tempoGeral.count)) : '—';
 
       // ── Média de entregas com e sem PROGRAMADO por cidade ──────
       const cityAvgTable = Object.entries(cityMap)
@@ -2348,39 +2320,6 @@ function doGet_Vendas(e) {
           <div class="kc-l">${k.l}</div>
         </div>`).join('');
 
-      // ── Tabela de pedidos por cidade ───────────────────────────────
-      const cityTableRows = topCities.map(([city, d]) => {
-        const topVend = Object.entries(d.vends).sort((a, b) => b[1] - a[1])[0];
-        const rate = d.total > 0 ? ((d.ent / d.total) * 100).toFixed(1) : '0.0';
-        const rateProg = d.ent > 0 ? ((d.programados / d.ent) * 100).toFixed(1) : '0.0';
-        const tempoMedio = d.tempoCount > 0 ? fmtDur(Math.round(d.tempoTotal / d.tempoCount)) : '—';
-        const metaOk = d.tempoCount > 0 && (Math.round(d.tempoTotal / d.tempoCount) <= 432000);
-        return `<tr>
-          <td><b>${city}</b></td>
-          <td style="text-align:center">${d.total.toLocaleString('pt-BR')}</td>
-          <td style="text-align:center"><span style="color:#10b981;font-weight:600">${d.ent}</span></td>
-          <td style="text-align:center"><span style="color:#f97316">${d.ret}</span></td>
-          <td style="text-align:center"><span style="color:#ef4444">${d.pend}</span></td>
-          <td style="text-align:center">
-            <div style="display:flex;align-items:center;gap:6px;justify-content:center">
-              <div style="width:50px;height:6px;background:var(--sur2);border-radius:3px;overflow:hidden">
-                <div style="height:100%;width:${rate}%;background:#10b981;border-radius:3px"></div>
-              </div>
-              <span style="font-size:9px;color:var(--tx2)">${rate}%</span>
-            </div>
-          </td>
-          <td style="text-align:center"><span style="color:var(--pu)">${d.programados}</span></td>
-          <td style="text-align:center">${rateProg}%</td>
-          <td style="text-align:center;font-weight:600;color:${metaOk ? '#10b981' : '#f59e0b'}">${tempoMedio}</td>
-          <td style="text-align:center">${metaOk ? '✅' : '⚠️'}</td>
-          <td>${d.valor > 0 ? 'R$ ' + d.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) : '—'}</td>
-          <td style="color:var(--tx2)">${topVend ? topVend[0].slice(0, 16) + (topVend[0].length > 16 ? '…' : '') : '—'} ${topVend ? '<span style="color:var(--tx3);font-size:8px">(' + topVend[1] + ')</span>' : ''}</td>
-        </tr>`;
-      }).join('');
-
-      // ── Tabela de pedidos individuais ──────────────────────────────
-      renderCityPedTable(recs, 'cityPedBody');
-
       // ── Montar HTML ───────────────────────────────────────────────
       document.getElementById('tab2-content').innerHTML = `
         <div>
@@ -2391,7 +2330,7 @@ function doGet_Vendas(e) {
         <div class="row2">
           <div class="cc">
             <div class="cc-t">${S('<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>')} Pedidos &amp; Entregas por Cidade</div>
-            <div class="cc-s">Total (barras cheias) · Entregues (overlay claro) · % Programados (texto) · ⏱ Tempo médio de entrega</div>
+            <div class="cc-s">Total (barras cheias) · Entregues (overlay claro) · % Programados (texto)</div>
             <div>${barChart}</div>
           </div>
           <div class="cc">
@@ -2622,7 +2561,6 @@ function doGet_Vendas(e) {
       const S = (p, sz = 14) => `<svg xmlns="http://www.w3.org/2000/svg" width="${sz}" height="${sz}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:5px">${p}</svg>`;
       const clockP = '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>';
       const arrowP = '<line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>';
-      const checkP = '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>';
 
       // ── Médias por cidade ─────────────────────────────────────────
       const cityC = {};
@@ -2683,7 +2621,7 @@ function doGet_Vendas(e) {
       // ── Tabela individual paginada ────────────────────────────────
       const SC3 = { 'ENTREGA': '#3b82f6', 'ENTREGUE': '#10b981', 'RETIRADA': '#f97316', 'PENDENCIA': '#ef4444', 'AGENDADA': '#f59e0b', 'VAI HOJE': '#8b5cf6', 'VAI AMANHA': '#ec4899', 'CARREGADO': '#06b6d4', 'PROGRAMADO': '#8b5cf6' };
       const sortedRows = [...rows].sort((a, b) => {
-        const av = a.DATA || '', bv = b.DATA || '';
+        const av = normDate(a.DATA) || '', bv = normDate(b.DATA) || '';
         return av < bv ? 1 : av > bv ? -1 : 0;
       });
       const totPed = sortedRows.length, pgPed = Math.max(1, Math.ceil(totPed / PS));
@@ -2725,28 +2663,28 @@ function doGet_Vendas(e) {
           <div class="kg" style="grid-template-columns:repeat(4,1fr);gap:12px">
 
             <div class="cc" style="border-top:3px solid #3b82f6">
-              <div class="cc-t">${S(arrowP)} Entrada ${S(arrowP, 11, 3)} Faturamento</div>
+              <div class="cc-t">${S(arrowP)} Entrada ${S(arrowP, 11)} Faturamento</div>
               <div class="cc-s">Tempo de atendimento até faturar · ${comFat} pedidos com dados</div>
               <div style="font-size:28px;font-weight:800;color:#3b82f6;margin:8px 0">${fmtDur(avgEF) || '—'}</div>
               <div style="font-size:9px;color:var(--tx3)">média geral</div>
             </div>
 
             <div class="cc" style="border-top:3px solid #f59e0b">
-              <div class="cc-t">${S(arrowP)} Faturamento ${S(arrowP, 11, 3)} Saída</div>
+              <div class="cc-t">${S(arrowP)} Faturamento ${S(arrowP, 11)} Saída</div>
               <div class="cc-s">Tempo de expedição após faturar · ${comSai} pedidos com dados</div>
               <div style="font-size:28px;font-weight:800;color:#f59e0b;margin:8px 0">${fmtDur(avgFS) || '—'}</div>
               <div style="font-size:9px;color:var(--tx3)">média geral</div>
             </div>
 
             <div class="cc" style="border-top:3px solid #10b981">
-              <div class="cc-t">${S(arrowP)} Saída ${S(arrowP, 11, 3)} Entregue</div>
+              <div class="cc-t">${S(arrowP)} Saída ${S(arrowP, 11)} Entregue</div>
               <div class="cc-s">Tempo em trânsito · ${comEnt} pedidos com dados</div>
               <div style="font-size:28px;font-weight:800;color:#10b981;margin:8px 0">${fmtDur(avgSE) || '—'}</div>
               <div style="font-size:9px;color:var(--tx3)">média geral</div>
             </div>
 
             <div class="cc" style="border-top:3px solid #8b5cf6">
-              <div class="cc-t">${S(clockP)} Ciclo Total (Entrada ${S(arrowP, 10, 2)} Entregue)</div>
+              <div class="cc-t">${S(clockP)} Ciclo Total (Entrada ${S(arrowP, 10)} Entregue)</div>
               <div class="cc-s">Da entrada até a entrega · ${comTot} pedidos com dados</div>
               <div style="font-size:28px;font-weight:800;color:#8b5cf6;margin:8px 0">${fmtDur(avgTot) || '—'}</div>
               <div style="font-size:9px;color:var(--tx3)">média geral</div>
