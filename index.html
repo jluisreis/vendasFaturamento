@@ -1526,7 +1526,7 @@ function doGet_Vendas(e) {
       return selected;
     }
 
-    function applyFilters() {
+        function applyFilters() {
       if (!allRecs.length) return;
       const fF = document.getElementById('fFrom').value;
       const fT = document.getElementById('fTo').value;
@@ -1534,13 +1534,22 @@ function doGet_Vendas(e) {
       const selectedNiveis = getSelectedNiveis();
       const s = (document.getElementById('ts0') ? document.getElementById('ts0').value : '').toLowerCase();
 
-      filtered = allRecs.filter(r => {
-        const dataISO = normDate(r.DATA);
-        if (fF && dataISO && dataISO < fF) return false;
-        if (fT && dataISO && dataISO > fT) return false;
+      fRange = { de: fF, ate: fT };
+
+      const baseOk = r => {
         if (fV && r.VEND !== fV) return false;
         if (selectedNiveis.length > 0 && !selectedNiveis.includes(r.NIV)) return false;
-        if (activeSt && r.LOG !== activeSt) return false;
+        return true;
+      };
+      // Entra no período se o pedido foi FEITO no período OU ENTREGUE no período
+      const noPeriodo = r => pedidoNoPeriodo(r) || isEntNoPeriodo(r);
+
+      filtered = allRecs.filter(r => {
+        if (!baseOk(r) || !noPeriodo(r)) return false;
+        if (activeSt) {
+          if (activeSt === 'ENTREGUE') { if (!isEntNoPeriodo(r)) return false; }
+          else if (r.LOG !== activeSt) return false;
+        }
         if (s) {
           const h = [r.DATA, r.VEND, r.LOG, r.NIV, r.CID, r.PED].join(' ').toLowerCase();
           if (!h.includes(s)) return false;
@@ -1553,28 +1562,19 @@ function doGet_Vendas(e) {
         const refISO = normDate(r.FAT_DH.slice(0, 10));
         if (fF && refISO && refISO < fF) return false;
         if (fT && refISO && refISO > fT) return false;
-        if (fV && r.VEND !== fV) return false;
-        if (selectedNiveis.length > 0 && !selectedNiveis.includes(r.NIV)) return false;
-        return true;
+        return baseOk(r);
       });
 
-      filteredCity = allRecs.filter(r => {
-        const dataISO = normDate(r.DATA);
-        if (fF && dataISO && dataISO < fF) return false;
-        if (fT && dataISO && dataISO > fT) return false;
-        if (fV && r.VEND !== fV) return false;
-        if (selectedNiveis.length > 0 && !selectedNiveis.includes(r.NIV)) return false;
-        return true;
-      });
+      filteredCity = allRecs.filter(r => baseOk(r) && noPeriodo(r));
+      filteredCiclo = allRecs.filter(r => baseOk(r) && noPeriodo(r));
 
-      filteredCiclo = allRecs.filter(r => {
-        const dataISO = normDate(r.DATA);
-        if (fF && dataISO && dataISO < fF) return false;
-        if (fT && dataISO && dataISO > fT) return false;
-        if (fV && r.VEND !== fV) return false;
-        if (selectedNiveis.length > 0 && !selectedNiveis.includes(r.NIV)) return false;
-        return true;
-      });
+      document.getElementById('rcnt').textContent = filtered.length + ' registros';
+      pages[0] = 1; pages[1] = 1; pages[2] = 1; pages[3] = 1;
+      renderTab0(); renderTab1();
+      const activeTab = [...document.querySelectorAll('.tab')].findIndex(t => t.classList.contains('active'));
+      if (activeTab === 2) renderTab2();
+      if (activeTab === 3) renderTab3();
+    }
 
       document.getElementById('rcnt').textContent = filtered.length + ' registros';
       pages[0] = 1; pages[1] = 1; pages[2] = 1; pages[3] = 1;
@@ -1603,11 +1603,10 @@ function doGet_Vendas(e) {
     }
 
     // -- TAB 0 ----------------------------------------------------------
-    function renderTab0() {
-      const recs = filtered;
+          const recs = filtered;
       const kpis = {
         entrega: recs.filter(r => r.LOG === 'ENTREGA').length,
-        entregue: recs.filter(r => r.LOG === 'ENTREGUE').length,
+        entregue: recs.filter(r => isEntNoPeriodo(r)).length,
         retirada: recs.filter(r => r.LOG === 'RETIRADA').length,
         pendencia: recs.filter(r => r.LOG === 'PENDENCIA').length,
         agendada: recs.filter(r => r.LOG === 'AGENDADA').length,
@@ -1619,13 +1618,19 @@ function doGet_Vendas(e) {
       ['NORMAL', 'URGENTE', 'RETIRADA', 'CARRO HORARIO', 'PROGRAMADO'].forEach(n => nivel[n] = recs.filter(r => r.NIV === n).length);
       const mt = {}, me = {};
       recs.forEach(r => {
-        if (!r.DATA || r.DATA.length < 7) return;
-        const m = r.DATA.slice(0, 7);
-        mt[m] = (mt[m] || 0) + 1;
-        if (r.LOG === 'ENTREGUE') me[m] = (me[m] || 0) + 1;
+        // Total: mês em que o pedido foi feito
+        if (pedidoNoPeriodo(r)) {
+          const iso = normDate(r.DATA);
+          if (iso) { const m = iso.slice(0, 7); mt[m] = (mt[m] || 0) + 1; }
+        }
+        // Entregues: mês em que foi entregue
+        if (isEntNoPeriodo(r)) {
+          const iso = dataEntrega(r);
+          if (iso) { const m = iso.slice(0, 7); me[m] = (me[m] || 0) + 1; }
+        }
       });
       const ve = {};
-      recs.filter(r => r.LOG === 'ENTREGUE').forEach(r => { ve[r.VEND] = (ve[r.VEND] || 0) + 1; });
+      recs.filter(r => isEntNoPeriodo(r)).forEach(r => { ve[r.VEND] = (ve[r.VEND] || 0) + 1; });
 
       document.getElementById('tab0-content').innerHTML = `
         <div><div class="slbl">Status dos Pedidos</div><div class="kg" id="kpiRow"></div></div>
@@ -1784,14 +1789,34 @@ function doGet_Vendas(e) {
     }
 
     // -- TAB 1 -- FATURAMENTO -------------------------------------------
-    function normDate(s) {
+        function normDate(s) {
       if (!s) return null;
       s = String(s).trim();
-      const m = s.match(/^(\d{2})-(\d{2})-(\d{4})$/);
-      if (m) return m[3] + '-' + m[2] + '-' + m[1];
+      // aceita dd-MM-yyyy, dd/MM/yyyy e dd.MM.yyyy (com ou sem hora depois)
+      const m = s.match(/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{4})/);
+      if (m) return m[3] + '-' + m[2].padStart(2, '0') + '-' + m[1].padStart(2, '0');
       if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0, 10);
       return null;
     }
+
+    // ── Período do filtro + regras de data ───────────────────────────
+    let fRange = { de: '', ate: '' };
+
+    function inRange(iso) {
+      if (!iso) return true; // sem data → não exclui (mesmo comportamento anterior)
+      if (fRange.de && iso < fRange.de) return false;
+      if (fRange.ate && iso > fRange.ate) return false;
+      return true;
+    }
+
+    // Data em que o pedido foi entregue (ENTREGUE DATA; se vazia, usa DATA do pedido)
+    function dataEntrega(r) { return normDate(r.END) || normDate(r.DATA); }
+
+    // Pedido feito dentro do período
+    function pedidoNoPeriodo(r) { return inRange(normDate(r.DATA)); }
+
+    // Pedido ENTREGUE dentro do período — independente do dia em que foi feito
+    function isEntNoPeriodo(r) { return r.LOG === 'ENTREGUE' && inRange(dataEntrega(r)); }
 
     function parseTS(s) {
       if (!s) return null;
